@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<phpunit>
+  <testsuites>
+    <testsuite name="Symfony">
+      <file>../Components/Tests/AllTests.php</file>
+      <file>../Framework/Tests/AllTests.php</file>
+      <file>../Foundation/Tests/AllTests.php</file>
+    </testsuite>
+  </testsuites>
+</phpunit>
