@@ -3,15 +3,18 @@
 namespace Symfony\Components\Console\Tests;
 
 require_once 'PHPUnit/Framework.php';
-require_once __DIR__.'/SampleTest.php';
 
 class AllTests
 {
   public static function suite()
   {
-    $suite = new \PHPUnit_Framework_TestSuite('Console');
+    $suite = new \PHPUnit_Framework_TestSuite('Components');
 
-    $suite->addTestSuite('\Symfony\Components\Console\Tests\SampleTest');
+    $directoryIterator = new \RecursiveDirectoryIterator(__DIR__);
+    $recursiveIterator = new \RecursiveIteratorIterator($directoryIterator);
+    $filteredIterator = new \RegexIterator($recursiveIterator, '/Test\.php$/');
+
+    $suite->addTestFiles(iterator_to_array($filteredIterator));
 
     return $suite;
   }
