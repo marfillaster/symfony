@@ -2,7 +2,7 @@
 
 namespace Symfony\Components\Console\Tests;
 
-require_once 'PHPUnit/Framework.php';
+require_once __DIR__ . '/TestInit.php';
 
 class SampleTest extends \PHPUnit_Framework_TestCase
 {
