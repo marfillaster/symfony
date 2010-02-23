@@ -120,8 +120,18 @@ class Form extends FormFieldGroup
     return self::$defaultTranslator;
   }
 
-  // if people override this method and do some logic depending on the
-  // $taintedFiles array, their logic will break once the form is nested
+  /**
+   * Binds the form with values and files.
+   *
+   * This method is final because it is very easy to break a form when
+   * overriding this method and adding logic that depends on $taintedFiles.
+   * You should override doBind() instead where the uploaded files are
+   * already merged into the data array.
+   *
+   * @param  array $taintedValues  The form data of the $_POST array
+   * @param  array $taintedFiles   The form data of the $_FILES array
+   * @return boolean               Whether the form is valid
+   */
   final public function bind($taintedValues, array $taintedFiles = null)
   {
     if (!is_array($taintedValues))
@@ -139,10 +149,6 @@ class Form extends FormFieldGroup
       $taintedFiles = array();
     }
 
-    // TODO
-    // if this form is multipart and has no parent, throw an exception if
-    // $taintedFiles is not given
-
     // check that post_max_size has not been reached
 //    if (isset($_SERVER['CONTENT_LENGTH']) && (int) $_SERVER['CONTENT_LENGTH'] > $this->getBytes(ini_get('post_max_size')))
 //    {
@@ -151,12 +157,21 @@ class Form extends FormFieldGroup
 //      throw $errorSchema;
 //    }
 
-    return $this->doBind(self::deepArrayUnion($taintedValues, self::convertFileInformation($taintedFiles)));
+    return $this->doBind(self::deepArrayUnion(
+      $taintedValues,
+      self::convertFileInformation(self::fixPhpFilesArray($taintedFiles))
+    ));
   }
 
-  protected function doBind($taintedValues)
+  /**
+   * Binds the form with the given data.
+   *
+   * @param  array $taintedData  The data to bind to the form
+   * @return boolean             Whether the form is valid
+   */
+  protected function doBind(array $taintedData)
   {
-    return parent::bind($taintedValues);
+    return parent::bind($taintedData);
   }
 
   /**
@@ -420,78 +435,75 @@ class Form extends FormFieldGroup
   }
 
   /**
-   * Converts uploaded file array to a format following the $_GET and $POST naming convention.
+   * Fixes a malformed PHP $_FILES array.
    *
-   * It's safe to pass an already converted array, in which case this method just returns the original array unmodified.
+   * PHP has a bug that the format of the $_FILES array differs, depending on
+   * whether the uploaded file fields had normal field names or array-like
+   * field names ("normal" vs. "parent[child]").
    *
-   * @param  array $taintedFiles An array representing uploaded file information
+   * This method fixes the array to look like the "normal" $_FILES array.
    *
-   * @return array An array of re-ordered uploaded file information
+   * @param  array $data
+   * @return array
    */
-  static public function convertFileInformation(array $taintedFiles)
+  static protected function fixPhpFilesArray(array $data)
   {
-    $files = array();
-    foreach ($taintedFiles as $key => $data)
-    {
-      $files[$key] = self::convertPhpFilesArrayToUploadedFilesArray(self::fixPhpFilesArray($data));
-    }
-
-    return $files;
-  }
-
-  static protected function fixPhpFilesArray($data)
-  {
-    if ($data instanceof UploadedFile)
-    {
-      return $data;
-    }
     $fileKeys = array('error', 'name', 'size', 'tmp_name', 'type');
     $keys = array_keys($data);
     sort($keys);
 
-    if ($fileKeys != $keys || !isset($data['name']) || !is_array($data['name']))
-    {
-      return $data;
-    }
-
     $files = $data;
-    foreach ($fileKeys as $k)
+
+    if ($fileKeys == $keys && isset($data['name']) && is_array($data['name']))
     {
-      unset($files[$k]);
-    }
-    foreach (array_keys($data['name']) as $key)
-    {
-      $files[$key] = self::fixPhpFilesArray(array(
-        'error'    => $data['error'][$key],
-        'name'     => $data['name'][$key],
-        'type'     => $data['type'][$key],
-        'tmp_name' => $data['tmp_name'][$key],
-        'size'     => $data['size'][$key],
-      ));
+      foreach ($fileKeys as $k)
+      {
+        unset($files[$k]);
+      }
+
+      foreach (array_keys($data['name']) as $key)
+      {
+        $files[$key] = self::fixPhpFilesArray(array(
+          'error'    => $data['error'][$key],
+          'name'     => $data['name'][$key],
+          'type'     => $data['type'][$key],
+          'tmp_name' => $data['tmp_name'][$key],
+          'size'     => $data['size'][$key],
+        ));
+      }
     }
 
     return $files;
   }
-  
-  static protected function convertPhpFilesArrayToUploadedFilesArray($data)
+
+  /**
+   * Converts uploaded files to instances of clsas UploadedFile.
+   *
+   * @param  array $files A (multi-dimensional) array of uploaded file information
+   * @return array A (multi-dimensional) array of UploadedFile instances
+   */
+  static protected function convertFileInformation(array $files)
   {
-    if ($data instanceof UploadedFile)
+    $fileKeys = array('error', 'name', 'size', 'tmp_name', 'type');
+
+    foreach ($files as $key => $data)
     {
-      return $data;
+      if (is_array($data))
+      {
+        $keys = array_keys($data);
+        sort($keys);
+
+        if ($keys == $fileKeys)
+        {
+          $files[$key] = new UploadedFile($data['tmp_name'], $data['name'], $data['type'], $data['size'], $data['error']);
+        }
+        else
+        {
+          $files[$key] = self::convertFileInformation($data);
+        }
+      }
     }
-    $filesKey = array('error', 'name', 'size', 'tmp_name', 'type');
-    $keys = array_keys($data);
-    sort($keys);
-    
-    if ($filesKey == $keys)
-    {
-      return new UploadedFile($data['tmp_name'], $data['name'], $data['type'], $data['size'], $data['error']);
-    }
-    
-    foreach ($data as $key => $value)
-    {
-      $data[$key] = self::convertPhpFilesArrayToUploadedFilesArray($value);
-    }
-    return $data;
+
+    return $files;
   }
 }
