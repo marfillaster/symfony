@@ -14,22 +14,16 @@ use Symfony\Components\I18N\Localizable;
 use Symfony\Components\I18N\Translatable;
 use Symfony\Components\I18N\TranslatorInterface;
 
-if (!isset($_SERVER['SYMFONY']))
-{
-  throw new \RuntimeException(
-<<<EOF
-Please set the environment variable SYMFONY to point to the Symfony 2 src/ directory.
-On Unix, you can use the command
-  export SYMFONY=/path/to/symfony/src
-On Windows, you can use the command
-  set SYMFONY=\path\to\symfony\src
+error_reporting(E_ALL | E_STRICT);
 
-EOF
-  );
-}
+require_once 'PHPUnit/Framework.php';
+require_once __DIR__ . '/ClassLoader.php';
 
-require_once $_SERVER['SYMFONY'] . '/Symfony/Tests/TestInit.php';
-
+$classLoader = new ClassLoader(
+  'Symfony\Components',
+  __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..'
+);
+$classLoader->register();
 
 interface LocalizableRenderer extends RendererInterface, Localizable {}
 interface TranslatableRenderer extends RendererInterface, Translatable {}
@@ -39,4 +33,3 @@ interface LocalizableValueTransformer extends ValueTransformerInterface, Localiz
 interface TranslatableValueTransformer extends ValueTransformerInterface, Translatable {}
 interface LocalizableField extends FormFieldInterface, Localizable {}
 interface TranslatableField extends FormFieldInterface, Translatable {}
-
