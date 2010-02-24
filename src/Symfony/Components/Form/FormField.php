@@ -138,14 +138,14 @@ class FormField extends BaseFormField
 
     parent::bind($taintedData);
 
-    $this->taintedData = $taintedData;
+    $this->taintedData = (string)$taintedData;
 
     $this->injectLocaleAndTranslator($this->validator);
     $this->injectLocaleAndTranslator($this->valueTransformer);
 
     try
     {
-      $this->data = $this->processData($this->reverseTransform($taintedData));
+      $this->data = $this->processData($this->reverseTransform($this->taintedData));
 
       if ($this->isEmpty($this->data))
       {

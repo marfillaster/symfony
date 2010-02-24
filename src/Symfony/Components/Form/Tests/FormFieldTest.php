@@ -157,6 +157,17 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
     $this->assertTrue($field->isValid());
   }
 
+  public function testBoundValuesAreConvertedToStrings()
+  {
+    $transformer = $this->createMockTransformer();
+    $transformer->expects($this->once())
+                ->method('reverseTransform')
+                ->with($this->identicalTo('0'));
+
+    $this->field->setValueTransformer($transformer);
+    $this->field->bind(0);
+  }
+
   public function testProcessDataHooksBeforeValidator()
   {
     $field = $this->getMock(
@@ -286,9 +297,14 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
     return $validator;
   }
 
+  protected function createMockTransformer()
+  {
+    return $this->getMock('Symfony\Components\ValueTransformer\ValueTransformerInterface', array(), array(), '', false, false);
+  }
+
   protected function createMockTransformerTransformingTo($value)
   {
-    $transformer = $this->getMock('Symfony\Components\ValueTransformer\ValueTransformerInterface', array(), array(), '', false, false);
+    $transformer = $this->createMockTransformer();
     $transformer->expects($this->any())
                 ->method('reverseTransform')
                 ->will($this->returnValue($value));
