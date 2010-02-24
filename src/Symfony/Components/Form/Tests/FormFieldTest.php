@@ -30,9 +30,8 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
 
   protected function setUp()
   {
-    $this->field = new FormField('title');
+    $this->field = $this->createField('title');
     $this->field->setDefault('default');
-    $this->field->setValidator($this->createMockValidator());
     $this->field->setValueTransformer(new FormFieldTest_TestValueTransformer());
   }
 
@@ -96,6 +95,66 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
     $this->field->bind('valid');
 
     $this->assertEquals('transform[reverse[valid]]', $this->field->getDisplayedData());
+  }
+
+  public function testRequiredFieldMayNotBeNull()
+  {
+    $field = $this->createField('title');
+    $field->setValueTransformer($this->createMockTransformerTransformingTo(null));
+    $field->setRequired(true);
+    $field->bind(null);
+
+    $this->assertFalse($field->isValid());
+  }
+
+  public function testNonRequiredFieldMayBeNull()
+  {
+    $field = $this->createField('title');
+    $field->setValueTransformer($this->createMockTransformerTransformingTo(null));
+    $field->setRequired(false);
+    $field->bind(null);
+
+    $this->assertTrue($field->isValid());
+  }
+
+  public function testRequiredFieldMayNotBeBlank()
+  {
+    $field = $this->createField('title');
+    $field->setValueTransformer($this->createMockTransformerTransformingTo(''));
+    $field->setRequired(true);
+    $field->bind(null);
+
+    $this->assertFalse($field->isValid());
+  }
+
+  public function testNonRequiredFieldMayBeBlank()
+  {
+    $field = $this->createField('title');
+    $field->setValueTransformer($this->createMockTransformerTransformingTo(''));
+    $field->setRequired(false);
+    $field->bind(null);
+
+    $this->assertTrue($field->isValid());
+  }
+
+  public function testRequiredFieldMayNotBeFalse()
+  {
+    $field = $this->createField('title');
+    $field->setValueTransformer($this->createMockTransformerTransformingTo(false));
+    $field->setRequired(true);
+    $field->bind(null);
+
+    $this->assertFalse($field->isValid());
+  }
+
+  public function testNonRequiredFieldMayBeFalse()
+  {
+    $field = $this->createField('title');
+    $field->setValueTransformer($this->createMockTransformerTransformingTo(false));
+    $field->setRequired(false);
+    $field->bind(null);
+
+    $this->assertTrue($field->isValid());
   }
 
   public function testProcessDataHooksBeforeValidator()
@@ -204,6 +263,14 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
     $this->field->bind('symfony');
   }
 
+  protected function createField($key)
+  {
+    $field = new FormField($key);
+    $field->setValidator($this->createMockValidator());
+
+    return $field;
+  }
+
   protected function createMockValidator()
   {
     return $this->getMock('Symfony\Components\Validator\ValidatorInterface');
@@ -217,5 +284,15 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
                     ->will($this->throwException(new ValidatorError('message')));
 
     return $validator;
+  }
+
+  protected function createMockTransformerTransformingTo($value)
+  {
+    $transformer = $this->getMock('Symfony\Components\ValueTransformer\ValueTransformerInterface', array(), array(), '', false, false);
+    $transformer->expects($this->any())
+                ->method('reverseTransform')
+                ->will($this->returnValue($value));
+
+    return $transformer;
   }
 }

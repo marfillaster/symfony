@@ -107,7 +107,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
    */
   public function isRequired()
   {
-    if (!is_null($this->parent) && $this->parent->isRequired())
+    if (is_null($this->parent) || $this->parent->isRequired())
     {
       return $this->required;
     }

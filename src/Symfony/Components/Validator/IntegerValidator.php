@@ -59,12 +59,6 @@ class IntegerValidator extends BaseValidator
    */
   protected function doValidate($value)
   {
-    // accept null if not required
-    if($value==null && $this->hasOption('required') && $this->getOption('required')==false)
-    {
-      return;
-    }
-
     $int = intval($value);
 
     if (strval($int) != $value)

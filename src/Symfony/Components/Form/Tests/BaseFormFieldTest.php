@@ -133,6 +133,15 @@ class BaseFormFieldTest extends \PHPUnit_Framework_TestCase
     $this->field->render();
   }
 
+  public function testIsRequiredReturnsOwnValueIfNoParent()
+  {
+    $this->field->setRequired(true);
+    $this->assertTrue($this->field->isRequired());
+
+    $this->field->setRequired(false);
+    $this->assertFalse($this->field->isRequired());
+  }
+
   public function testIsRequiredReturnsOwnValueIfParentIsRequired()
   {
     $group = $this->createMockGroup();

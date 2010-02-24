@@ -19,13 +19,4 @@ interface ValidatorInterface
    * @throws ValidatorError when the validation fails
    */
   public function validate($value);
-
-  /**
-   * Temporary - until the option "required" is separated
-   *
-   * @param unknown_type $name
-   * @param unknown_type $value
-   * @return unknown_type
-   */
-  public function setOption($name, $value);
 }

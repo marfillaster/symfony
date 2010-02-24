@@ -25,7 +25,7 @@ abstract class BaseValidator implements ValidatorInterface
 {
   protected static
     $charset = 'UTF-8',
-    $globalDefaultMessages = array('invalid' => 'The field is invalid.', 'required' => 'The field is required.');
+    $globalDefaultMessages = array('invalid' => 'The field is invalid.');
 
   protected
     $requiredOptions = array(),
@@ -39,13 +39,10 @@ abstract class BaseValidator implements ValidatorInterface
    *
    * Available options:
    *
-   *  * required:    true if the value is required, false otherwise (default to true)
    *  * trim:        true if the value must be trimmed, false otherwise (default to false)
-   *  * empty_value: empty value when value is not required
    *
    * Available error codes:
    *
-   *  * required
    *  * invalid
    *
    * @param array $options   An array of options
@@ -53,8 +50,8 @@ abstract class BaseValidator implements ValidatorInterface
    */
   public function __construct($options = array(), $messages = array())
   {
-    $this->options  = array_merge(array('required' => true, 'trim' => false, 'empty_value' => null), $this->options);
-    $this->messages = array_merge(array('required' => self::$globalDefaultMessages['required'], 'invalid' => self::$globalDefaultMessages['invalid']), $this->messages);
+    $this->options  = array_merge(array('trim' => false), $this->options);
+    $this->messages = array_merge(array('invalid' => self::$globalDefaultMessages['invalid']), $this->messages);
 
     $this->configure($options, $messages);
 
@@ -107,14 +104,7 @@ abstract class BaseValidator implements ValidatorInterface
 
   public function validate($value)
   {
-    if ($this->getOption('required') && $this->isEmpty($value))
-    {
-      throw new ValidatorError($this->getMessage('required'));
-    }
-    $this->doValidate($value);
   }
-  
-  abstract protected function doValidate($value);
 
   /**
    * Returns an error message given an error code.
@@ -328,18 +318,6 @@ abstract class BaseValidator implements ValidatorInterface
   static public function getCharset()
   {
     return self::$charset;
-  }
-
-  /**
-   * Returns true if the value is empty.
-   *
-   * @param  mixed $value  The input value
-   *
-   * @return bool true if the value is empty, false otherwise
-   */
-  protected function isEmpty($value)
-  {
-    return in_array($value, array(null, '', array()), true);
   }
 
   /**

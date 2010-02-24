@@ -7,7 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
- 
+
 namespace Symfony\Components\Validator;
 
 use Symfony\Components\Form\UploadedFile;
@@ -71,7 +71,7 @@ class FileValidator extends BaseValidator
     $this->addMessage('cant_write', 'Failed to write file to disk.');
     $this->addMessage('extension', 'File upload stopped by extension.');
   }
-  
+
   public function validate($value)
   {
     $this->doValidate($value);
@@ -99,12 +99,7 @@ class FileValidator extends BaseValidator
     {
       throw new \InvalidArgumentException('Value must be an instance of UploadedFile.');
     }
-    
-    if ($this->isEmpty($value))
-    {
-      throw new ValidatorError($this->getMessage('required'));
-    }
-    
+
     $path = $value->getPath();
 
     if (is_null($value->getOriginalName()))
@@ -178,16 +173,6 @@ class FileValidator extends BaseValidator
         throw new ValidatorError($this->getMessage('mime_types', array('mime_types' => implode(', ', $this->getOption('mime_types')), 'mime_type' => $mimeType)));
       }
     }
-    
-  }
 
-
-  /**
-   * @see BaseValidator
-   */
-  protected function isEmpty($value)
-  {
-    // if the value comes from PHP with an error of UPLOAD_ERR_NO_FILE
-    return UPLOAD_ERR_NO_FILE === $value->getError();
   }
 }

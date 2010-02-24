@@ -111,6 +111,19 @@ class FormField extends BaseFormField
   }
 
   /**
+   * Judges whether the given value is considered empty by the field.
+   *
+   * If the field is empty, it validates only if it is not required.
+   *
+   * @param  mixed $value  The reverse transformed value entered by the user
+   * @return boolean       Whether the value is considered empty
+   */
+  protected function isEmpty($value)
+  {
+    return $value === null || $value === '' || $value === false;
+  }
+
+  /**
    * Binds POST data to the field, transforms and validates it.
    *
    * @param  string|array $taintedData  The POST data
@@ -126,16 +139,25 @@ class FormField extends BaseFormField
     parent::bind($taintedData);
 
     $this->taintedData = $taintedData;
-    $this->validator->setOption('required', $this->isRequired()); // TESTME
 
     $this->injectLocaleAndTranslator($this->validator);
     $this->injectLocaleAndTranslator($this->valueTransformer);
 
     try
     {
-      $this->data = $this->reverseTransform($taintedData);
-      $this->data = $this->processData($this->data);
-      $this->validate($this->data);
+      $this->data = $this->processData($this->reverseTransform($taintedData));
+
+      if ($this->isEmpty($this->data))
+      {
+        if ($this->isRequired())
+        {
+          throw new ValidatorError('required');
+        }
+      }
+      else
+      {
+        $this->validate($this->data);
+      }
 
       return true;
     }
