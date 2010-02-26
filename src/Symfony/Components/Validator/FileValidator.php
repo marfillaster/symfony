@@ -10,7 +10,8 @@
 
 namespace Symfony\Components\Validator;
 
-use Symfony\Components\Form\UploadedFile;
+use Symfony\Components\File\File;
+use Symfony\Components\File\UploadedFile;
 
 /**
  * FileValidator validates an uploaded file.
@@ -56,11 +57,6 @@ class FileValidator extends BaseValidator
    */
   protected function configure($options = array(), $messages = array())
   {
-    if (!ini_get('file_uploads'))
-    {
-      throw new \LogicException(sprintf('Unable to use a file validator as "file_uploads" is disabled in your php.ini file (%s)', get_cfg_var('cfg_file_path')));
-    }
-
     $this->addOption('max_size');
     $this->addOption('mime_types');
 
@@ -70,11 +66,6 @@ class FileValidator extends BaseValidator
     $this->addMessage('no_tmp_dir', 'Missing a temporary folder.');
     $this->addMessage('cant_write', 'Failed to write file to disk.');
     $this->addMessage('extension', 'File upload stopped by extension.');
-  }
-
-  public function validate($value)
-  {
-    $this->doValidate($value);
   }
 
   /**
@@ -93,76 +84,44 @@ class FileValidator extends BaseValidator
    *                                  expected type
    * @throws ValidatorError when the validation fails
    */
-  protected function doValidate($value)
+  public function validate($file)
   {
-    if (!($value instanceof UploadedFile))
+    if (!($file instanceof File))
     {
-      throw new \InvalidArgumentException('Value must be an instance of UploadedFile.');
+      throw new \InvalidArgumentException('Value must be an instance of File');
     }
 
-    $path = $value->getPath();
+    $size = $file->size();
+    $mimeType = $file->getMimeType();
 
-    if (is_null($value->getOriginalName()))
+    if ($file instanceof UploadedFile)
     {
-      $name = '';
-    }
-    else
-    {
-      $name = $value->getOriginalName();
-    }
-
-    if (is_null($value->getError()))
-    {
-      $error = UPLOAD_ERR_OK;
-    }
-    else
-    {
-      $error = $value->getError();
-    }
-
-    if (is_null($value->size()))
-    {
-      $size = filesize($value->getPath());
-    }
-    else
-    {
-      $size = $value->size();
-    }
-
-    if (is_null($value->getMimeType()))
-    {
-      $mimeType = 'application/octet-stream';
-    }
-    else
-    {
-      $mimeType = $value->getMimeType();
-    }
-
-    switch ($value->getError())
-    {
-      case UPLOAD_ERR_INI_SIZE:
-        $max = ini_get('upload_max_filesize');
-        if ($this->getOption('max_size'))
-        {
-          $max = min($max, $this->getOption('max_size'));
-        }
-        throw new ValidatorError($this->getMessage('max_size', array('max_size' => $max, 'size' => (int) $size)));
-      case UPLOAD_ERR_FORM_SIZE:
-        throw new ValidatorError($this->getMessage('max_size', array('max_size' => 0, 'size' => (int) $size)));
-      case UPLOAD_ERR_PARTIAL:
-        throw new ValidatorError($this->getMessage('partial'));
-      case UPLOAD_ERR_NO_TMP_DIR:
-        throw new ValidatorError($this->getMessage('no_tmp_dir'));
-      case UPLOAD_ERR_CANT_WRITE:
-        throw new ValidatorError($this->getMessage('cant_write'));
-      case UPLOAD_ERR_EXTENSION:
-        throw new ValidatorError($this->getMessage('extension'));
+      switch ($file->getError())
+      {
+        case UPLOAD_ERR_INI_SIZE:
+          $max = ini_get('upload_max_filesize');
+          if ($this->getOption('max_size'))
+          {
+            $max = min($max, $this->getOption('max_size'));
+          }
+          throw new ValidatorError($this->getMessage('max_size', array('max_size' => $max, 'size' => $size)));
+        case UPLOAD_ERR_FORM_SIZE:
+          throw new ValidatorError($this->getMessage('max_size', array('max_size' => 0, 'size' => $size)));
+        case UPLOAD_ERR_PARTIAL:
+          throw new ValidatorError($this->getMessage('partial'));
+        case UPLOAD_ERR_NO_TMP_DIR:
+          throw new ValidatorError($this->getMessage('no_tmp_dir'));
+        case UPLOAD_ERR_CANT_WRITE:
+          throw new ValidatorError($this->getMessage('cant_write'));
+        case UPLOAD_ERR_EXTENSION:
+          throw new ValidatorError($this->getMessage('extension'));
+      }
     }
 
     // check file size
-    if ($this->hasOption('max_size') && $this->getOption('max_size') < (int) $size)
+    if ($this->hasOption('max_size') && $this->getOption('max_size') < $size)
     {
-      throw new ValidatorError($this->getMessage('max_size', array('max_size' => $this->getOption('max_size'), 'size' => (int) $size)));
+      throw new ValidatorError($this->getMessage('max_size', array('max_size' => $this->getOption('max_size'), 'size' => $size)));
     }
 
     // check mime type

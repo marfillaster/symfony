@@ -13,6 +13,8 @@ use Symfony\Components\Validator\AndValidator;
 
 use Symfony\Components\I18N\TranslatorInterface;
 
+use Symfony\Components\File\UploadedFile;
+
 
 /*
  * This file is part of the symfony package.

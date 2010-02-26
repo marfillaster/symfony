@@ -6,7 +6,7 @@ require_once __DIR__ . '/TestInit.php';
 
 use Symfony\Components\Form\Form;
 use Symfony\Components\Form\FormField;
-use Symfony\Components\Form\UploadedFile;
+use Symfony\Components\File\UploadedFile;
 
 
 class FormTest_PreconfiguredForm extends Form
@@ -78,7 +78,8 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testBindConvertsUploadedFiles()
   {
-    $file = new UploadedFile('/tmp/test.txt', 'test.txt', 'text/plain', 100, 0);
+    $tmpFile = $this->createTempFile();
+    $file = new UploadedFile($tmpFile, basename($tmpFile), 'text/plain', 100, 0);
 
     $field = $this->createMockField('file');
     $field->expects($this->once())
@@ -90,9 +91,9 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
     // test
     $form->bind(array(), array('file' => array(
-      'name' => 'test.txt',
+      'name' => basename($tmpFile),
       'type' => 'text/plain',
-      'tmp_name' => '/tmp/test.txt',
+      'tmp_name' => $tmpFile,
       'error' => 0,
       'size' => 100
     )));
@@ -100,7 +101,8 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testBindConvertsUploadedFilesWithPhpBug()
   {
-    $file = new UploadedFile('/tmp/test.txt', 'test.txt', 'text/plain', 100, 0);
+    $tmpFile = $this->createTempFile();
+    $file = new UploadedFile($tmpFile, basename($tmpFile), 'text/plain', 100, 0);
 
     $field = $this->createMockField('file');
     $field->expects($this->once())
@@ -113,13 +115,13 @@ class FormTest extends \PHPUnit_Framework_TestCase
     // test
     $form->bind(array(), array(
       'name' => array(
-        'file' => 'test.txt',
+        'file' => basename($tmpFile),
       ),
       'type' => array(
         'file' => 'text/plain',
       ),
       'tmp_name' => array(
-        'file' => '/tmp/test.txt',
+        'file' => $tmpFile,
       ),
       'error' => array(
         'file' => 0,
@@ -132,7 +134,8 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testBindConvertsNestedUploadedFilesWithPhpBug()
   {
-    $file = new UploadedFile('/tmp/test.txt', 'test.txt', 'text/plain', 100, 0);
+    $tmpFile = $this->createTempFile();
+    $file = new UploadedFile($tmpFile, basename($tmpFile), 'text/plain', 100, 0);
 
     $field = $this->createMockField('article');
     $field->expects($this->once())
@@ -145,13 +148,13 @@ class FormTest extends \PHPUnit_Framework_TestCase
     // test
     $form->bind(array(), array(
       'name' => array(
-        'article' => array('file' => 'test.txt'),
+        'article' => array('file' => basename($tmpFile)),
       ),
       'type' => array(
         'article' => array('file' => 'text/plain'),
       ),
       'tmp_name' => array(
-        'article' => array('file' => '/tmp/test.txt'),
+        'article' => array('file' => $tmpFile),
       ),
       'error' => array(
         'article' => array('file' => 0),
@@ -210,5 +213,10 @@ class FormTest extends \PHPUnit_Framework_TestCase
           ->will($this->returnValue(true));
 
     return $field;
+  }
+
+  protected function createTempFile()
+  {
+    return tempnam(sys_get_temp_dir(), 'FormTest');
   }
 }
