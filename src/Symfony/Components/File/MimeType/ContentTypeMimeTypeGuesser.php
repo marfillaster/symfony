@@ -16,7 +16,7 @@ use Symfony\Components\File\Exception\AccessDeniedException;
 /**
  * Guesses the mime type using the PHP function mime_content_type().
  *
- * @author Bernhard Schussek <bschussek@gmail.com>
+ * @author Bernhard Schussek <bernhard.schussek@symfony-project.com>
  */
 class ContentTypeMimeTypeGuesser implements MimeTypeGuesserInterface
 {

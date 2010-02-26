@@ -13,7 +13,7 @@ namespace Symfony\Components\File\Exception;
 /**
  * Thrown when a file was not found
  *
- * @author Bernhard Schussek <bschussek@gmail.com>
+ * @author Bernhard Schussek <bernhard.schussek@symfony-project.com>
  */
 class FileNotFoundException extends FileException
 {

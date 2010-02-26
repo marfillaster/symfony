@@ -27,7 +27,7 @@ use Symfony\Components\File\Exception\AccessDeniedException;
  *
  * The last registered guesser is preferred over previously registered ones.
  *
- * @author Bernhard Schussek <bschussek@gmail.com>
+ * @author Bernhard Schussek <bernhard.schussek@symfony-project.com>
  */
 class MimeTypeGuesser implements MimeTypeGuesserInterface
 {
