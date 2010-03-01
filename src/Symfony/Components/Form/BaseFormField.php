@@ -17,7 +17,7 @@ use Symfony\Components\I18N\TranslatorInterface;
 abstract class BaseFormField implements FormFieldInterface, Localizable, Translatable
 {
   protected
-    $errorSchema        = null,
+    $errors             = array(),
     $options            = array(),
     $locale             = null,
     $translator         = null;
@@ -36,7 +36,6 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
     $this->options = $options;
     $this->key = (string)$key;
     $this->locale = \Locale::getDefault();
-    $this->errorSchema = new ValidatorErrorSchema();
 
     $this->configure($options);
   }
@@ -166,7 +165,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
    */
   public function isValid()
   {
-    return $this->isBound() ? count($this->errorSchema)==0 : false; // TESTME
+    return $this->isBound() ? count($this->errors)==0 : false; // TESTME
   }
 
   /**
@@ -254,7 +253,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
    */
   public function getErrors()
   {
-    return $this->errorSchema;
+    return $this->errors;
   }
 
   /**

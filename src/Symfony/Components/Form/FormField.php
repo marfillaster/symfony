@@ -8,11 +8,6 @@ use Symfony\Components\Form\Exception\InvalidConfigurationException;
 
 use Symfony\Components\Form\Renderer\RendererInterface;
 
-use Symfony\Components\Validator\ValidatorInterface;
-use Symfony\Components\Validator\ValidatorError;
-use Symfony\Components\Validator\ValidatorErrorSchema;
-use Symfony\Components\Validator\PassValidator;
-
 use Symfony\Components\ValueTransformer\ValueTransformerInterface;
 
 use Symfony\Components\I18N\Localizable;
@@ -38,7 +33,6 @@ use Symfony\Components\I18N\TranslatorInterface;
 class FormField extends BaseFormField
 {
   private
-    $validator          = null,
     $valueTransformer   = null,
     $default            = null,
     $data               = null;
@@ -77,13 +71,9 @@ class FormField extends BaseFormField
     {
       return $this->default;
     }
-    else if ($this->isValid())
-    {
-      return $this->data;
-    }
     else
     {
-      return null;
+      return $this->data;
     }
   }
 
@@ -131,45 +121,21 @@ class FormField extends BaseFormField
    */
   public function bind($taintedData)
   {
-    if (is_null($this->validator))
-    {
-      throw new InvalidConfigurationException('You must set a validator before binding');
-    }
-
     parent::bind($taintedData);
 
     $this->taintedData = (string)$taintedData;
 
-    $this->injectLocaleAndTranslator($this->validator);
     $this->injectLocaleAndTranslator($this->valueTransformer);
 
     try
     {
       $this->data = $this->processData($this->reverseTransform($this->taintedData));
-
-      if ($this->isEmpty($this->data))
-      {
-        if ($this->isRequired())
-        {
-          throw new ValidatorError('required');
-        }
-      }
-      else
-      {
-        $this->validate($this->data);
-      }
-
-      return true;
     }
     catch (ValueTransformerException $e)
     {
       // TODO better text
       // TESTME
-      $this->errorSchema->addError(new ValidatorError('invalid'));
-    }
-    catch (ValidatorError $e)
-    {
-      $this->errorSchema->addError($e);
+      $this->errors[] = 'invalid (localized)';
     }
 
     return false;
@@ -188,19 +154,6 @@ class FormField extends BaseFormField
   protected function processData($data)
   {
     return $data;
-  }
-
-  /**
-   * Validates the given data.
-   *
-   * The validate() method of the validator is called by default. Can be
-   * overridden for custom validation.
-   *
-   * @param mixed $data
-   */
-  protected function validate($data)
-  {
-    $this->validator->validate($this->data);
   }
 
   /**
@@ -257,26 +210,6 @@ class FormField extends BaseFormField
   public function isHidden()
   {
 //    return $this->renderer->isHidden();
-  }
-
-  /**
-   * Sets the validator.
-   *
-   * @param ValidatorInterface $validator
-   */
-  public function setValidator(ValidatorInterface $validator)
-  {
-    $this->validator = $validator;
-  }
-
-  /**
-   * Returns the validator.
-   *
-   * @return ValidatorInterface
-   */
-  public function getValidator()
-  {
-    return $this->validator;
   }
 
   /**

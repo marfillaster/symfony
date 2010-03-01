@@ -10,13 +10,9 @@ namespace Symfony\Components\Validator;
  */
 interface ValidatorInterface
 {
-  /**
-   * Validates the value.
-   *
-   * @param  mixed $value   The value that should be validated
-   * @throws InvalidArgumentException when the argument is not of the
-   *                                  expected type
-   * @throws ValidatorError when the validation fails
-   */
-  public function validate($value);
+  public function validate($object, $groups = 'default');
+
+  public function validateProperty($object, $property, $groups = 'default');
+
+  public function validateValue($class, $property, $value, $groups = 'default');
 }

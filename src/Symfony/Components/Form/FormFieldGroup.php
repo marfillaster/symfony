@@ -8,10 +8,6 @@ use Symfony\Components\Form\Renderer\RendererInterface;
 use Symfony\Components\Form\Renderer\Html\GroupRenderer;
 
 use Symfony\Components\Validator\ValidatorInterface;
-use Symfony\Components\Validator\AndValidator;
-use Symfony\Components\Validator\ValidatorError;
-use Symfony\Components\Validator\ValidatorErrorSchema;
-use Symfony\Components\Validator\PassValidator;
 
 use Symfony\Components\I18N\Localizable;
 use Symfony\Components\I18N\Translatable;
@@ -35,10 +31,7 @@ use Symfony\Components\I18N\TranslatorInterface;
  */
 class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-  protected
-    $fields         = array(),
-    $preValidator   = null,
-    $postValidator  = null;
+  public $fields         = array();
 
   public function __construct($key, array $options = array())
   {
@@ -135,56 +128,6 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
     {
       $this->add($field);
     }
-
-    if (!is_null($group->preValidator))
-    {
-      $this->mergePreValidator($group->preValidator);
-    }
-
-    if (!is_null($group->postValidator))
-    {
-      $this->mergePostValidator($group->postValidator);
-    }
-  }
-
-  /**
-   * Merges a validator with the current pre validators.
-   *
-   * @param ValidatorInterface $validator A validator to be merged
-   */
-  private function mergePreValidator(ValidatorInterface $validator)
-  {
-    if (is_null($this->preValidator))
-    {
-      $this->preValidator = $validator;
-    }
-    else
-    {
-      $this->preValidator = new AndValidator(array(
-        $this->preValidator,
-        $validator,
-      ));
-    }
-  }
-
-  /**
-   * Merges a validator with the current post validators.
-   *
-   * @param ValidatorInterface $validator A validator to be merged
-   */
-  private function mergePostValidator(ValidatorInterface $validator)
-  {
-    if (is_null($this->postValidator))
-    {
-      $this->postValidator = $validator;
-    }
-    else
-    {
-      $this->postValidator = new AndValidator(array(
-        $this->postValidator,
-        $validator,
-      ));
-    }
   }
 
   /**
@@ -214,12 +157,9 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
   {
     $values = array();
 
-    if ($this->isBound() && $this->isValid())
+    foreach ($this->fields as $key => $field)
     {
-      foreach ($this->fields as $key => $field)
-      {
-        $values[$key] = $field->getData();
-      }
+      $values[$key] = $field->getData();
     }
 
     return $values;
@@ -260,9 +200,9 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
       throw new \InvalidArgumentException('You must pass an array parameter to the bind() method of the FormFieldGroup');
     }
 
-    parent::bind($taintedData);
+    $this->errors = array();
 
-    $this->errorSchema = new ValidatorErrorSchema();
+    parent::bind($taintedData);
 
     foreach ($this->fields as $key => $field)
     {
@@ -272,68 +212,19 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
       }
     }
 
-    $this->preValidate($taintedData);
-
-    $fieldsValid = true;
     foreach ($taintedData as $key => $value)
     {
-      if (!$this->has($key))
+      if ($this->has($key))
       {
-        $this->errorSchema->addError(new ValidatorError('extra_fields', $key));
-
-        continue;
+        $this->fields[$key]->bind($value);
       }
-
-      $fieldsValid = $this->fields[$key]->bind($value) && $fieldsValid;
-    }
-
-    $this->postValidate($this->getData());
-
-    return $fieldsValid && count($this->errorSchema) == 0;
-  }
-
-  protected function preValidate($data)
-  {
-    if (!is_null($this->preValidator))
-    {
-      $this->injectLocaleAndTranslator($this->preValidator);
-
-      try
+      else
       {
-        $this->preValidator->validate($data);
-      }
-      catch (ValidatorErrorSchema $e)
-      {
-        $this->errorSchema->addErrors($e);
-      }
-      catch (ValidatorError $e)
-      {
-        $this->errorSchema->addError($e);
+        // TODO: can probably be moved to the new validation engine too
+        $this->errors[] = 'extra field ' . $key;
       }
     }
   }
-
-  protected function postValidate($data)
-  {
-    if (!is_null($this->postValidator))
-    {
-      $this->injectLocaleAndTranslator($this->postValidator);
-
-      try
-      {
-        $this->postValidator->validate($data);
-      }
-      catch (ValidatorErrorSchema $e)
-      {
-        $this->errorSchema->addErrors($e);
-      }
-      catch (ValidatorError $e)
-      {
-        $this->errorSchema->addError($e);
-      }
-    }
-  }
-
 
   /**
    * Returns whether the field is valid.
@@ -374,28 +265,6 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
     }
 
     return false;
-  }
-
-  public function setPreValidator(ValidatorInterface $validator)
-  {
-    $this->preValidator = $validator;
-  }
-
-  public function getPreValidator()
-  {
-    // TESTME
-    return $this->preValidator;
-  }
-
-  public function setPostValidator(ValidatorInterface $validator)
-  {
-    $this->postValidator = $validator;
-  }
-
-  public function getPostValidator()
-  {
-    // TESTME
-    return $this->postValidator;
   }
 
   public function getDefault()
