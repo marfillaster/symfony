@@ -35,14 +35,14 @@ class Validator implements ValidatorInterface
     return $this->doValidateValue($class, $property, $value, $groups, $class);
   }
 
-  protected function doValidateObject($class, $object, $groups, $root, $propertyPath = '')
+  protected function doValidateObject($class, $object, $groups, $root, $propertyPath = '', $classMessage = '')
   {
     $violations = new ConstraintViolationList();
 
     if (!$object instanceof $class)
     {
       $violations->add(new ConstraintViolation(
-        'invalid class', // TODO: improve
+        str_replace('%class%', $class, $classMessage),
         $root,
         $propertyPath,
         $object
@@ -91,21 +91,36 @@ class Validator implements ValidatorInterface
         ->inGroups($groups)
         ->getConstraints();
 
-
     foreach ($constraints as $constraint)
     {
       if ($constraint->getName() == 'Valid')
       {
+        $classMessage = $constraint->getOption('classMessage', 'Must be instance of %class%');
+
         if (is_array($value) || $value instanceof Traversable)
         {
           foreach ($value as $key => $object)
           {
-            $violations->addAll($this->doValidateObject($constraint->getOption('class', get_class($object)), $object, $groups, $root, $propertyPath.'['.$key.']'));
+            $violations->addAll($this->doValidateObject(
+              $constraint->getOption('class', get_class($object)),
+              $object,
+              $groups,
+              $root,
+              $propertyPath.'['.$key.']',
+              $classMessage
+            ));
           }
         }
         else
         {
-          $violations->addAll($this->doValidateObject($constraint->getOption('class', get_class($value)), $value, $groups, $root, $propertyPath));
+          $violations->addAll($this->doValidateObject(
+            $constraint->getOption('class', get_class($value)),
+            $value,
+            $groups,
+            $root,
+            $propertyPath,
+            $classMessage
+          ));
         }
       }
       else
