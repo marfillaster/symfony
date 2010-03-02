@@ -26,6 +26,11 @@ class ConstraintSpecification
     return $this->name;
   }
 
+  public function getOption($name, $default = null)
+  {
+    return array_key_exists($name, $this->options) ? $this->options[$name] : $default;
+  }
+
   public function getOptions()
   {
     return $this->options;
