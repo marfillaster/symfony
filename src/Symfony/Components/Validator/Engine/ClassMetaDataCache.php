@@ -6,12 +6,12 @@ use Symfony\Components\Validator\SpecificationInterface;
 
 class ClassMetaDataCache
 {
-  protected $metaData;
+  protected $specification;
   protected $classMetaDatas = array();
 
-  public function __construct(SpecificationInterface $metaData)
+  public function __construct(SpecificationInterface $specification)
   {
-    $this->metaData = $metaData;
+    $this->specification = $specification;
   }
 
   public function getClassMetaData($className)
@@ -30,7 +30,7 @@ class ClassMetaDataCache
 
     if (!isset($this->classMetaDatas[$className]))
     {
-      $specification = $this->metaData->getClassSpecification($className);
+      $specification = $this->specification->getClassSpecification($className);
 
       if ($parentClass = $class->getParentClass())
       {
