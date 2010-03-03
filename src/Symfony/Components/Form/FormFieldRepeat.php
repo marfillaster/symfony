@@ -2,6 +2,8 @@
 
 namespace Symfony\Components\Form;
 
+use Symfony\Components\Form\Exception\UnexpectedTypeException;
+
 /*
  * This file is part of the symfony package.
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
@@ -72,19 +74,19 @@ class FormFieldRepeat extends FormFieldGroup
     return $field;
   }
 
-  public function setDefault($data)
+  public function initialize($collection)
   {
-    if (!is_array($data))
+    if (!is_array($collection) && !$collection instanceof Traversable)
     {
-      throw new \InvalidArgumentException('The default data must be an array');
+      throw new UnexpectedTypeException('The default data must be an array');
     }
 
-    foreach ($data as $name => $value)
+    parent::initialize($collection);
+
+    foreach ($collection as $name => $value)
     {
       $this->add($this->createField($name));
     }
-
-    parent::setDefault($data);
   }
 
   public function bind($taintedData)
@@ -93,7 +95,7 @@ class FormFieldRepeat extends FormFieldGroup
     {
       $taintedData = array();
     }
-    
+
     foreach ($this as $name => $field)
     {
       if (!isset($taintedData[$name]) && $this->getOption('modifiable') && $name != '$$key$$')
@@ -109,7 +111,7 @@ class FormFieldRepeat extends FormFieldGroup
         $this->add($this->createField($name));
       }
     }
-    
+
     return parent::bind($taintedData);
   }
 }

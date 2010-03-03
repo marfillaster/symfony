@@ -33,9 +33,7 @@ use Symfony\Components\I18N\TranslatorInterface;
 class FormField extends BaseFormField
 {
   private
-    $valueTransformer   = null,
-    $default            = null,
-    $data               = null;
+    $valueTransformer   = null;
 
   protected
     $taintedData        = null;
@@ -46,35 +44,6 @@ class FormField extends BaseFormField
   public function __clone()
   {
     // TODO
-  }
-
-  /**
-   * Sets the field's default data.
-   *
-   * @see FormFieldInterface
-   */
-  public function setDefault($data)
-  {
-    $this->default = $data;
-  }
-
-  /**
-   * Returns the normalized data of the field.
-   *
-   * @return mixed  When the field is not bound, the default data is returned.
-   *                When the field is bound, the normalized bound data is
-   *                returned if the field is valid, null otherwise.
-   */
-  public function getData()
-  {
-    if (!$this->isBound())
-    {
-      return $this->default;
-    }
-    else
-    {
-      return $this->data;
-    }
   }
 
   /**
@@ -90,27 +59,10 @@ class FormField extends BaseFormField
     {
       return $this->taintedData;
     }
-    else if ($this->isBound())
-    {
-      return $this->transform($this->data);
-    }
     else
     {
-      return $this->transform($this->default);
+      return $this->transform($this->getData());
     }
-  }
-
-  /**
-   * Judges whether the given value is considered empty by the field.
-   *
-   * If the field is empty, it validates only if it is not required.
-   *
-   * @param  mixed $value  The reverse transformed value entered by the user
-   * @return boolean       Whether the value is considered empty
-   */
-  protected function isEmpty($value)
-  {
-    return $value === null || $value === '' || $value === false;
   }
 
   /**
@@ -121,32 +73,29 @@ class FormField extends BaseFormField
    */
   public function bind($taintedData)
   {
-    parent::bind($taintedData);
-
     $this->taintedData = (string)$taintedData;
 
     $this->injectLocaleAndTranslator($this->valueTransformer);
 
     try
     {
-      $this->data = $this->processData($this->reverseTransform($this->taintedData));
+      parent::bind($this->processData($this->reverseTransform($this->taintedData)));
     }
     catch (ValueTransformerException $e)
     {
       // TODO better text
       // TESTME
-      $this->errors[] = 'invalid (localized)';
+      $this->addError('invalid (localized)');
     }
-
-    return false;
   }
 
   /**
-   * Processes the bound reverse-transformed data before validation.
+   * Processes the bound reverse-transformed data.
    *
    * This method can be overridden if you want to modify the data entered
-   * by the user before it is passed to the validator. Note that the data is
-   * already in reverse transformed format.
+   * by the user. Note that the data is already in reverse transformed format.
+   *
+   * This method will not be called if reverse transformation fails.
    *
    * @param  mixed $data
    * @return mixed

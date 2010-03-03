@@ -164,7 +164,7 @@ class Form extends FormFieldGroup
 //      throw $errorSchema;
 //    }
 
-    return $this->doBind(self::deepArrayUnion(
+    $this->doBind(self::deepArrayUnion(
       $taintedValues,
       self::convertFileInformation(self::fixPhpFilesArray($taintedFiles))
     ));

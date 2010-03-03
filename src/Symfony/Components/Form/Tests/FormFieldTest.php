@@ -7,7 +7,6 @@ require_once __DIR__ . '/TestInit.php';
 use Symfony\Components\Form\FormField;
 use Symfony\Components\Form\FormFieldGroup;
 use Symfony\Components\ValueTransformer\ValueTransformerInterface;
-use Symfony\Components\Validator\ValidatorError;
 
 
 class FormFieldTest_TestValueTransformer implements ValueTransformerInterface
@@ -30,8 +29,8 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
 
   protected function setUp()
   {
-    $this->field = $this->createField('title');
-    $this->field->setDefault('default');
+    $this->field = new FormField('title');
+    $this->field->initialize('default');
     $this->field->setValueTransformer(new FormFieldTest_TestValueTransformer());
   }
 
@@ -52,109 +51,18 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals('transform[default]', $this->field->getDisplayedData());
   }
 
-  public function testInvalidFieldIsInvalid()
+  public function testFieldHasBoundDataReverseTransformed()
   {
-    $this->field->setValidator($this->createFailingMockValidator());
-    $this->field->bind('invalid');
+    $this->field->bind('data');
 
-    $this->assertFalse($this->field->isValid());
+    $this->assertEquals('reverse[data]', $this->field->getData());
   }
 
-  public function testInvalidFieldHasNoData()
+  public function testFieldDisplaysBoundDataTransformed()
   {
-    $this->field->setValidator($this->createFailingMockValidator());
-    $this->field->bind('invalid');
+    $this->field->bind('data');
 
-    $this->assertEquals(null, $this->field->getData());
-  }
-
-  public function testInvalidFieldDisplaysBoundData()
-  {
-    $this->field->setValidator($this->createFailingMockValidator());
-    $this->field->bind('invalid');
-
-    $this->assertEquals('invalid', $this->field->getDisplayedData());
-  }
-
-  public function testValidFieldIsValid()
-  {
-    $this->field->bind('valid');
-
-    $this->assertTrue($this->field->isValid());
-  }
-
-  public function testValidFieldHasBoundDataReverseTransformed()
-  {
-    $this->field->bind('valid');
-
-    $this->assertEquals('reverse[valid]', $this->field->getData());
-  }
-
-  public function testValidFieldDisplaysBoundDataTransformed()
-  {
-    $this->field->bind('valid');
-
-    $this->assertEquals('transform[reverse[valid]]', $this->field->getDisplayedData());
-  }
-
-  public function testRequiredFieldMayNotBeNull()
-  {
-    $field = $this->createField('title');
-    $field->setValueTransformer($this->createMockTransformerTransformingTo(null));
-    $field->setRequired(true);
-    $field->bind(null);
-
-    $this->assertFalse($field->isValid());
-  }
-
-  public function testNonRequiredFieldMayBeNull()
-  {
-    $field = $this->createField('title');
-    $field->setValueTransformer($this->createMockTransformerTransformingTo(null));
-    $field->setRequired(false);
-    $field->bind(null);
-
-    $this->assertTrue($field->isValid());
-  }
-
-  public function testRequiredFieldMayNotBeBlank()
-  {
-    $field = $this->createField('title');
-    $field->setValueTransformer($this->createMockTransformerTransformingTo(''));
-    $field->setRequired(true);
-    $field->bind(null);
-
-    $this->assertFalse($field->isValid());
-  }
-
-  public function testNonRequiredFieldMayBeBlank()
-  {
-    $field = $this->createField('title');
-    $field->setValueTransformer($this->createMockTransformerTransformingTo(''));
-    $field->setRequired(false);
-    $field->bind(null);
-
-    $this->assertTrue($field->isValid());
-  }
-
-  public function testRequiredFieldMayNotBeFalse()
-  {
-    $field = $this->createField('title');
-    $field->setValueTransformer($this->createMockTransformerTransformingTo(false));
-    $field->setRequired(true);
-    $field->bind(null);
-
-    $this->assertFalse($field->isValid());
-  }
-
-  public function testNonRequiredFieldMayBeFalse()
-  {
-    $field = $this->createField('title');
-    $field->setValueTransformer($this->createMockTransformerTransformingTo(false));
-    $field->setRequired(false);
-    $field->bind(null);
-
-    $this->assertTrue($field->isValid());
+    $this->assertEquals('transform[reverse[data]]', $this->field->getDisplayedData());
   }
 
   public function testBoundValuesAreConvertedToStrings()
@@ -168,7 +76,7 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
     $this->field->bind(0);
   }
 
-  public function testProcessDataHooksBeforeValidator()
+  public function testProcessDataHooksAfterReverseTransformation()
   {
     $field = $this->getMock(
       'Symfony\Components\Form\FormField',
@@ -181,12 +89,7 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
           ->with($this->equalTo('reverse[data]'))
           ->will($this->returnValue('processed[reverse[data]]'));
 
-    $validator = $this->createMockValidator();
-    $validator->expects($this->once())
-         ->method('validate')
-         ->with($this->equalTo('processed[reverse[data]]'));
-
-    $field->setValidator($validator);
+    $field->initialize('default');
     $field->setValueTransformer(new FormFieldTest_TestValueTransformer());
 
     // test
@@ -194,49 +97,6 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
 
     $this->assertEquals('processed[reverse[data]]', $field->getData());
     $this->assertEquals('transform[processed[reverse[data]]]', $field->getDisplayedData());
-  }
-
-  public function testBindThrowsExceptionIfNoValidatorIsSet()
-  {
-    $field = new FormField('name');
-
-    $this->setExpectedException('Symfony\Components\Form\Exception\InvalidConfigurationException');
-    $field->bind('symfony');
-  }
-
-  public function testLocaleIsPassedToLocalizableValidator()
-  {
-    $validator = $this->getMock(__NAMESPACE__ . '\LocalizableValidator');
-    $validator->expects($this->once())
-              ->method('setLocale')
-              ->with($this->equalTo('de_DE'));
-
-    $this->field->setValidator($validator);
-    $this->field->setLocale('de_DE');
-    $this->field->bind('symfony');
-  }
-
-  public function testTranslatorIsPassedToTranslatableValidator()
-  {
-    $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
-    $validator = $this->getMock(__NAMESPACE__ . '\TranslatableValidator');
-    $validator->expects($this->once())
-              ->method('setTranslator')
-              ->with($this->equalTo($translator));
-
-    $this->field->setValidator($validator);
-    $this->field->setTranslator($translator);
-    $this->field->bind('symfony');
-  }
-
-  public function testTranslatorIsNotPassedToValidatorIfNotSet()
-  {
-    $validator = $this->getMock(__NAMESPACE__ . '\TranslatableValidator');
-    $validator->expects($this->never())
-              ->method('setTranslator');
-
-    $this->field->setValidator($validator);
-    $this->field->bind('symfony');
   }
 
   public function testLocaleIsPassedToLocalizableValueTransformer()
@@ -272,29 +132,6 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
 
     $this->field->setValueTransformer($transformer);
     $this->field->bind('symfony');
-  }
-
-  protected function createField($key)
-  {
-    $field = new FormField($key);
-    $field->setValidator($this->createMockValidator());
-
-    return $field;
-  }
-
-  protected function createMockValidator()
-  {
-    return $this->getMock('Symfony\Components\Validator\ValidatorInterface');
-  }
-
-  protected function createFailingMockValidator()
-  {
-    $validator = $this->createMockValidator();
-    $validator->expects($this->any())
-                    ->method('validate')
-                    ->will($this->throwException(new ValidatorError('message')));
-
-    return $validator;
   }
 
   protected function createMockTransformer()

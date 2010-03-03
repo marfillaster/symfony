@@ -7,6 +7,7 @@ use Symfony\Components\Form\Renderer\RendererInterface;
 use Symfony\Components\Form\Exception\NotBoundException;
 use Symfony\Components\Form\Exception\NotValidException;
 use Symfony\Components\Form\Exception\InvalidConfigurationException;
+use Symfony\Components\Form\Exception\NotInitializedException;
 
 use Symfony\Components\Validator\ValidatorErrorSchema;
 
@@ -17,19 +18,20 @@ use Symfony\Components\I18N\TranslatorInterface;
 abstract class BaseFormField implements FormFieldInterface, Localizable, Translatable
 {
   protected
-    $errors             = array(),
     $options            = array(),
     $locale             = null,
     $translator         = null;
 
   private
+    $errors             = array(),
     $key                = '',
     $parent             = null,
     $renderer           = null,
     $bound              = false,
-    $processed          = false,
     $required           = true,
-    $charset            = 'UTF-8';
+    $charset            = 'UTF-8',
+    $data               = null,
+    $initialized        = false;
 
   public function __construct($key, array $options = array())
   {
@@ -37,7 +39,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
     $this->key = (string)$key;
     $this->locale = \Locale::getDefault();
 
-    $this->configure($options);
+    $this->configure();
   }
 
   /**
@@ -137,15 +139,64 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   }
 
   /**
+   * Updates the field with default data
+   *
+   * @see FormFieldInterface
+   */
+  public function initialize($data)
+  {
+    $this->data = $data;
+    $this->initialized = true;
+  }
+
+  /**
    * Binds POST data to the field, transforms and validates it.
    *
    * @param  string|array $taintedData  The POST data
    * @return boolean                    Whether the form is valid
    * @throws AlreadyBoundException      when the field is already bound
    */
-  public function bind($taintedData)
+  public function bind($data)
   {
+    if (!$this->initialized)
+    {
+      throw new NotInitializedException('You must initialize the field before binding');
+    }
+
+    $this->data = $data;
     $this->bound = true;
+    $this->errors = array();
+  }
+
+  /**
+   * Returns the normalized data of the field.
+   *
+   * @return mixed  When the field is not bound, the default data is returned.
+   *                When the field is bound, the normalized bound data is
+   *                returned if the field is valid, null otherwise.
+   */
+  public function getData()
+  {
+    return $this->data;
+  }
+
+  /**
+   * Adds an error to the field.
+   *
+   * @see FormFieldInterface
+   */
+  public function addError($message, array $parameters = array())
+  {
+    if (!is_null($this->translator))
+    {
+      $message = $this->translator->translate($message, $parameters);
+    }
+    else
+    {
+      $message = str_replace(array_keys($parameters), $parameters, $message);
+    }
+
+    $this->errors[] = $message;
   }
 
   /**
@@ -166,37 +217,6 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   public function isValid()
   {
     return $this->isBound() ? count($this->errors)==0 : false; // TESTME
-  }
-
-  /**
-   * Processes the business logic of the field.
-   *
-   * @throws NotBoundException when the field is not yet bound
-   * @throws NotValidException when the field is invalid
-   */
-  public function process()
-  {
-    if (!$this->isBound())
-    {
-      throw new NotBoundException('The field '.$this->getName().' is not bound!');
-    }
-
-    if (!$this->isValid())
-    {
-      throw new NotValidException('The field '.$this->getName().' is not valid!');
-    }
-
-    $this->processed = true; // TESTME
-  }
-
-  /**
-   * Returns whether the field is processed.
-   *
-   * @return boolean
-   */
-  public function isProcessed()
-  {
-    return $this->processed;
   }
 
   /**

@@ -87,6 +87,17 @@ interface FormFieldInterface
   public function bind($taintedData);
 
   /**
+   * Adds an error to the field.
+   *
+   * The parameters are injected into the message template. If possible, the
+   * message is localized.
+   *
+   * @param string $message     The message template
+   * @param array  $parameters  The parameters
+   */
+  public function addError($message, array $parameters = array());
+
+  /**
    * Renders this field.
    *
    * @param  array $attributes  The attributes to include in the rendered

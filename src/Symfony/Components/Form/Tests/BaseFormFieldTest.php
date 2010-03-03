@@ -23,7 +23,39 @@ class BaseFormFieldTest extends \PHPUnit_Framework_TestCase
   protected function setUp()
   {
     $this->field = $this->createMockBaseField('title');
+    $this->field->initialize('default');
     $this->field->setRenderer($this->createMockRenderer());
+  }
+
+  public function testBindThrowsExceptionIfNotInitialized()
+  {
+    $field = $this->createMockBaseField('title');
+
+    $this->setExpectedException('Symfony\Components\Form\Exception\NotInitializedException');
+    $field->bind(array()); // irrelevant
+  }
+
+  public function testFieldWithNoErrorsIsValid()
+  {
+    $this->field->bind('data');
+
+    $this->assertTrue($this->field->isValid());
+  }
+
+  public function testFieldWithErrorsIsInvalid()
+  {
+    $this->field->bind('data');
+    $this->field->addError('Some error');
+
+    $this->assertFalse($this->field->isValid());
+  }
+
+  public function testBindResetsErrors()
+  {
+    $this->field->addError('Some error');
+    $this->field->bind('data');
+
+    $this->assertTrue($this->field->isValid());
   }
 
   public function testUnboundFieldIsInvalid()
@@ -77,25 +109,6 @@ class BaseFormFieldTest extends \PHPUnit_Framework_TestCase
 
     $this->setExpectedException('Symfony\Components\Form\Exception\InvalidConfigurationException');
     $field->render();
-  }
-
-  public function testProcessThrowsExceptionIfNotBound()
-  {
-    $this->setExpectedException('Symfony\Components\Form\Exception\NotBoundException');
-    $this->field->process();
-  }
-
-  public function testProcessThrowsExceptionIfInvalid()
-  {
-    $field = $this->getMockForAbstractClass(
-      __NAMESPACE__ . '\BaseFormFieldTest_InvalidFormField',
-      array('title')
-    );
-
-    $field->bind('foobar');
-
-    $this->setExpectedException('Symfony\Components\Form\Exception\NotValidException');
-    $field->process();
   }
 
   public function testLocaleIsPassedToLocalizableRenderer()

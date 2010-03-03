@@ -4,7 +4,6 @@ namespace Symfony\Components\Form;
 
 use Symfony\Components\Form\Exception\AlreadyBoundException;
 use Symfony\Components\Form\Exception\UnexpectedTypeException;
-use Symfony\Components\Form\Exception\NotInitializedException;
 use Symfony\Components\Form\Exception\InvalidPropertyException;
 use Symfony\Components\Form\Exception\PropertyAccessDeniedException;
 
@@ -39,7 +38,6 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
   private $fields = array();
   private $merged = array();
 
-  protected $object = null;
   protected $class = null;
 
   public function __construct($key, array $options = array())
@@ -124,9 +122,9 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
 
     $this->merged[$field->getKey()] = false;
 
-    if (!is_null($this->object))
+    if (!is_null($this->getData()))
     {
-      $field->initialize($this->readProperty($field->getKey()));
+      $field->initialize($this->readElement($this->getData(), $field->getKey()));
     }
 
     return $field;
@@ -170,9 +168,9 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
 
     $this->merged[$group->getKey()] = true;
 
-    if (!is_null($this->object))
+    if (!is_null($this->getData()))
     {
-      $group->initialize($this->object);
+      $group->initialize($this->getData());
     }
 
     return $this;
@@ -221,108 +219,115 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
    *
    * @see FormFieldInterface
    */
-  public function initialize($object)
+  public function initialize($data)
   {
-    if (!is_object($object))
+    if (!is_array($data) && !is_object($data))
     {
-      throw new UnexpectedTypeException('Groups must be initialized with an object');
+      throw new UnexpectedTypeException('Groups must be initialized with an array or an object');
     }
 
-    $this->object = $object;
-    $this->class = new \ReflectionClass($object);
+    parent::initialize($data);
+
+    $this->class = is_object($data) ? new \ReflectionClass($data) : null;
 
     foreach ($this->fields as $key => $field)
     {
-      $field->initialize($this->merged[$key] ? $object : $this->readProperty($key));
+      $field->initialize($this->merged[$key] ? $data : $this->readElement($data, $key));
     }
   }
 
   /**
-   * Initializes a field with the default data from the object
+   * Reads an element from the given data
    *
-   * @param unknown_type $field
-   * @return unknown_type
+   * @param  mixed  $data     The data to read from (array or object)
+   * @param  string $element  The element to read
+   * @return mixed  $value    The value of the element
    */
-  protected function readProperty($property)
+  protected function readElement($data, $element)
   {
-    $getter = 'get'.ucfirst($property);
-    $isser = 'is'.ucfirst($property);
-
-    if ($this->class->hasMethod($getter))
+    if (is_object($data))
     {
-      if (!$this->class->getMethod($getter)->isPublic())
-      {
-        throw new PropertyAccessDeniedException(sprintf('Method "%s()" is not public in class "%s"', $getter, $this->class->getName()));
-      }
+      $getter = 'get'.ucfirst($element);
+      $isser = 'is'.ucfirst($element);
 
-      return $this->object->$getter();
-    }
-    else if ($this->class->hasMethod($isser))
-    {
-      if (!$this->class->getMethod($isser)->isPublic())
+      if ($this->class->hasMethod($getter))
       {
-        throw new PropertyAccessDeniedException(sprintf('Method "%s()" is not public in class "%s"', $isser, $this->class->getName()));
-      }
+        if (!$this->class->getMethod($getter)->isPublic())
+        {
+          throw new PropertyAccessDeniedException(sprintf('Method "%s()" is not public in class "%s"', $getter, $this->class->getName()));
+        }
 
-      return $this->object->$isser();
-    }
-    else if ($this->class->hasProperty($property))
-    {
-      if (!$this->class->getProperty($property)->isPublic())
+        return $data->$getter();
+      }
+      else if ($this->class->hasMethod($isser))
       {
-        throw new PropertyAccessDeniedException(sprintf('Property "%s" is not public in class "%s". Maybe you should create the method "get%s()" or "is%s()"?', $property, $this->class->getName(), ucfirst($property), ucfirst($property)));
-      }
+        if (!$this->class->getMethod($isser)->isPublic())
+        {
+          throw new PropertyAccessDeniedException(sprintf('Method "%s()" is not public in class "%s"', $isser, $this->class->getName()));
+        }
 
-      return $this->object->$property;
+        return $data->$isser();
+      }
+      else if ($this->class->hasProperty($element))
+      {
+        if (!$this->class->getProperty($element)->isPublic())
+        {
+          throw new PropertyAccessDeniedException(sprintf('Property "%s" is not public in class "%s". Maybe you should create the method "get%s()" or "is%s()"?', $element, $this->class->getName(), ucfirst($element), ucfirst($element)));
+        }
+
+        return $data->$element;
+      }
+      else
+      {
+        throw new InvalidPropertyException(sprintf('Neither property "%s" nor method "%s()" nor method "%s()" exists in class "%s"', $element, $getter, $isser, $this->class->getName()));
+      }
     }
     else
     {
-      throw new InvalidPropertyException(sprintf('Neither property "%s" nor method "%s()" nor method "%s()" exists in class "%s"', $property, $getter, $isser, $this->class->getName()));
+      return isset($data[$element]) ? $data[$element] : null;
     }
   }
 
   /**
-   * Updates the given object property with the given value.
+   * Updates the given element with the given value.
    *
-   * @param string $property
-   * @param mixed  $value
+   * @param mixed  $data      The data to update
+   * @param string $property  The property to update
+   * @param mixed  $value     The new value for the field
    */
-  protected function updateProperty($property, $value)
+  protected function updateElement(&$data, $element, $value)
   {
-    $setter = 'set'.ucfirst($property);
-
-    if ($this->class->hasMethod($setter))
+    if (is_object($data))
     {
-      if (!$this->class->getMethod($setter)->isPublic())
-      {
-        throw new PropertyAccessDeniedException(sprintf('Method "%s()" is not public in class "%s"', $setter, $this->class->getName()));
-      }
+      $setter = 'set'.ucfirst($element);
 
-      $this->object->$setter($value);
-    }
-    else if ($this->class->hasProperty($property))
-    {
-      if (!$this->class->getProperty($property)->isPublic())
+      if ($this->class->hasMethod($setter))
       {
-        throw new PropertyAccessDeniedException(sprintf('Property "%s" is not public in class "%s". Maybe you should create the method "set%s()"?', $property, $this->class->getName(), ucfirst($property)));
-      }
+        if (!$this->class->getMethod($setter)->isPublic())
+        {
+          throw new PropertyAccessDeniedException(sprintf('Method "%s()" is not public in class "%s"', $setter, $this->class->getName()));
+        }
 
-      $this->object->$property = $value;
+        $data->$setter($value);
+      }
+      else if ($this->class->hasProperty($element))
+      {
+        if (!$this->class->getProperty($element)->isPublic())
+        {
+          throw new PropertyAccessDeniedException(sprintf('Property "%s" is not public in class "%s". Maybe you should create the method "set%s()"?', $element, $this->class->getName(), ucfirst($element)));
+        }
+
+        $data->$element = $value;
+      }
+      else
+      {
+        throw new InvalidPropertyException(sprintf('Neither element "%s" nor method "%s()" exists in class "%s"', $element, $setter, $this->class->getName()));
+      }
     }
     else
     {
-      throw new InvalidPropertyException(sprintf('Neither property "%s" nor method "%s()" exists in class "%s"', $property, $setter, $this->class->getName()));
+      $data[$element] = $value;
     }
-  }
-
-  /**
-   * Returns the object this group operates on
-   *
-   * @see FormFieldInterface
-   */
-  public function getData()
-  {
-    return $this->object;
   }
 
   /**
@@ -360,11 +365,6 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
    */
   public function bind($taintedData)
   {
-    if (is_null($this->object))
-    {
-      throw new NotInitializedException('You must initialize the group before binding');
-    }
-
     if (is_null($taintedData))
     {
       $taintedData = array();
@@ -372,12 +372,8 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
 
     if (!is_array($taintedData))
     {
-      throw new UnexpectedTypeException('You must pass an array parameter to the bind() method of the FormFieldGroup');
+      throw new UnexpectedTypeException('You must pass an array parameter to the bind() method');
     }
-
-    $this->errors = array();
-
-    parent::bind($taintedData);
 
     foreach ($this->fields as $key => $field)
     {
@@ -393,18 +389,27 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
       {
         $this->fields[$key]->bind($value);
       }
-      else
-      {
-        // TODO: can probably be moved to the new validation engine too
-        $this->errors[] = 'extra field ' . $key;
-      }
     }
+
+    $data = $this->getData();
 
     foreach ($this->fields as $key => $field)
     {
       if (!$this->merged[$key])
       {
-        $this->updateProperty($key, $field->getData());
+        $this->updateElement($data, $key, $field->getData());
+      }
+    }
+
+    // resets the errors
+    parent::bind($data);
+
+    foreach ($taintedData as $key => $value)
+    {
+      if (!$this->has($key))
+      {
+        // TODO: can probably be moved to the new validation engine too
+        $this->addError('extra field %field%', array('%field%' => $key));
       }
     }
   }
@@ -448,18 +453,6 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
     }
 
     return false;
-  }
-
-  public function getDefault()
-  {
-    $default = array();
-
-    foreach ($this->fields as $key => $field)
-    {
-      $default[$key] = $field->getDefault();
-    }
-
-    return $default;
   }
 
   /**

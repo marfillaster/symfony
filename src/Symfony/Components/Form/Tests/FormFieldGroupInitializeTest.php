@@ -54,12 +54,26 @@ class FormFieldGroupInitializeTest_Object
 
 class FormFieldGroupInitializeTest extends \PHPUnit_Framework_TestCase
 {
-  public function testInitializeRequiresAnObject()
+  public function testInitializeRequiresObject()
   {
     $group = new FormFieldGroup('author');
 
     $this->setExpectedException('Symfony\Components\Form\Exception\UnexpectedTypeException');
     $group->initialize('foobar');
+  }
+
+  public function testInitializeAcceptsObject()
+  {
+    $group = new FormFieldGroup('author');
+
+    $group->initialize(new \stdClass());
+  }
+
+  public function testInitializeAcceptsArray()
+  {
+    $group = new FormFieldGroup('author');
+
+    $group->initialize(array());
   }
 
   public function testInitializeGroup()

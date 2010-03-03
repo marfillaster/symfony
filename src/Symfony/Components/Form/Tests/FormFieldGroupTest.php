@@ -176,15 +176,6 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
     $this->assertFalse($group->isValid());
   }
 
-  public function testBindThrowsExceptionIfNotInitialized()
-  {
-    $group = new FormFieldGroup('author');
-    $group->add($this->createMockField('firstName'));
-
-    $this->setExpectedException('Symfony\Components\Form\Exception\NotInitializedException');
-    $group->bind(array()); // irrelevant
-  }
-
   public function testBindForwardsBoundValues()
   {
     $field = $this->createMockField('firstName');
@@ -197,6 +188,24 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
     $group->add($field);
 
     $group->bind(array('firstName' => 'Bernhard'));
+  }
+
+  public function testBindUpdatesArrayElement()
+  {
+    $field = $this->createMockField('firstName');
+    $field->expects($this->once())
+          ->method('getData')
+          ->will($this->returnValue('Bernhard'));
+
+    $group = new FormFieldGroup('author');
+    $group->initialize(array());
+    $group->add($field);
+
+    $group->bind(array()); // irrelevant
+
+    $data = $group->getData();
+
+    $this->assertEquals('Bernhard', $data['firstName']);
   }
 
   public function testBindUpdatesProperties()
