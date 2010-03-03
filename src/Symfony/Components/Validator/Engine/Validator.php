@@ -22,29 +22,30 @@ class Validator implements ValidatorInterface
 
   public function validate($object, $groups = 'default')
   {
-    return $this->doValidateObject(get_class($object), $object, $groups, get_class($object));
+    return $this->doValidateObject(get_class($object), $object, $groups, get_class($object), new PropertyPathBuilder());
   }
 
   public function validateProperty($object, $property, $groups = 'default')
   {
-    return $this->doValidateProperty($object, $property, $groups, get_class($object));
+    return $this->doValidateProperty($object, $property, $groups, get_class($object), new PropertyPathBuilder());
   }
 
   public function validateValue($class, $property, $value, $groups = 'default')
   {
-    return $this->doValidateValue($class, $property, $value, $groups, $class);
+    return $this->doValidateValue($class, $property, $value, $groups, $class, new PropertyPathBuilder());
   }
 
-  protected function doValidateObject($class, $object, $groups, $root, $propertyPath = '', $classMessage = '')
+  protected function doValidateObject($class, $object, $groups, $root, PropertyPathBuilder $propertyPathBuilder, $classMessage = '')
   {
     $violations = new ConstraintViolationList();
 
     if (!$object instanceof $class)
     {
       $violations->add(new ConstraintViolation(
-        str_replace('%class%', $class, $classMessage),
+        $classMessage,
+        array('%class%' => $class),
         $root,
-        $propertyPath,
+        $propertyPathBuilder->getPropertyPath(),
         $object
       ));
     }
@@ -54,36 +55,38 @@ class Validator implements ValidatorInterface
 
       foreach ($classMetaData->getConstrainedProperties() as $property)
       {
-        $violations->addAll($this->doValidateProperty($object, $property, $groups, $root, $propertyPath));
+        $violations->addAll($this->doValidateProperty($object, $property, $groups, $root, $propertyPathBuilder));
       }
     }
 
     return $violations;
   }
 
-  protected function doValidateProperty($object, $property, $groups, $root, $propertyPath = '')
+  protected function doValidateProperty($object, $property, $groups, $root, PropertyPathBuilder $propertyPathBuilder)
   {
-    if (isset($object->$property))
+    $getter = 'get'.ucfirst($property);
+    $isser = 'is'.ucfirst($property);
+
+    if (property_exists($object, $property))
     {
       $value = $object->$property;
     }
-    else if ($method = method_exists($object, $property))
+    else if (method_exists($object, $getter))
     {
-      $value = $object->$property();
+      $value = $object->$getter();
     }
     else
     {
-      throw new ValidatorException(sprintf('Neither property %s nor method %s is readable', $property, $method));
+      throw new ValidatorException(sprintf('Neither property "%s" nor method "%s" is readable', $property, $getter));
     }
 
-    return $this->doValidateValue(get_class($object), $property, $value, $groups, $root, $propertyPath);
+    return $this->doValidateValue(get_class($object), $property, $value, $groups, $root, $propertyPathBuilder->atProperty($property));
   }
 
-  protected function doValidateValue($class, $property, $value, $groups, $root, $propertyPath = '')
+  protected function doValidateValue($class, $property, $value, $groups, $root, PropertyPathBuilder $propertyPathBuilder)
   {
     $violations = new ConstraintViolationList();
 
-    $propertyPath .= (($propertyPath == '') ? '' : '.') . $property;
     $classMetaData = $this->metaDataCache->getClassMetaData($class);
     $propertyMetaData = $classMetaData->getPropertyMetaData($property);
 
@@ -97,7 +100,7 @@ class Validator implements ValidatorInterface
       {
         $classMessage = $constraint->getOption('classMessage', 'Must be instance of %class%');
 
-        if (is_array($value) || $value instanceof Traversable)
+        if (is_array($value) || $value instanceof \Traversable)
         {
           foreach ($value as $key => $object)
           {
@@ -106,7 +109,7 @@ class Validator implements ValidatorInterface
               $object,
               $groups,
               $root,
-              $propertyPath.'['.$key.']',
+              $propertyPathBuilder->atIndex($key),
               $classMessage
             ));
           }
@@ -118,7 +121,7 @@ class Validator implements ValidatorInterface
             $value,
             $groups,
             $root,
-            $propertyPath,
+            $propertyPathBuilder,
             $classMessage
           ));
         }
@@ -133,9 +136,10 @@ class Validator implements ValidatorInterface
           $param = $validator->getMessageParameters();
 
           $violations->add(new ConstraintViolation(
-            str_replace(array_keys($param), $param, $validator->getMessageTemplate()),
+            $validator->getMessageTemplate(),
+            $validator->getMessageParameters(),
             $root,
-            $propertyPath,
+            $propertyPathBuilder->getPropertyPath(),
             $value
           ));
         }

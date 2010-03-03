@@ -214,6 +214,11 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
     return $this->fields[$key];
   }
 
+  public function getFields()
+  {
+    return $this->fields;
+  }
+
   /**
    * Initializes the field group with an object to operate on
    *

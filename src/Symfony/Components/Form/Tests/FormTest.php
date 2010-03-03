@@ -6,13 +6,18 @@ require_once __DIR__ . '/TestInit.php';
 
 use Symfony\Components\Form\Form;
 use Symfony\Components\Form\FormField;
+use Symfony\Components\Form\FormFieldGroup;
 use Symfony\Components\File\UploadedFile;
+use Symfony\Components\Validator\Engine\PropertyPathBuilder;
+use Symfony\Components\Validator\Engine\ConstraintViolation;
+use Symfony\Components\Validator\Engine\ConstraintViolationList;
 
 
 class FormTest_Object
 {
   public $firstName;
   public $file;
+  public $child;
 }
 
 class FormTest_PreconfiguredForm extends Form
@@ -32,8 +37,9 @@ class FormTest extends \PHPUnit_Framework_TestCase
   protected function setUp()
   {
     Form::disableDefaultCSRFProtection();
-    $this->validator = $this->getMock('Symfony\Components\Validator\ValidatorInterface');
+    $this->validator = $this->createMockValidator();
     $this->object = new FormTest_Object();
+    $this->object->child = new FormTest_Object();
     $this->form = new Form('author', $this->object, $this->validator);
   }
 
@@ -179,6 +185,136 @@ class FormTest extends \PHPUnit_Framework_TestCase
     ));
   }
 
+  public function testBindMapsFieldValidationErrorsOntoFields()
+  {
+    $builder = new PropertyPathBuilder();
+    $violations = new ConstraintViolationList();
+    $violations->add(new ConstraintViolation(
+      'message',
+      array('param' => 'value'),
+      'Form',
+      $builder->atProperty('fields')->atIndex('firstName')
+              ->atProperty('displayedData')
+              ->getPropertyPath(),
+      'invalid value'
+    ));
+
+    $validator = $this->createMockValidator();
+    $field = $this->createMockField('firstName');
+    $form = new Form('author', $this->object, $validator);
+    $form->add($field);
+
+    $validator->expects($this->once())
+              ->method('validate')
+              ->with($this->equalTo($form))
+              ->will($this->returnValue($violations));
+
+    $field->expects($this->once())
+          ->method('addError')
+          ->with($this->equalTo('message'), $this->equalTo(array('param' => 'value')));
+
+    $form->bind(array()); // irrelevant
+  }
+
+  public function testBindMapsFieldValidationErrorsOntoNestedFields()
+  {
+    $builder = new PropertyPathBuilder();
+    $violations = new ConstraintViolationList();
+    $violations->add(new ConstraintViolation(
+      'message',
+      array('param' => 'value'),
+      'Form',
+      $builder->atProperty('fields')->atIndex('child')
+              ->atProperty('fields')->atIndex('firstName')
+              ->atProperty('displayedData')
+              ->getPropertyPath(),
+      'invalid value'
+    ));
+
+    $validator = $this->createMockValidator();
+    $field = $this->createMockField('firstName');
+    $form = new Form('author', $this->object, $validator);
+    $group = new FormFieldGroup('child');
+    $group->add($field);
+    $form->add($group);
+
+    $validator->expects($this->once())
+              ->method('validate')
+              ->with($this->equalTo($form))
+              ->will($this->returnValue($violations));
+
+    $field->expects($this->once())
+          ->method('addError')
+          ->with($this->equalTo('message'), $this->equalTo(array('param' => 'value')));
+
+    $form->bind(array()); // irrelevant
+  }
+
+  public function testBindMapsModelValidationErrorsOntoFields()
+  {
+    $builder = new PropertyPathBuilder();
+    $violations = new ConstraintViolationList();
+    $violations->add(new ConstraintViolation(
+      'message',
+      array('param' => 'value'),
+      'Form',
+      $builder->atProperty('data')
+              ->atProperty('firstName')
+              ->getPropertyPath(),
+      'invalid value'
+    ));
+
+    $validator = $this->createMockValidator();
+    $field = $this->createMockField('firstName');
+    $form = new Form('author', $this->object, $validator);
+    $form->add($field);
+
+    $validator->expects($this->once())
+              ->method('validate')
+              ->with($this->equalTo($form))
+              ->will($this->returnValue($violations));
+
+    $field->expects($this->once())
+          ->method('addError')
+          ->with($this->equalTo('message'), $this->equalTo(array('param' => 'value')));
+
+    $form->bind(array()); // irrelevant
+  }
+
+  public function testBindMapsModelValidationErrorsOntoNestedFields()
+  {
+    $builder = new PropertyPathBuilder();
+    $violations = new ConstraintViolationList();
+    $violations->add(new ConstraintViolation(
+      'message',
+      array('param' => 'value'),
+      'Form',
+      $builder->atProperty('data')
+              ->atProperty('child')
+              ->atProperty('firstName')
+              ->getPropertyPath(),
+      'invalid value'
+    ));
+
+    $validator = $this->createMockValidator();
+    $field = $this->createMockField('firstName');
+    $form = new Form('author', $this->object, $validator);
+    $group = new FormFieldGroup('child');
+    $group->add($field);
+    $form->add($group);
+
+    $validator->expects($this->once())
+              ->method('validate')
+              ->with($this->equalTo($form))
+              ->will($this->returnValue($violations));
+
+    $field->expects($this->once())
+          ->method('addError')
+          ->with($this->equalTo('message'), $this->equalTo(array('param' => 'value')));
+
+    $form->bind(array()); // irrelevant
+  }
+
   public function testMultipartFormsWithoutParentsRequireFiles()
   {
     $form = new Form('author', $this->object, $this->validator);
@@ -250,5 +386,10 @@ class FormTest extends \PHPUnit_Framework_TestCase
   protected function createTempFile()
   {
     return tempnam(sys_get_temp_dir(), 'FormTest');
+  }
+
+  protected function createMockValidator()
+  {
+    return $this->getMock('Symfony\Components\Validator\ValidatorInterface');
   }
 }

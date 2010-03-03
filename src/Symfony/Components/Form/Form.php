@@ -12,6 +12,9 @@ use Symfony\Components\Validator\CSRFTokenValidator;
 use Symfony\Components\Validator\AndValidator;
 use Symfony\Components\Validator\ValidatorInterface;
 
+use Symfony\Components\Validator\Engine\PropertyPath;
+use Symfony\Components\Validator\Engine\ConstraintViolation;
+
 use Symfony\Components\I18N\TranslatorInterface;
 
 use Symfony\Components\File\UploadedFile;
@@ -179,15 +182,95 @@ class Form extends FormFieldGroup
   protected function doBind(array $taintedData)
   {
     parent::bind($taintedData);
+
+    $this->validate();
   }
 
-  public $violations = null;
-
-  public function validate()
+  /**
+   * Validates the form and distributes errors across the fieldsf
+   */
+  protected function validate()
   {
-    $this->violations = $this->validator->validate($this);
+    if ($violations = $this->validator->validate($this))
+    {
+      foreach ($violations as $violation)
+      {
+        $path = $violation->getPropertyPath();
+        $path->rewind();
 
-    // TODO: process violations and assign form and field errors
+        if ($path->current() == 'data')
+        {
+          $this->addDataError($this, $path, $violation);
+        }
+        else
+        {
+          $this->addFieldError($this, $path, $violation);
+        }
+      }
+    }
+  }
+
+  /**
+   * Recursively adds errors of the form fields to the fields
+   *
+   * Violations in the form fields usually have property paths like:
+   *
+   * <code>
+   * iterator[firstName].data
+   * iterator[firstName].displayedData
+   * iterator[Address].iterator[street].displayedData
+   * ...
+   * </code>
+   *
+   * @param FormFieldInterface $field
+   * @param PropertyPath $path
+   * @param ConstraintViolation$violation
+   */
+  protected function addFieldError(FormFieldInterface $field, PropertyPath $path, ConstraintViolation $violation)
+  {
+    $path->next(); // jump to next iterator index
+    $fieldName = $path->current();
+
+    if ($path->valid() && $field instanceof FormFieldGroup && $field->has($fieldName))
+    {
+      $path->next(); // jump to next "iterator" (if exists)
+
+      $this->addFieldError($field->get($fieldName), $path, $violation);
+    }
+    else
+    {
+      $field->addError($violation->getMessageTemplate(), $violation->getMessageParameters());
+    }
+  }
+
+  /**
+   * Recursively adds errors of the form data to the fields
+   *
+   * Violations in the form data usually have property paths like:
+   *
+   * <code>
+   * data.firstName
+   * data.Address.street
+   * ...
+   * </code>
+   *
+   * @param FormFieldInterface $field
+   * @param PropertyPath $path
+   * @param ConstraintViolation$violation
+   */
+  protected function addDataError(FormFieldInterface $field, PropertyPath $path, ConstraintViolation $violation)
+  {
+    $path->next(); // jump to next property name
+    $fieldName = $path->current();
+
+    if ($path->valid() && $field instanceof FormFieldGroup && $field->has($fieldName))
+    {
+      $this->addDataError($field->get($fieldName), $path, $violation);
+    }
+    else
+    {
+      $field->addError($violation->getMessageTemplate(), $violation->getMessageParameters());
+    }
   }
 
   /**
@@ -210,38 +293,6 @@ class Form extends FormFieldGroup
       // we return a simple Exception message in case the form framework is used out of symfony.
       return 'Exception: '.$e->getMessage();
     }
-  }
-
-  /**
-   * Renders global errors associated with this form.
-   *
-   * @return string The rendered global errors
-   */
-  public function renderGlobalErrors()
-  {
-    return '';
-    //FIXME: getFormFormatter = not a method
-    //return $this->getFormFormatter()->formatErrorsForRow($this->getGlobalErrors());
-  }
-
-  /**
-   * Returns true if the form has some global errors.
-   *
-   * @return Boolean true if the form has some global errors, false otherwise
-   */
-  public function hasGlobalErrors()
-  {
-    return (Boolean) count($this->getGlobalErrors());
-  }
-
-  /**
-   * Gets the global errors associated with the form.
-   *
-   * @return array An array of global errors
-   */
-  public function getGlobalErrors()
-  {
-    return $this->widgetSchema->getGlobalErrors($this->getErrorSchema());
   }
 
   /**

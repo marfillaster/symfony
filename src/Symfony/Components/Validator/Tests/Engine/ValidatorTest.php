@@ -8,6 +8,7 @@ require_once __DIR__.'/../TestInit.php';
 use Symfony\Components\Validator\Engine\Validator;
 use Symfony\Components\Validator\Engine\ConstraintViolation;
 use Symfony\Components\Validator\Engine\ConstraintViolationList;
+use Symfony\Components\Validator\Engine\PropertyPathBuilder;
 use Symfony\Components\Validator\Specification\ConstraintSpecification;
 use Symfony\Components\Validator\Specification\PropertySpecification;
 use Symfony\Components\Validator\Specification\ClassSpecification;
@@ -16,18 +17,18 @@ use Symfony\Components\Validator\Specification\Specification;
 
 class ValidatorTest_Class
 {
-  public $firstName = 'Fabien';
+  public $firstName = 'Bernhard';
 
   public $reference;
 
   public function getLastName()
   {
-    return 'Potencier';
+    return 'Schussek';
   }
 
-  public function isFrench()
+  public function isAustralian()
   {
-    return true;
+    return false;
   }
 }
 
@@ -47,14 +48,14 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     $validatorMock = $this->getMock('Symfony\Components\Validator\ConstraintValidatorInterface');
     $validatorMock->expects($this->once())
                   ->method('validate')
-                  ->with($this->equalTo('Fabien'))
+                  ->with($this->equalTo('Bernhard'))
                   ->will($this->returnValue(false));
-    $validatorMock->expects($this->once())
+    $validatorMock->expects($this->atLeastOnce())
                   ->method('getMessageTemplate')
-                  ->will($this->returnValue('message: %param%'));
-    $validatorMock->expects($this->once())
+                  ->will($this->returnValue('message'));
+    $validatorMock->expects($this->atLeastOnce())
                   ->method('getMessageParameters')
-                  ->will($this->returnValue(array('%param%' => 'value')));
+                  ->will($this->returnValue(array('param' => 'value')));
 
     $factoryMock = $this->getMock('Symfony\Components\Validator\ConstraintValidatorFactoryInterface');
     $factoryMock->expects($this->once())
@@ -64,12 +65,14 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
     $validator = new Validator($specification, $factoryMock);
 
+    $builder = new PropertyPathBuilder();
     $expected = new ConstraintViolationList();
     $expected->add(new ConstraintViolation(
-      'message: value',
+      'message',
+      array('param' => 'value'),
       $subjectClass,
-      'firstName',
-      'Fabien'
+      $builder->atProperty('firstName')->getPropertyPath(),
+      'Bernhard'
     ));
 
     $this->assertEquals($expected, $validator->validateProperty($subject, 'firstName'));
