@@ -9,34 +9,42 @@ use Symfony\Components\Form\FormField;
 use Symfony\Components\File\UploadedFile;
 
 
+class FormTest_Object
+{
+  public $firstName;
+  public $file;
+}
+
 class FormTest_PreconfiguredForm extends Form
 {
   protected function configure()
   {
-    $this->add(new FormField('first_name'));
+    $this->add(new FormField('firstName'));
   }
 }
 
 class FormTest extends \PHPUnit_Framework_TestCase
 {
+  protected $validator;
+  protected $object;
   protected $form;
 
   protected function setUp()
   {
     Form::disableDefaultCSRFProtection();
-    $this->form = new Form('author');
+    $this->validator = $this->getMock('Symfony\Components\Validator\ValidatorInterface');
+    $this->object = new FormTest_Object();
+    $this->form = new Form('author', $this->object, $this->validator);
   }
 
-  public function testConstructAcceptsDefaultValues()
+  public function testConstructInitializesObject()
   {
-    $form = new FormTest_PreconfiguredForm('author', array('first_name' => 'Fabien'));
-
-    $this->assertEquals('Fabien', $form->get('first_name')->getData());
+    $this->assertEquals($this->object, $this->form->getData());
   }
 
   public function testNoCsrfProtectionByDefault()
   {
-    $form = new Form('author');
+    $form = new Form('author', $this->object, $this->validator);
 
     $this->assertFalse($form->isCSRFProtected());
   }
@@ -44,7 +52,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
   public function testDefaultCsrfProtectionCanBeEnabled()
   {
     Form::enableDefaultCSRFProtection();
-    $form = new Form('author');
+    $form = new Form('author', $this->object, $this->validator);
 
     $this->assertTrue($form->isCSRFProtected());
   }
@@ -52,9 +60,12 @@ class FormTest extends \PHPUnit_Framework_TestCase
   public function testDefaultLocaleCanBeSet()
   {
     Form::setDefaultLocale('de-DE-1996');
-    $form = new Form('author');
+    $form = new Form('author', $this->object, $this->validator);
 
     $field = $this->getMock(__NAMESPACE__ . '\LocalizableField', array(), array(), '', false, false);
+    $field->expects($this->any())
+          ->method('getKey')
+          ->will($this->returnValue('firstName'));
     $field->expects($this->once())
           ->method('setLocale')
           ->with($this->equalTo('de-DE-1996'));
@@ -66,9 +77,12 @@ class FormTest extends \PHPUnit_Framework_TestCase
   {
     $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
     Form::setDefaultTranslator($translator);
-    $form = new Form('author');
+    $form = new Form('author', $this->object, $this->validator);
 
     $field = $this->getMock(__NAMESPACE__ . '\TranslatableField', array(), array(), '', false, false);
+    $field->expects($this->any())
+          ->method('getKey')
+          ->will($this->returnValue('firstName'));
     $field->expects($this->once())
           ->method('setTranslator')
           ->with($this->equalTo($translator));
@@ -86,7 +100,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
           ->method('bind')
           ->with($this->equalTo($file));
 
-    $form = new Form('author');
+    $form = new Form('author', $this->object, $this->validator);
     $form->add($field);
 
     // test
@@ -109,7 +123,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
           ->method('bind')
           ->with($this->equalTo($file));
 
-    $form = new Form('author');
+    $form = new Form('author', $this->object, $this->validator);
     $form->add($field);
 
     // test
@@ -137,13 +151,13 @@ class FormTest extends \PHPUnit_Framework_TestCase
     $tmpFile = $this->createTempFile();
     $file = new UploadedFile($tmpFile, basename($tmpFile), 'text/plain', 100, 0);
 
-    $field = $this->createMockField('article');
-    $field->expects($this->once())
+    $group = $this->createMockFieldGroup('article');
+    $group->expects($this->once())
           ->method('bind')
           ->with($this->equalTo(array('file' => $file)));
 
-    $form = new Form('author');
-    $form->add($field);
+    $form = new Form('author', $this->object, $this->validator);
+    $form->merge($group);
 
     // test
     $form->bind(array(), array(
@@ -167,7 +181,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testMultipartFormsWithoutParentsRequireFiles()
   {
-    $form = new Form('author');
+    $form = new Form('author', $this->object, $this->validator);
     $form->add($this->createMultipartMockField('file'));
 
     $this->setExpectedException('InvalidArgumentException');
@@ -178,7 +192,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testMultipartFormsWithParentsRequireNoFiles()
   {
-    $form = new Form('author');
+    $form = new Form('author', $this->object, $this->validator);
     $form->add($this->createMultipartMockField('file'));
 
     $form->setParent($this->createMockField('group'));
@@ -191,6 +205,24 @@ class FormTest extends \PHPUnit_Framework_TestCase
   {
     $field = $this->getMock(
       'Symfony\Components\Form\FormFieldInterface',
+      array(),
+      array(),
+      '',
+      false, // don't use constructor
+      false  // don't call parent::__clone
+    );
+
+    $field->expects($this->any())
+          ->method('getKey')
+          ->will($this->returnValue($key));
+
+    return $field;
+  }
+
+  protected function createMockFieldGroup($key)
+  {
+    $field = $this->getMock(
+      'Symfony\Components\Form\FormFieldGroup',
       array(),
       array(),
       '',

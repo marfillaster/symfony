@@ -51,13 +51,6 @@ interface FormFieldInterface
   public function getId();
 
   /**
-   * Sets the field's default data.
-   *
-   * @param mixed $data
-   */
-  public function setDefault($data);
-
-  /**
    * Returns the normalized data of the field.
    *
    * @return mixed  When the field is not bound, the default data is returned.
@@ -76,6 +69,14 @@ interface FormFieldInterface
   public function getDisplayedData();
 
   /**
+   * Initializes the field with default data
+   *
+   * @param mixed $default            The default data
+   * @throws UnexpectedTypeException  If the default data is invalid
+   */
+  public function initialize($default);
+
+  /**
    * Binds POST data to the field, transforms and validates it.
    *
    * @param  string|array $taintedData  The POST data
@@ -84,16 +85,6 @@ interface FormFieldInterface
    *                                       correctly
    */
   public function bind($taintedData);
-
-  /**
-   * Processes the business logic of the field.
-   *
-   * @throws NotBoundException when the field is not yet bound
-   * @throws NotValidException when the field is invalid
-   * @throws InvalidConfigurationException when the field is not configured
-   *                                       correctly
-   */
-  public function process();
 
   /**
    * Renders this field.
@@ -117,13 +108,6 @@ interface FormFieldInterface
    * @return boolean
    */
   public function isValid();
-
-  /**
-   * Returns whether the field is processed.
-   *
-   * @return boolean
-   */
-  public function isProcessed();
 
   /**
    * Returns whether the field requires a multipart form.

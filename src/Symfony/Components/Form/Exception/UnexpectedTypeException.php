@@ -2,6 +2,6 @@
 
 namespace Symfony\Components\Form\Exception;
 
-class NotBoundException extends FormException
+class UnexpectedTypeException extends FormException
 {
 }

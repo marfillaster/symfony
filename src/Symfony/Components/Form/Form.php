@@ -52,7 +52,6 @@ class Form extends FormFieldGroup
     $defaultTranslator = null;
 
   public
-    $entity          = null,
     $CSRFSecret      = null;
 
   protected $validator = null;
@@ -64,19 +63,13 @@ class Form extends FormFieldGroup
    * @param array  $options     An array of options
    * @param string $defaultCSRFSecret  A CSRF secret
    */
-  public function __construct($name, $entity, ValidatorInterface $validator, array $options = array())
+  public function __construct($name, $object, ValidatorInterface $validator, array $options = array())
   {
-    $this->entity = $entity;
     $this->validator = $validator;
 
     parent::__construct($name, $options);
 
-    foreach ($this as $key => $field)
-    {
-      // TODO: should be moved to add()
-      // TODO: should be made getter aware
-      $field->setDefault($entity->{$field->getKey()});
-    }
+    $this->initialize($object);
 
     if (self::$defaultCSRFSecret !== false)
     {
@@ -186,11 +179,6 @@ class Form extends FormFieldGroup
   protected function doBind(array $taintedData)
   {
     parent::bind($taintedData);
-
-    foreach ($this->getData() as $key => $data)
-    {
-      $this->entity->$key = $data;
-    }
   }
 
   public $violations = null;

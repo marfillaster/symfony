@@ -14,6 +14,54 @@ use Symfony\Components\Form\FormFieldGroup;
 use Symfony\Components\I18N\Localizable;
 
 
+class FormFieldGroupTest_Object
+{
+  private $privateProperty;
+
+  public $firstName;
+  private $lastName;
+  private $australian;
+
+  public function setLastName($lastName)
+  {
+    $this->lastName = $lastName;
+  }
+
+  public function getLastName()
+  {
+    return $this->lastName;
+  }
+
+  public function setAustralian($australian)
+  {
+    $this->australian = $australian;
+  }
+
+  public function isAustralian()
+  {
+    return $this->australian;
+  }
+
+  public function getPrivateProperty()
+  {
+    return 'foobar';
+  }
+
+  private function setPrivateSetter($value)
+  {
+  }
+
+  public function getPrivateSetter()
+  {
+    return 'foobar';
+  }
+
+  public function getNoSetter()
+  {
+    return 'foobar';
+  }
+}
+
 abstract class FormFieldGroupTest_LocalizableField implements FormFieldInterface, Localizable
 {
   public $locales = array();
@@ -27,40 +75,45 @@ abstract class FormFieldGroupTest_LocalizableField implements FormFieldInterface
 
 class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 {
+  protected $object;
   protected $group;
 
   protected function setUp()
   {
+    $this->object = new FormFieldGroupTest_Object();
+
     $this->group = new FormFieldGroup('author');
-    $this->group->add($this->createMockField('first_name'));
+    $this->group->initialize($this->object);
+    $this->group->add($this->createMockField('firstName'));
   }
 
   public function testSupportsArrayAccess()
   {
-    $this->assertEquals($this->group->get('first_name'), $this->group['first_name']);
-    $this->assertTrue(isset($this->group['first_name']));
+    $this->assertEquals($this->group->get('firstName'), $this->group['firstName']);
+    $this->assertTrue(isset($this->group['firstName']));
   }
 
   public function testSupportsUnset()
   {
-    unset($this->group['first_name']);
-    $this->assertFalse(isset($this->group['first_name']));
+    unset($this->group['firstName']);
+    $this->assertFalse(isset($this->group['firstName']));
   }
 
   public function testDoesNotSupportAddingFields()
   {
     $this->setExpectedException('LogicException');
-    $this->group[] = $this->createMockField('last_name');
+    $this->group[] = $this->createMockField('lastName');
   }
 
   public function testSupportsCountable()
   {
     $group = new FormFieldGroup('group');
-    $group->add($this->createMockField('field1'));
-    $group->add($this->createMockField('field2'));
+    $group->initialize(new FormFieldGroupTest_Object());
+    $group->add($this->createMockField('firstName'));
+    $group->add($this->createMockField('lastName'));
     $this->assertEquals(2, count($group));
 
-    $group->add($this->createMockField('field3'));
+    $group->add($this->createMockField('australian'));
     $this->assertEquals(3, count($group));
   }
 
@@ -83,17 +136,18 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
   public function testIsBound()
   {
     $this->assertFalse($this->group->isBound());
-    $this->group->bind(array('first_name' => 'Fabien'));
+    $this->group->bind(array('firstName' => 'Bernhard'));
     $this->assertTrue($this->group->isBound());
   }
 
   public function testValidIfAllFieldsAreValid()
   {
     $group = new FormFieldGroup('author');
-    $group->add($this->createValidMockField('first_name'));
-    $group->add($this->createValidMockField('last_name'));
+    $group->initialize($this->object);
+    $group->add($this->createValidMockField('firstName'));
+    $group->add($this->createValidMockField('lastName'));
 
-    $group->bind(array('first_name' => 'Fabien', 'last_name' => 'Potencier'));
+    $group->bind(array('firstName' => 'Bernhard', 'lastName' => 'Potencier'));
 
     $this->assertTrue($group->isValid());
   }
@@ -101,10 +155,11 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
   public function testInvalidIfFieldIsInvalid()
   {
     $group = new FormFieldGroup('author');
-    $group->add($this->createInvalidMockField('first_name'));
-    $group->add($this->createValidMockField('last_name'));
+    $group->initialize($this->object);
+    $group->add($this->createInvalidMockField('firstName'));
+    $group->add($this->createValidMockField('lastName'));
 
-    $group->bind(array('first_name' => 'Fabien', 'last_name' => 'Potencier'));
+    $group->bind(array('firstName' => 'Bernhard', 'lastName' => 'Potencier'));
 
     $this->assertFalse($group->isValid());
   }
@@ -112,107 +167,202 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
   public function testInvalidIfBoundWithExtraFields()
   {
     $group = new FormFieldGroup('author');
-    $group->add($this->createValidMockField('first_name'));
-    $group->add($this->createValidMockField('last_name'));
+    $group->initialize($this->object);
+    $group->add($this->createValidMockField('firstName'));
+    $group->add($this->createValidMockField('lastName'));
 
-    $group->bind(array('foo' => 'bar', 'first_name' => 'Fabien', 'last_name' => 'Potencier'));
+    $group->bind(array('foo' => 'bar', 'firstName' => 'Bernhard', 'lastName' => 'Potencier'));
 
     $this->assertFalse($group->isValid());
   }
 
+  public function testBindThrowsExceptionIfNotInitialized()
+  {
+    $group = new FormFieldGroup('author');
+    $group->add($this->createMockField('firstName'));
+
+    $this->setExpectedException('Symfony\Components\Form\Exception\NotInitializedException');
+    $group->bind(array()); // irrelevant
+  }
+
   public function testBindForwardsBoundValues()
   {
-    $field = $this->createMockField('first_name');
+    $field = $this->createMockField('firstName');
     $field->expects($this->once())
           ->method('bind')
-          ->with($this->equalTo('Fabien'));
+          ->with($this->equalTo('Bernhard'));
 
     $group = new FormFieldGroup('author');
+    $group->initialize($this->object);
     $group->add($field);
 
-    $group->bind(array('first_name' => 'Fabien'));
+    $group->bind(array('firstName' => 'Bernhard'));
+  }
+
+  public function testBindUpdatesProperties()
+  {
+    $field = $this->createMockField('firstName');
+    $field->expects($this->once())
+          ->method('getData')
+          ->will($this->returnValue('Bernhard'));
+
+    $object = new FormFieldGroupTest_Object();
+
+    $group = new FormFieldGroup('author');
+    $group->initialize($object);
+    $group->add($field);
+
+    $group->bind(array()); // irrelevant
+
+    $this->assertEquals('Bernhard', $object->firstName);
+  }
+
+  public function testBindUpdatesSetters()
+  {
+    $field = $this->createMockField('lastName');
+    $field->expects($this->once())
+          ->method('getData')
+          ->will($this->returnValue('Schussek'));
+
+    $object = new FormFieldGroupTest_Object();
+
+    $group = new FormFieldGroup('author');
+    $group->initialize($object);
+    $group->add($field);
+
+    $group->bind(array()); // irrelevant
+
+    $this->assertEquals('Schussek', $object->getLastName());
+  }
+
+  public function testBindThrowsExceptionIfPropertyIsNotPublic()
+  {
+    $object = new FormFieldGroupTest_Object();
+
+    $group = new FormFieldGroup('author');
+    $group->initialize($object);
+    $group->add($this->createMockField('privateProperty'));
+
+    $this->setExpectedException('Symfony\Components\Form\Exception\PropertyAccessDeniedException');
+    $group->bind(array()); // irrelevant
+  }
+
+  public function testBindThrowsExceptionIfSetterIsNotPublic()
+  {
+    $object = new FormFieldGroupTest_Object();
+
+    $group = new FormFieldGroup('author');
+    $group->initialize($object);
+    $group->add($this->createMockField('privateSetter'));
+
+    $this->setExpectedException('Symfony\Components\Form\Exception\PropertyAccessDeniedException');
+    $group->bind(array()); // irrelevant
+  }
+
+  public function testBindThrowsExceptionIfPropertyDoesNotExist()
+  {
+    $object = new FormFieldGroupTest_Object();
+
+    $group = new FormFieldGroup('author');
+    $group->initialize($object);
+    $group->add($this->createMockField('noSetter'));
+
+    $this->setExpectedException('Symfony\Components\Form\Exception\InvalidPropertyException');
+    $group->bind(array()); // irrelevant
   }
 
   public function testBindForwardsNullIfFieldIsMissing()
   {
-    $field = $this->createMockField('first_name');
+    $field = $this->createMockField('firstName');
     $field->expects($this->once())
           ->method('bind')
           ->with($this->equalTo(null));
 
     $group = new FormFieldGroup('author');
+    $group->initialize($this->object);
     $group->add($field);
 
     $group->bind(array());
   }
 
-  public function testGetDataReturnsEmptyArrayIfNotBound()
+  public function testAddThrowsExceptionIfAlreadyBound()
   {
-    $this->assertEquals(array(), $this->group->getData());
+    $this->group->bind(array('firstName' => 'Bernhard'));
+
+    $this->setExpectedException('Symfony\Components\Form\Exception\AlreadyBoundException');
+    $this->group->add($this->createMockField('lastName'));
   }
 
-  public function testGetDataReturnsEmptyArrayIfInvalid()
+  public function testMergeAddsAnotherGroup()
   {
-    $field = $this->createInvalidMockField('first_name');
+    $group1 = new FormFieldGroup('author');
+    $group1->add($field1 = $this->createMockField('firstName'));
 
-    $group = new FormFieldGroup('author');
-    $group->add($field);
-    $group->bind(array('first_name' => '')); // field is mocked anyway
+    $group2 = new FormFieldGroup('publisher');
+    $group2->add($field2 = $this->createMockField('lastName'));
 
-    $this->assertEquals(array(), $this->group->getData());
+    $group1->merge($group2);
+
+    $this->assertEquals($group2, $group1->get('publisher'));
   }
 
-  public function testGetDataForwardsCallIfBound()
+  public function testMergeThrowsExceptionIfOtherGroupAlreadyBound()
   {
-    $field = $this->createValidMockField('first_name');
-    $field->expects($this->atLeastOnce())
+    $group1 = new FormFieldGroup('author');
+    $group2 = new FormFieldGroup('publisher');
+    $group2->initialize($this->object);
+    $group2->add($this->createMockField('firstName'));
+
+    $group2->bind(array('firstName' => 'Bernhard'));
+
+    $this->setExpectedException('Symfony\Components\Form\Exception\AlreadyBoundException');
+    $group1->merge($group2);
+  }
+
+  public function testBindUpdatesMergedProperties()
+  {
+    $field = $this->createMockField('firstName');
+    $field->expects($this->once())
           ->method('getData')
-          ->will($this->returnValue('Fabien'));
+          ->will($this->returnValue('Bernhard'));
 
-    $group = new FormFieldGroup('author');
-    $group->add($field);
-    $group->bind(array('first_name' => '')); // field is mocked anyway
+    $object = new FormFieldGroupTest_Object();
 
-    $this->assertEquals(array('first_name' => 'Fabien'), $group->getData());
+    $group1 = new FormFieldGroup('author');
+    $group1->initialize($object);
+    $group2 = new FormFieldGroup('nested');
+    $group2->add($field);
+
+    $group1->merge($group2);
+    $group1->bind(array()); // irrelevant
+
+    $this->assertEquals('Bernhard', $object->firstName);
+  }
+
+
+  public function testGetDataReturnsObject()
+  {
+    $this->assertEquals($this->object, $this->group->getData());
   }
 
   public function testGetDisplayedDataForwardsCall()
   {
-    $field = $this->createValidMockField('first_name');
+    $field = $this->createValidMockField('firstName');
     $field->expects($this->atLeastOnce())
           ->method('getDisplayedData')
-          ->will($this->returnValue('Fabien'));
+          ->will($this->returnValue('Bernhard'));
 
     $group = new FormFieldGroup('author');
     $group->add($field);
 
-    $this->assertEquals(array('first_name' => 'Fabien'), $group->getDisplayedData());
-  }
-
-  public function testSetDefaultRequiresAnArray()
-  {
-    $this->setExpectedException('InvalidArgumentException');
-    $this->group->setDefault('foobar');
-  }
-
-  public function testSetDefaultForwardsCall()
-  {
-    $field = $this->createValidMockField('first_name');
-    $field->expects($this->once())
-          ->method('setDefault')
-          ->with($this->equalTo('Fabien'));
-
-    $group = new FormFieldGroup('author');
-    $group->add($field);
-
-    $group->setDefault(array('first_name' => 'Fabien'));
+    $this->assertEquals(array('firstName' => 'Bernhard'), $group->getDisplayedData());
   }
 
   public function testIsMultipartIfAnyFieldIsMultipart()
   {
     $group = new FormFieldGroup('author');
-    $group->add($this->createMultipartMockField('first_name'));
-    $group->add($this->createNonMultipartMockField('last_name'));
+    $group->add($this->createMultipartMockField('firstName'));
+    $group->add($this->createNonMultipartMockField('lastName'));
 
     $this->assertTrue($group->isMultipart());
   }
@@ -220,124 +370,18 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
   public function testIsNotMultipartIfNoFieldIsMultipart()
   {
     $group = new FormFieldGroup('author');
-    $group->add($this->createNonMultipartMockField('first_name'));
-    $group->add($this->createNonMultipartMockField('last_name'));
+    $group->add($this->createNonMultipartMockField('firstName'));
+    $group->add($this->createNonMultipartMockField('lastName'));
 
     $this->assertFalse($group->isMultipart());
-  }
-
-  public function testPreValidatorReceivesBoundData()
-  {
-    $validator = $this->createMockValidator();
-    $validator->expects($this->once())
-              ->method('validate')
-              ->with($this->equalTo(array('first_name' => 'data')));
-
-    $field = $this->createValidMockField('first_name');
-    $field->expects($this->atLeastOnce())
-          ->method('getData')
-          ->will($this->returnValue('transformed[data]'));
-
-    $group = new FormFieldGroup('author');
-    $group->add($field);
-    $group->setPreValidator($validator);
-
-    // test
-    $group->bind(array('first_name' => 'data'));
-  }
-
-  public function testPostValidatorReceivesNormalizedData()
-  {
-    $validator = $this->createMockValidator();
-    $validator->expects($this->once())
-              ->method('validate')
-              ->with($this->equalTo(array('first_name' => 'transformed[data]')));
-
-    $field = $this->createValidMockField('first_name');
-    $field->expects($this->atLeastOnce())
-          ->method('getData')
-          ->will($this->returnValue('transformed[data]'));
-
-    $group = new FormFieldGroup('author');
-    $group->add($field);
-    $group->setPostValidator($validator);
-
-    // test
-    $group->bind(array('first_name' => 'data'));
-  }
-
-  public function testMergeFieldsFromAnotherGroup()
-  {
-    $group1 = new FormFieldGroup('author');
-    $group1->add($field1 = $this->createMockField('first_name'));
-
-    $group2 = new FormFieldGroup('publisher');
-    $group2->add($field2 = $this->createMockField('last_name'));
-
-    $group1->merge($group2);
-
-    $this->assertEquals($field1, $group1->get('first_name'));
-    $this->assertEquals($field2, $group1->get('last_name'));
-    $this->assertEquals(2, count($group1));
-  }
-
-  public function testMergePreValidators()
-  {
-    $group1 = new FormFieldGroup('author');
-    $group1->setPreValidator($validator1 = $this->createMockValidator());
-
-    $group2 = new FormFieldGroup('publisher');
-    $group2->setPreValidator($validator2 = $this->createMockValidator());
-
-    $group1->merge($group2);
-
-    $expected = new AndValidator(array($validator1, $validator2));
-
-    $this->assertEquals($expected, $group1->getPreValidator());
-  }
-
-  public function testMergePostValidators()
-  {
-    $group1 = new FormFieldGroup('author');
-    $group1->setPostValidator($validator1 = $this->createMockValidator());
-
-    $group2 = new FormFieldGroup('publisher');
-    $group2->setPostValidator($validator2 = $this->createMockValidator());
-
-    $group1->merge($group2);
-
-    $expected = new AndValidator(array($validator1, $validator2));
-
-    $this->assertEquals($expected, $group1->getPostValidator());
-  }
-
-  public function testMergeThrowsExceptionIfAlreadyBound()
-  {
-    $group1 = new FormFieldGroup('author');
-    $group1->add($this->createMockField('first_name'));
-    $group2 = new FormFieldGroup('publisher');
-
-    $group1->bind(array('first_name' => 'Fabien'));
-
-    $this->setExpectedException('Symfony\Components\Form\Exception\AlreadyBoundException');
-    $group1->merge($group2);
-  }
-
-  public function testMergeThrowsExceptionIfOtherGroupAlreadyBound()
-  {
-    $group1 = new FormFieldGroup('author');
-    $group2 = new FormFieldGroup('publisher');
-    $group2->add($this->createMockField('first_name'));
-
-    $group2->bind(array('first_name' => 'Fabien'));
-
-    $this->setExpectedException('Symfony\Components\Form\Exception\AlreadyBoundException');
-    $group1->merge($group2);
   }
 
   public function testLocaleIsPassedToLocalizableField_SetBeforeAddingTheField()
   {
     $field = $this->getMock(__NAMESPACE__ . '\LocalizableField', array(), array(), '', false, false);
+    $field->expects($this->any())
+          ->method('getKey')
+          ->will($this->returnValue('firstName'));
     $field->expects($this->once())
           ->method('setLocale')
           ->with($this->equalTo('de_DE'));
@@ -349,6 +393,9 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
   public function testLocaleIsPassedToLocalizableField_SetAfterAddingTheField()
   {
     $field = $this->getMockForAbstractClass(__NAMESPACE__ . '\FormFieldGroupTest_LocalizableField', array(), '', false, false);
+    $field->expects($this->any())
+          ->method('getKey')
+          ->will($this->returnValue('firstName'));
 // DOESN'T WORK!
 //    $field = $this->getMock(__NAMESPACE__ . '\LocalizableField', array(), array(), '', false, false);
 //    $field->expects($this->once())
@@ -368,6 +415,9 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
   {
     $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
     $field = $this->getMock(__NAMESPACE__ . '\TranslatableField', array(), array(), '', false, false);
+    $field->expects($this->any())
+          ->method('getKey')
+          ->will($this->returnValue('firstName'));
     $field->expects($this->once())
           ->method('setTranslator')
           ->with($this->equalTo($translator));
@@ -380,6 +430,9 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
   {
     $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
     $field = $this->getMock(__NAMESPACE__ . '\TranslatableField', array(), array(), '', false, false);
+    $field->expects($this->any())
+          ->method('getKey')
+          ->will($this->returnValue('firstName'));
     $field->expects($this->once())
           ->method('setTranslator')
           ->with($this->equalTo($translator));
@@ -391,87 +444,20 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
   public function testTranslatorIsNotPassedToFieldIfNotSet()
   {
     $field = $this->getMock(__NAMESPACE__ . '\TranslatableField', array(), array(), '', false, false);
+    $field->expects($this->any())
+          ->method('getKey')
+          ->will($this->returnValue('firstName'));
     $field->expects($this->never())
           ->method('setTranslator');
 
     $this->group->add($field);
   }
 
-  public function testLocaleIsPassedToLocalizablePreValidator()
-  {
-    $validator = $this->getMock(__NAMESPACE__ . '\LocalizableValidator');
-    $validator->expects($this->once())
-              ->method('setLocale')
-              ->with($this->equalTo('de_DE'));
-
-    $this->group->setPreValidator($validator);
-    $this->group->setLocale('de_DE');
-    $this->group->bind(array('first_name' => 'Fabien'));
-  }
-
-  public function testTranslatorIsPassedToTranslatablePreValidator()
-  {
-    $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
-    $validator = $this->getMock(__NAMESPACE__ . '\TranslatableValidator');
-    $validator->expects($this->once())
-              ->method('setTranslator')
-              ->with($this->equalTo($translator));
-
-    $this->group->setPreValidator($validator);
-    $this->group->setTranslator($translator);
-    $this->group->bind(array('first_name' => 'Fabien'));
-  }
-
-  public function testTranslatorIsNotPassedToPreValidatorIfNotSet()
-  {
-    $validator = $this->getMock(__NAMESPACE__ . '\TranslatableValidator');
-    $validator->expects($this->never())
-              ->method('setTranslator');
-
-    $this->group->setPreValidator($validator);
-    $this->group->bind(array('first_name' => 'Fabien'));
-  }
-
-  public function testLocaleIsPassedToLocalizablePostValidator()
-  {
-    $validator = $this->getMock(__NAMESPACE__ . '\LocalizableValidator');
-    $validator->expects($this->once())
-              ->method('setLocale')
-              ->with($this->equalTo('de_DE'));
-
-    $this->group->setPostValidator($validator);
-    $this->group->setLocale('de_DE');
-    $this->group->bind(array('first_name' => 'Fabien'));
-  }
-
-  public function testTranslatorIsPassedToTranslatablePostValidator()
-  {
-    $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
-    $validator = $this->getMock(__NAMESPACE__ . '\TranslatableValidator');
-    $validator->expects($this->once())
-              ->method('setTranslator')
-              ->with($this->equalTo($translator));
-
-    $this->group->setPostValidator($validator);
-    $this->group->setTranslator($translator);
-    $this->group->bind(array('first_name' => 'Fabien'));
-  }
-
-  public function testTranslatorIsNotPassedToPostValidatorIfNotSet()
-  {
-    $validator = $this->getMock(__NAMESPACE__ . '\TranslatableValidator');
-    $validator->expects($this->never())
-              ->method('setTranslator');
-
-    $this->group->setPostValidator($validator);
-    $this->group->bind(array('first_name' => 'Fabien'));
-  }
-
   public function testSupportsClone()
   {
     $clone = clone $this->group;
 
-    $this->assertNotSame($clone['first_name'], $this->group['first_name']);
+    $this->assertNotSame($clone['firstName'], $this->group['firstName']);
   }
 
   protected function createMockField($key)
