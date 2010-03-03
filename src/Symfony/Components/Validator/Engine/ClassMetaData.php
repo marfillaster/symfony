@@ -15,8 +15,9 @@ class ClassMetaData extends ElementMetaData
 
     if (!is_null($classSpecification))
     {
-      foreach ($classSpecification->getPropertySpecifications() as $name => $propertySpecification)
+      foreach ($classSpecification->getPropertySpecifications() as $propertySpecification)
       {
+        $name = $propertySpecification->getPropertyName();
         $parentProperty = isset($parent->properties[$name]) ? $parent->properties[$name] : null;
         $this->properties[$name] = new PropertyMetaData($className, $name, $propertySpecification, $parentProperty);
       }
@@ -29,6 +30,7 @@ class ClassMetaData extends ElementMetaData
 
     foreach ($interfaces as $interface)
     {
+      $this->mergeProperties($interface);
       $this->mergeConstraints($interface);
     }
   }

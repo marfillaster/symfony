@@ -16,7 +16,10 @@ class ElementMetaData
 
     if (!is_null($specification))
     {
-      $this->constraints = $specification->getConstraints();
+      foreach ($specification->getConstraints() as $constraint)
+      {
+        $this->constraints[$constraint->getName()] = $constraint;
+      }
     }
 
     if (!is_null($parent))

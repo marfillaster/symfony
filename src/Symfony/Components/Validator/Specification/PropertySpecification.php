@@ -7,7 +7,7 @@ class PropertySpecification extends ElementSpecification
 {
   private $property;
 
-  public function __construct($class, $property, array $constraints)
+  public function __construct($class, $property, array $constraints = array())
   {
     parent::__construct($class, $constraints);
 

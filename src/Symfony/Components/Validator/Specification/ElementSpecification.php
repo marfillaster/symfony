@@ -8,7 +8,7 @@ class ElementSpecification
   private $class;
   private $constraints = array();
 
-  public function __construct($class, array $constraints)
+  public function __construct($class, array $constraints = array())
   {
     $this->class = $class;
     $this->constraints = $constraints;

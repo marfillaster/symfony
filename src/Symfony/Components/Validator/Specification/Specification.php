@@ -12,7 +12,10 @@ class Specification implements SpecificationInterface
 
   public function __construct(array $classSpecifications)
   {
-    $this->classSpecifications = $classSpecifications;
+    foreach ($classSpecifications as $classSpecification)
+    {
+      $this->classSpecifications[$classSpecification->getClassName()] = $classSpecification;
+    }
   }
 
   public function getClassSpecification($class)
