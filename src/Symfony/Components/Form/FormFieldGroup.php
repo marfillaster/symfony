@@ -70,7 +70,6 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
     }
 
     $this->fields[$field->getKey()] = $field;
-    $this->merged[$field->getKey()] = false;
 
     $field->setParent($this);
 
@@ -89,11 +88,41 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
    * Adds a new field to this group. A field must have a unique name within
    * the group. Otherwise the existing field is overwritten.
    *
+   * If you add a nested group, this group should also be represented in the
+   * object hierarchy. If you want to add a group that operates on the same
+   * hierarchy level, use merge().
+   *
+   * <code>
+   * class Entity
+   * {
+   *   public $location;
+   * }
+   *
+   * class Location
+   * {
+   *   public $longitude;
+   *   public $latitude;
+   * }
+   *
+   * $entity = new Entity();
+   * $entity->location = new Location();
+   *
+   * $form = new Form('entity', $entity, $validator);
+   *
+   * $locationGroup = new FormFieldGroup('location');
+   * $locationGroup->add(new TextField('longitude'));
+   * $locationGroup->add(new TextField('latitude'));
+   *
+   * $form->add($locationGroup);
+   * </code>
+   *
    * @param FormFieldInterface $field
    */
   public function add(FormFieldInterface $field)
   {
     $this->addField($field);
+
+    $this->merged[$field->getKey()] = false;
 
     if (!is_null($this->object))
     {
@@ -104,6 +133,52 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
   }
 
   /**
+   * Merges a field group into this group. The group must have a unique name
+   * within the group. Otherwise the existing field is overwritten.
+   *
+   * Contrary to added groups, merged groups operate on the same object as
+   * the group they are merged into.
+   *
+   * <code>
+   * class Entity
+   * {
+   *   public $longitude;
+   *   public $latitude;
+   * }
+   *
+   * $entity = new Entity();
+   *
+   * $form = new Form('entity', $entity, $validator);
+   *
+   * $locationGroup = new FormFieldGroup('location');
+   * $locationGroup->add(new TextField('longitude'));
+   * $locationGroup->add(new TextField('latitude'));
+   *
+   * $form->merge($locationGroup);
+   * </code>
+   *
+   * @param FormFieldGroup $group
+   */
+  public function merge(FormFieldGroup $group)
+  {
+    if ($group->isBound())
+    {
+      throw new AlreadyBoundException('A bound form group cannot be merged');
+    }
+
+    $this->addField($group);
+
+    $this->merged[$group->getKey()] = true;
+
+    if (!is_null($this->object))
+    {
+      $group->initialize($this->object);
+    }
+
+    return $this;
+  }
+
+  /**
    * Removes the field with the given key.
    *
    * @param string $key
@@ -111,6 +186,7 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
   public function remove($key)
   {
     unset($this->fields[$key]);
+    unset($this->merged[$key]);
   }
 
   /**
@@ -138,25 +214,6 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
     }
 
     return $this->fields[$key];
-  }
-
-  public function merge(FormFieldGroup $group)
-  {
-    if ($this->isBound() || $group->isBound())
-    {
-      throw new AlreadyBoundException('A bound form group cannot be merged');
-    }
-
-    $this->addField($group);
-
-    $this->merged[$group->getKey()] = true;
-
-    if (!is_null($this->object))
-    {
-      $group->initialize($this->object);
-    }
-
-    return $this;
   }
 
   /**
