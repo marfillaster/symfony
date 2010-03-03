@@ -2,21 +2,21 @@
 
 namespace Symfony\Components\Validator\Engine;
 
+use Symfony\Components\Validator\MetaDataInterface;
 use Symfony\Components\Validator\ValidatorInterface;
-use Symfony\Components\Validator\SpecificationInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
 use Symfony\Components\Validator\Exception\ValidatorException;
 use Symfony\Components\Validator\Exception\UnknownClassException;
 
 class Validator implements ValidatorInterface
 {
-  protected $metaDataCache;
+  protected $metaData;
   protected $validatorFactory;
   protected $classSpecifications = array();
 
-  public function __construct(SpecificationInterface $specification, ConstraintValidatorFactoryInterface $validatorFactory)
+  public function __construct(MetaDataInterface $metaData, ConstraintValidatorFactoryInterface $validatorFactory)
   {
-    $this->metaDataCache = new ClassMetaDataCache($specification);
+    $this->metaData = $metaData;
     $this->validatorFactory = new CachingConstraintValidatorFactory($validatorFactory);
   }
 
@@ -51,7 +51,7 @@ class Validator implements ValidatorInterface
     }
     else
     {
-      $classMetaData = $this->metaDataCache->getClassMetaData($class);
+      $classMetaData = $this->metaData->getClassMetaData($class);
 
       foreach ($classMetaData->getConstrainedProperties() as $property)
       {
@@ -87,7 +87,7 @@ class Validator implements ValidatorInterface
   {
     $violations = new ConstraintViolationList();
 
-    $classMetaData = $this->metaDataCache->getClassMetaData($class);
+    $classMetaData = $this->metaData->getClassMetaData($class);
     $propertyMetaData = $classMetaData->getPropertyMetaData($property);
 
     $constraints = $propertyMetaData->findConstraints()

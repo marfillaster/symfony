@@ -38,6 +38,11 @@ class ElementMetaData
     return $this->constraints;
   }
 
+  public function hasConstraint($name)
+  {
+    return isset($this->constraints[$name]);
+  }
+
   public function hasConstraints()
   {
     return count($this->constraints) > 0;

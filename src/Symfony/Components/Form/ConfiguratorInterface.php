@@ -2,7 +2,7 @@
 
 namespace Symfony\Components\Form;
 
-interface FieldConfiguratorInterface
+interface ConfiguratorInterface
 {
   public function initialize($object);
 

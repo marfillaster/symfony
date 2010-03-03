@@ -9,6 +9,7 @@ use Symfony\Components\Validator\Engine\Validator;
 use Symfony\Components\Validator\Engine\ConstraintViolation;
 use Symfony\Components\Validator\Engine\ConstraintViolationList;
 use Symfony\Components\Validator\Engine\PropertyPathBuilder;
+use Symfony\Components\Validator\Engine\MetaData;
 use Symfony\Components\Validator\Specification\ConstraintSpecification;
 use Symfony\Components\Validator\Specification\PropertySpecification;
 use Symfony\Components\Validator\Specification\ClassSpecification;
@@ -44,6 +45,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     $property = new PropertySpecification($subjectClass, 'firstName', array($constraint));
     $class = new ClassSpecification($subjectClass, array($property));
     $specification = new Specification(array($class));
+    $metaData = new MetaData($specification);
 
     $validatorMock = $this->getMock('Symfony\Components\Validator\ConstraintValidatorInterface');
     $validatorMock->expects($this->once())
@@ -63,7 +65,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
                 ->with($this->equalTo('Constraint'))
                 ->will($this->returnValue($validatorMock));
 
-    $validator = new Validator($specification, $factoryMock);
+    $validator = new Validator($metaData, $factoryMock);
 
     $builder = new PropertyPathBuilder();
     $expected = new ConstraintViolationList();

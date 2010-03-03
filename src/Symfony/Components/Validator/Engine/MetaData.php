@@ -2,9 +2,10 @@
 
 namespace Symfony\Components\Validator\Engine;
 
+use Symfony\Components\Validator\MetaDataInterface;
 use Symfony\Components\Validator\SpecificationInterface;
 
-class ClassMetaDataCache
+class MetaData implements MetaDataInterface
 {
   protected $specification;
   protected $classMetaDatas = array();

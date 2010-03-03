@@ -9,6 +9,7 @@ use Symfony\Components\Validator\Validators\Exception\MissingOptionsException;
 abstract class ConstraintValidator implements ConstraintValidatorInterface
 {
   private $options = array();
+  private $knownOptions = array();
   private $requiredOptions = array();
 
   private $messageTemplate = '';
@@ -16,33 +17,24 @@ abstract class ConstraintValidator implements ConstraintValidatorInterface
 
   public function initialize(array $options)
   {
-    $this->options = array();
+    $this->options = $options;
+    $this->knownOptions = array();
     $this->requiredOptions = array();
 
     $this->configure();
 
-    $unknown = array();
-
-    foreach ($options as $key => $option)
-    {
-      if (!array_key_exists($key, $this->options))
-      {
-        $unknown[] = $key;
-      }
-
-      $this->options[$key] = $option;
-    }
+    $unknown = array_diff_key($this->options, $this->knownOptions);
 
     if (count($unknown) > 0)
     {
-      throw new UnknownOptionsException($this, $unknown);
+      throw new UnknownOptionsException($this, array_keys($unknown));
     }
 
-    $missing = array_diff($this->requiredOptions, array_keys($this->options));
+    $missing = array_diff_key($this->requiredOptions, $this->options);
 
     if (count($missing) > 0)
     {
-      throw new MissingOptionsException($this, $missing);
+      throw new MissingOptionsException($this, array_keys($missing));
     }
   }
 
@@ -52,12 +44,17 @@ abstract class ConstraintValidator implements ConstraintValidatorInterface
 
   protected function addOption($name, $default = null)
   {
-    $this->options[$name] = $default;
+    if (!array_key_exists($name, $this->options))
+    {
+      $this->options[$name] = $default;
+    }
+
+    $this->knownOptions[$name] = true;
   }
 
   protected function addRequiredOption($name)
   {
-    $this->requiredOptions[] = $name;
+    $this->requiredOptions[$name] = true;
   }
 
   protected function getOption($name)
