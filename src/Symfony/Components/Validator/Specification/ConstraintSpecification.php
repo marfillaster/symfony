@@ -4,11 +4,9 @@ namespace Symfony\Components\Validator\Specification;
 
 class ConstraintSpecification
 {
-  protected $name;
-
-  protected $options;
-
-  protected $groups = array('default');
+  private $name;
+  private $options;
+  private $groups = array('Symfony\Components\Validator\Groups\Base');
 
   public function __construct($name, $groups = null, array $options = array())
   {

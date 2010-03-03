@@ -1,14 +1,15 @@
 <?php
 
-namespace Symfony\Components\Validator\Engine;
+namespace Symfony\Components\Validator\MetaData;
 
+use \ReflectionClass;
 use Symfony\Components\Validator\SpecificationInterface;
 use Symfony\Components\Validator\Exception\ValidatorException;
 
 class ConstraintFinder
 {
   protected $metaData;
-  protected $groups = array('default');
+  protected $groups = array('Symfony\Components\Validator\Groups\Base');
 
   public function __construct(ElementMetaData $metaData)
   {
@@ -31,11 +32,13 @@ class ConstraintFinder
       foreach ($this->metaData->getConstraints() as $constraint)
       {
         // more efficient than array_intersect()
-        foreach ($constraint->getGroups() as $constraintGroup)
+        foreach ($this->groups as $searchedGroup)
         {
-          foreach ($this->groups as $searchedGroup)
+          $searchedGroup = new ReflectionClass($searchedGroup);
+
+          foreach ($constraint->getGroups() as $constraintGroup)
           {
-            if ($searchedGroup == $constraintGroup)
+            if ($searchedGroup->implementsInterface($constraintGroup))
             {
               $constraints[$constraint->getName()] = $constraint;
               break 2;

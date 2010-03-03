@@ -20,17 +20,17 @@ class Validator implements ValidatorInterface
     $this->validatorFactory = new CachingConstraintValidatorFactory($validatorFactory);
   }
 
-  public function validate($object, $groups = 'default')
+  public function validate($object, $groups = 'Symfony\Components\Validator\Groups\Base')
   {
     return $this->doValidateObject(get_class($object), $object, $groups, get_class($object), new PropertyPathBuilder());
   }
 
-  public function validateProperty($object, $property, $groups = 'default')
+  public function validateProperty($object, $property, $groups = 'Symfony\Components\Validator\Groups\Base')
   {
     return $this->doValidateProperty($object, $property, $groups, get_class($object), new PropertyPathBuilder());
   }
 
-  public function validateValue($class, $property, $value, $groups = 'default')
+  public function validateValue($class, $property, $value, $groups = 'Symfony\Components\Validator\Groups\Base')
   {
     return $this->doValidateValue($class, $property, $value, $groups, $class, new PropertyPathBuilder());
   }

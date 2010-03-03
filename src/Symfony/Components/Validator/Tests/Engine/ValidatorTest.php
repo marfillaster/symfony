@@ -9,7 +9,7 @@ use Symfony\Components\Validator\Engine\Validator;
 use Symfony\Components\Validator\Engine\ConstraintViolation;
 use Symfony\Components\Validator\Engine\ConstraintViolationList;
 use Symfony\Components\Validator\Engine\PropertyPathBuilder;
-use Symfony\Components\Validator\Engine\MetaData;
+use Symfony\Components\Validator\MetaData\MetaData;
 use Symfony\Components\Validator\Specification\ConstraintSpecification;
 use Symfony\Components\Validator\Specification\PropertySpecification;
 use Symfony\Components\Validator\Specification\ClassSpecification;

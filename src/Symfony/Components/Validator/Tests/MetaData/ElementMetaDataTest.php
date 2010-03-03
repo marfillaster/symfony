@@ -1,11 +1,11 @@
 <?php
 
-namespace Symfony\Components\Validator\Tests\Engine;
+namespace Symfony\Components\Validator\Tests\MetaData;
 
 require_once __DIR__.'/../TestInit.php';
 
 
-use Symfony\Components\Validator\Engine\ElementMetaData;
+use Symfony\Components\Validator\MetaData\ElementMetaData;
 use Symfony\Components\Validator\Specification\ConstraintSpecification;
 use Symfony\Components\Validator\Specification\ElementSpecification;
 

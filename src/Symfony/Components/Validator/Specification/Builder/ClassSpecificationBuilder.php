@@ -14,11 +14,19 @@ class ClassSpecificationBuilder
   protected $classConstraints = array();
   protected $propertyConstraints = array();
   protected $parents = array();
+  protected $groupSequence = array('Symfony\Components\Validator\Groups\Base');
 
   public function __construct($class, SpecificationBuilder $metaDataBuilder)
   {
     $this->class = $class;
     $this->metaDataBuilder = $metaDataBuilder;
+  }
+
+  public function setGroupSequence(array $groupSequence)
+  {
+    $this->groupSequence = $groupSequence;
+
+    return $this;
   }
 
   public function addConstraint($name, $groups = null, array $options = array())
@@ -56,7 +64,8 @@ class ClassSpecificationBuilder
     return new ClassSpecification(
       $this->class,
       $propertySpecifications,
-      $this->classConstraints
+      $this->classConstraints,
+      $this->groupSequence
     );
   }
 }
