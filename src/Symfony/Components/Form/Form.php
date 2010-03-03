@@ -263,9 +263,9 @@ class Form extends FormFieldGroup
     $path->next(); // jump to next property name
     $fieldName = $path->current();
 
-    if ($path->valid() && $field instanceof FormFieldGroup && $field->has($fieldName))
+    if ($path->valid() && $field instanceof FormFieldGroup && $field->has($fieldName, true))
     {
-      $this->addDataError($field->get($fieldName), $path, $violation);
+      $this->addDataError($field->get($fieldName, true), $path, $violation);
     }
     else
     {

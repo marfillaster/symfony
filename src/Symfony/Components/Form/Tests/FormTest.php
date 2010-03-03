@@ -315,6 +315,39 @@ class FormTest extends \PHPUnit_Framework_TestCase
     $form->bind(array()); // irrelevant
   }
 
+  public function testBindMapsModelValidationErrorsOntoMergedFields()
+  {
+    $builder = new PropertyPathBuilder();
+    $violations = new ConstraintViolationList();
+    $violations->add(new ConstraintViolation(
+      'message',
+      array('param' => 'value'),
+      'Form',
+      $builder->atProperty('data')
+              ->atProperty('firstName')
+              ->getPropertyPath(),
+      'invalid value'
+    ));
+
+    $validator = $this->createMockValidator();
+    $field = $this->createMockField('firstName');
+    $form = new Form('author', $this->object, $validator);
+    $group = new FormFieldGroup('group');
+    $group->add($field);
+    $form->merge($group);
+
+    $validator->expects($this->once())
+              ->method('validate')
+              ->with($this->equalTo($form))
+              ->will($this->returnValue($violations));
+
+    $field->expects($this->once())
+          ->method('addError')
+          ->with($this->equalTo('message'), $this->equalTo(array('param' => 'value')));
+
+    $form->bind(array()); // irrelevant
+  }
+
   public function testMultipartFormsWithoutParentsRequireFiles()
   {
     $form = new Form('author', $this->object, $this->validator);

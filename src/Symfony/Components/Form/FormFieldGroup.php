@@ -193,9 +193,28 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
    * @param  string $key
    * @return boolean
    */
-  public function has($key)
+  public function has($key, $includeMerged = false)
   {
-    return isset($this->fields[$key]);
+    if (!$includeMerged)
+    {
+      return isset($this->fields[$key]);
+    }
+    else if (isset($this->fields[$key]) && !$this->merged[$key])
+    {
+      return true;
+    }
+    else
+    {
+      foreach ($this->merged as $fieldName => $isMerged)
+      {
+        if ($isMerged && $this->fields[$fieldName]->has($key, true))
+        {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -204,19 +223,31 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
    * @param  string $key
    * @return FormFieldInterface
    */
-  public function get($key)
+  public function get($key, $includeMerged = false)
   {
-    if (!$this->has($key))
+    if (!$includeMerged)
     {
-      throw new \InvalidArgumentException(sprintf('Field "%s" does not exist.', $key));
+      if (isset($this->fields[$key]))
+      {
+        return $this->fields[$key];
+      }
+    }
+    else if (isset($this->fields[$key]) && !$this->merged[$key])
+    {
+      return $this->fields[$key];
+    }
+    else
+    {
+      foreach ($this->merged as $fieldName => $isMerged)
+      {
+        if ($isMerged && $this->fields[$fieldName]->has($key, true))
+        {
+          return $this->fields[$fieldName]->get($key, true);
+        }
+      }
     }
 
-    return $this->fields[$key];
-  }
-
-  public function getFields()
-  {
-    return $this->fields;
+    throw new \InvalidArgumentException(sprintf('Field "%s" does not exist.', $key));
   }
 
   /**
