@@ -27,14 +27,14 @@ class ExecutionContext
 
   public function execute(CommandInterface $command)
   {
-//    $hash = $command->getHash();
-//
-//    if (!isset($this->executed[$hash]))
-//    {
-//      $this->executed[$hash] = true;
+    $key = get_class($command).$command->getCacheKey();
+
+    if (!isset($this->executed[$key]))
+    {
+      $this->executed[$key] = true;
 
       $command->execute($this->violations, $this);
-//    }
+    }
 
     return $this->violations;
   }

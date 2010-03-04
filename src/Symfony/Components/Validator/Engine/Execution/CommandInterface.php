@@ -8,5 +8,5 @@ interface CommandInterface
 {
   function execute(ConstraintViolationList $violations, ExecutionContext $context);
 
-  function getHash();
+  function getCacheKey();
 }

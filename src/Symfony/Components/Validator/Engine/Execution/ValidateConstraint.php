@@ -21,8 +21,22 @@ class ValidateConstraint implements CommandInterface
     $this->propertyPathBuilder = $propertyPathBuilder;
   }
 
-  public function getHash()
+  public function getCacheKey()
   {
+    if (is_object($this->value))
+    {
+      $value = spl_object_hash($this->value);
+    }
+    else if (is_resource($this->value) || is_array($this->value))
+    {
+      $value = serialize($this->value);
+    }
+    else
+    {
+      $value = $this->value;
+    }
+
+    return $value . spl_object_hash($this->constraint);
   }
 
   public function execute(ConstraintViolationList $violations, ExecutionContext $context)

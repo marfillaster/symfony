@@ -16,8 +16,9 @@ class ValidateObject implements CommandInterface
     $this->propertyPathBuilder = $propertyPathBuilder;
   }
 
-  public function getHash()
+  public function getCacheKey()
   {
+    return spl_object_hash($this->object);
   }
 
   public function execute(ConstraintViolationList $violations, ExecutionContext $context)
