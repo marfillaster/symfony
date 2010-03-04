@@ -15,15 +15,13 @@ class CachingConstraintValidatorFactory implements ConstraintValidatorFactoryInt
     $this->decoratedFactory = $factory;
   }
 
-  public function getValidator(Constraint $constraint)
+  public function getInstance($className)
   {
-    $class = get_class($constraint);
-
-    if (!isset($this->validators[$class]))
+    if (!isset($this->validators[$className]))
     {
-      $this->validators[$class] = $this->decoratedFactory->getValidator($constraint);
+      $this->validators[$className] = $this->decoratedFactory->getInstance($className);
     }
 
-    return $this->validators[$class];
+    return $this->validators[$className];
   }
 }

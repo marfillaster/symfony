@@ -49,7 +49,8 @@ class ValidateConstraint implements CommandInterface
     }
     else
     {
-      $validator = $context->getValidatorFactory()->getValidator($this->constraint);
+      $validator = $context->getValidatorFactory()->getInstance($this->constraint->validatedBy());
+      $validator->initialize($context);
 
       if (!$validator->isValid($this->value, $this->constraint))
       {

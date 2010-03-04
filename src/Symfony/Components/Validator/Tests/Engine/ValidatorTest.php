@@ -61,8 +61,8 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
     $factoryMock = $this->getMock('Symfony\Components\Validator\ConstraintValidatorFactoryInterface');
     $factoryMock->expects($this->once())
-                ->method('getValidator')
-                ->with($this->equalTo($constraint))
+                ->method('getInstance')
+                ->with($this->equalTo($constraint->validatedBy()))
                 ->will($this->returnValue($validatorMock));
 
     $validator = new Validator($metaData, $factoryMock);
