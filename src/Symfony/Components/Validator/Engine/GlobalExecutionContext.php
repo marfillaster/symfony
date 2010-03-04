@@ -70,8 +70,9 @@ class GlobalExecutionContext
 
   public function executeInContext(CommandInterface $command, LocalExecutionContext $context)
   {
-    $key = $command->getCacheKey();
-    $cachePrefix = '['.implode(',', $context->getGroups()).']'.substr(get_class($command), $this->cachePrefixOffset) . ':';
+    $key = $command->getCacheKey($context);
+    $cachePrefix = substr(get_class($command), $this->cachePrefixOffset) . ':';
+
 
     if (is_null($key) || !isset($this->executed[$cachePrefix . $key]))
     {
@@ -82,10 +83,10 @@ class GlobalExecutionContext
 
       $command->execute($this->violations, $context);
     }
-//    else if (!is_null($key))
-//    {
-//      var_dump('cache hit!');
-//    }
+    else if (!is_null($key))
+    {
+      var_dump('cache hit!');
+    }
   }
 
   public function getRoot()

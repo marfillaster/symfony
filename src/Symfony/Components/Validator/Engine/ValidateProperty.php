@@ -17,9 +17,10 @@ class ValidateProperty implements CommandInterface
     $this->propertyPathBuilder = $propertyPathBuilder;
   }
 
-  public function getCacheKey()
+  public function getCacheKey(LocalExecutionContext $context)
   {
-    return is_null($this->object) ? null : (spl_object_hash($this->object) . $this->property);
+    return null;
+//    return is_null($this->object) ? null : (implode(',', $context->getGroups()) . ':' . spl_object_hash($this->object) . $this->property);
   }
 
   public function execute(ConstraintViolationList $violations, LocalExecutionContext $context)

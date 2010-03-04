@@ -17,9 +17,10 @@ class ValidateValue implements CommandInterface
     $this->propertyPathBuilder = $propertyPathBuilder;
   }
 
-  public function getCacheKey()
+  public function getCacheKey(LocalExecutionContext $context)
   {
-    return $this->propertyPathBuilder->getPropertyPath()->__toString();
+    return null;
+//    return implode(',', $context->getGroups()) . ':' . $this->propertyPathBuilder->getPropertyPath()->__toString();
   }
 
   public function execute(ConstraintViolationList $violations, LocalExecutionContext $context)

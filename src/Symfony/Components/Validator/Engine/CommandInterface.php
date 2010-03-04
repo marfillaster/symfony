@@ -6,5 +6,5 @@ interface CommandInterface
 {
   function execute(ConstraintViolationList $violations, LocalExecutionContext $context);
 
-  function getCacheKey();
+  function getCacheKey(LocalExecutionContext $context);
 }

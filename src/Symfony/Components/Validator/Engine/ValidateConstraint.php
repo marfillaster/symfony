@@ -18,7 +18,7 @@ class ValidateConstraint implements CommandInterface
     $this->propertyPathBuilder = $propertyPathBuilder;
   }
 
-  public function getCacheKey()
+  public function getCacheKey(LocalExecutionContext $context)
   {
     return $this->propertyPathBuilder->getPropertyPath()->__toString() . ':' . $this->constraint->getName();
   }
