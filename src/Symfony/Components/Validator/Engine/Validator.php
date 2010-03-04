@@ -2,17 +2,19 @@
 
 namespace Symfony\Components\Validator\Engine;
 
-use Symfony\Components\Validator\MetaDataInterface;
 use Symfony\Components\Validator\ValidatorInterface;
+use Symfony\Components\Validator\MetaDataInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
-use Symfony\Components\Validator\Exception\ValidatorException;
-use Symfony\Components\Validator\Exception\UnknownClassException;
+use Symfony\Components\Validator\Engine\Execution\ExecutionContext;
+use Symfony\Components\Validator\Engine\Execution\CommandInterface;
+use Symfony\Components\Validator\Engine\Execution\ValidateObject;
+use Symfony\Components\Validator\Engine\Execution\ValidateProperty;
+use Symfony\Components\Validator\Engine\Execution\ValidateValue;
 
 class Validator implements ValidatorInterface
 {
   protected $metaData;
   protected $validatorFactory;
-  protected $classSpecifications = array();
 
   public function __construct(MetaDataInterface $metaData, ConstraintValidatorFactoryInterface $validatorFactory)
   {
@@ -22,130 +24,29 @@ class Validator implements ValidatorInterface
 
   public function validate($object, $groups = 'Symfony\Components\Validator\Groups\Base')
   {
-    return $this->doValidateObject(get_class($object), $object, $groups, get_class($object), new PropertyPathBuilder());
+    $command = new ValidateObject($object, new PropertyPathBuilder());
+
+    return $this->executeInContext(get_class($object), $groups, $command);
   }
 
   public function validateProperty($object, $property, $groups = 'Symfony\Components\Validator\Groups\Base')
   {
-    return $this->doValidateProperty($object, $property, $groups, get_class($object), new PropertyPathBuilder());
+    $command = new ValidateProperty($object, $property, new PropertyPathBuilder());
+
+    return $this->executeInContext(get_class($object), $groups, $command);
   }
 
   public function validateValue($class, $property, $value, $groups = 'Symfony\Components\Validator\Groups\Base')
   {
-    return $this->doValidateValue($class, $property, $value, $groups, $class, new PropertyPathBuilder());
+    $command = new ValidateValue($class, $property, $value, new PropertyPathBuilder());
+
+    return $this->executeInContext($class, $groups, $command);
   }
 
-  protected function doValidateObject($class, $object, $groups, $root, PropertyPathBuilder $propertyPathBuilder, $classMessage = '')
+  protected function executeInContext($root, $groups, CommandInterface $command)
   {
-    $violations = new ConstraintViolationList();
+    $context = new ExecutionContext($root, (array)$groups, $this->metaData, $this->validatorFactory);
 
-    if (!$object instanceof $class)
-    {
-      $violations->add(new ConstraintViolation(
-        $classMessage,
-        array('%class%' => $class),
-        $root,
-        $propertyPathBuilder->getPropertyPath(),
-        $object
-      ));
-    }
-    else
-    {
-      $classMetaData = $this->metaData->getClassMetaData($class);
-
-      foreach ($classMetaData->getConstrainedProperties() as $property)
-      {
-        $violations->addAll($this->doValidateProperty($object, $property, $groups, $root, $propertyPathBuilder));
-      }
-    }
-
-    return $violations;
-  }
-
-  protected function doValidateProperty($object, $property, $groups, $root, PropertyPathBuilder $propertyPathBuilder)
-  {
-    $getter = 'get'.ucfirst($property);
-    $isser = 'is'.ucfirst($property);
-
-    if (property_exists($object, $property))
-    {
-      $value = $object->$property;
-    }
-    else if (method_exists($object, $getter))
-    {
-      $value = $object->$getter();
-    }
-    else
-    {
-      throw new ValidatorException(sprintf('Neither property "%s" nor method "%s" is readable', $property, $getter));
-    }
-
-    return $this->doValidateValue(get_class($object), $property, $value, $groups, $root, $propertyPathBuilder->atProperty($property));
-  }
-
-  protected function doValidateValue($class, $property, $value, $groups, $root, PropertyPathBuilder $propertyPathBuilder)
-  {
-    $violations = new ConstraintViolationList();
-
-    $classMetaData = $this->metaData->getClassMetaData($class);
-    $propertyMetaData = $classMetaData->getPropertyMetaData($property);
-
-    $constraints = $propertyMetaData->findConstraints()
-        ->inGroups($groups)
-        ->getConstraints();
-
-    foreach ($constraints as $constraint)
-    {
-      if ($constraint->getName() == 'Valid')
-      {
-        $classMessage = $constraint->getOption('classMessage', 'Must be instance of %class%');
-
-        if (is_array($value) || $value instanceof \Traversable)
-        {
-          foreach ($value as $key => $object)
-          {
-            $violations->addAll($this->doValidateObject(
-              $constraint->getOption('class', get_class($object)),
-              $object,
-              $groups,
-              $root,
-              $propertyPathBuilder->atIndex($key),
-              $classMessage
-            ));
-          }
-        }
-        else
-        {
-          $violations->addAll($this->doValidateObject(
-            $constraint->getOption('class', get_class($value)),
-            $value,
-            $groups,
-            $root,
-            $propertyPathBuilder,
-            $classMessage
-          ));
-        }
-      }
-      else
-      {
-        $validator = $this->validatorFactory->getValidator($constraint->getName());
-        $validator->initialize($constraint->getOptions());
-
-        if (!$validator->validate($value))
-        {
-          $param = $validator->getMessageParameters();
-
-          $violations->add(new ConstraintViolation(
-            $validator->getMessageTemplate(),
-            $validator->getMessageParameters(),
-            $root,
-            $propertyPathBuilder->getPropertyPath(),
-            $value
-          ));
-        }
-      }
-    }
-
-    return $violations;
+    return $context->execute($command);
   }
 }
