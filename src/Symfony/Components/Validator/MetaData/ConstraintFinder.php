@@ -35,11 +35,11 @@ class ConstraintFinder
       {
         foreach ($this->groups as $searchedGroup)
         {
-          foreach ($constraint->getGroups() as $constraintGroup)
+          foreach ((array)$constraint->groups as $constraintGroup)
           {
             if ($searchedGroup->isInstanceOf($constraintGroup))
             {
-              $constraints[$constraint->getName()] = $constraint;
+              $constraints[get_class($constraint)] = $constraint;
               break 2;
             }
           }

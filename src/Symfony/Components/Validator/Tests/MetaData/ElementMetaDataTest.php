@@ -6,20 +6,28 @@ require_once __DIR__.'/../TestInit.php';
 
 
 use Symfony\Components\Validator\MetaData\ElementMetaData;
-use Symfony\Components\Validator\Specification\ConstraintSpecification;
+use Symfony\Components\Validator\Engine\Constraint;
 use Symfony\Components\Validator\Specification\ElementSpecification;
+
+
+interface ParentGroup {}
+interface ChildGroup {}
+
+class ElementMetaDataTest_Constraint extends Constraint {}
+class ElementMetaDataTest_ParentConstraint extends Constraint {}
+class ElementMetaDataTest_ChildConstraint extends Constraint {}
 
 
 class ElementMetaDataTest extends \PHPUnit_Framework_TestCase
 {
   public function testConstraintsAreTakenFromSpecification()
   {
-    $constraint = new ConstraintSpecification('Constraint');
+    $constraint = new ElementMetaDataTest_Constraint();
     $spec = new ElementSpecification('Class', array($constraint));
     $element = new ElementMetaData('Class', $spec);
 
     $expected = array(
-      'Constraint' => $constraint
+      get_class($constraint) => $constraint
     );
 
     $this->assertEquals($expected, $element->getConstraints());
@@ -27,17 +35,17 @@ class ElementMetaDataTest extends \PHPUnit_Framework_TestCase
 
   public function testParentConstraintsAreMerged()
   {
-    $parentConstraint = new ConstraintSpecification('ParentConstraint');
+    $parentConstraint = new ElementMetaDataTest_ParentConstraint();
     $spec = new ElementSpecification('Class', array($parentConstraint));
     $parent = new ElementMetaData('Class', $spec);
 
-    $childConstraint = new ConstraintSpecification('ChildConstraint');
+    $childConstraint = new ElementMetaDataTest_ChildConstraint();
     $spec = new ElementSpecification('SubClass', array($childConstraint));
     $element = new ElementMetaData('SubClass', $spec, $parent);
 
     $expected = array(
-      'ChildConstraint' => $childConstraint,
-      'ParentConstraint' => $parentConstraint,
+      get_class($childConstraint) => $childConstraint,
+      get_class($parentConstraint) => $parentConstraint,
     );
 
     $this->assertEquals($expected, $element->getConstraints());
@@ -45,16 +53,18 @@ class ElementMetaDataTest extends \PHPUnit_Framework_TestCase
 
   public function testExistingConstraintsRemainUnchanged()
   {
-    $parentConstraint = new ConstraintSpecification('ExistingConstraint', 'parentgroup');
+    $parentConstraint = new ElementMetaDataTest_Constraint();
+    $parentConstraint->groups = __NAMESPACE__.'\\ParentGroup';
     $spec = new ElementSpecification('Class', array($parentConstraint));
     $parent = new ElementMetaData('Class', $spec);
 
-    $childConstraint = new ConstraintSpecification('ExistingConstraint', 'childgroup');
+    $childConstraint = new ElementMetaDataTest_Constraint();
+    $childConstraint->groups = __NAMESPACE__.'\\ChildGroup';
     $spec = new ElementSpecification('SubClass', array($childConstraint));
     $element = new ElementMetaData('SubClass', $spec, $parent);
 
     $expected = array(
-      'ExistingConstraint' => $childConstraint,
+      get_class($childConstraint) => $childConstraint,
     );
 
     $this->assertEquals($expected, $element->getConstraints());

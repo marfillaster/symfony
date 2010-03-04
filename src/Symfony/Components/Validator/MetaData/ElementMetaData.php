@@ -18,7 +18,7 @@ class ElementMetaData
     {
       foreach ($specification->getConstraints() as $constraint)
       {
-        $this->constraints[$constraint->getName()] = $constraint;
+        $this->constraints[get_class($constraint)] = $constraint;
       }
     }
 

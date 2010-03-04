@@ -2,15 +2,13 @@
 
 namespace Symfony\Components\Validator\Engine;
 
-use Symfony\Components\Validator\Specification\ConstraintSpecification;
-
 class ValidateReference implements CommandInterface
 {
   protected $constraint;
   protected $object;
   protected $propertyPathBuilder;
 
-  public function __construct($object, ConstraintSpecification $constraint, PropertyPathBuilder $propertyPathBuilder)
+  public function __construct($object, Constraint $constraint, PropertyPathBuilder $propertyPathBuilder)
   {
     $this->object = $object;
     $this->constraint = $constraint;
@@ -27,12 +25,10 @@ class ValidateReference implements CommandInterface
   {
     if (!is_null($this->object))
     {
-      $class = $this->constraint->getOption('class');
-
-      if ($class && !$this->object instanceof $class)
+      if ($this->constraint->class && !$this->object instanceof $this->constraint->class)
       {
         $violations->add(new ConstraintViolation(
-          $this->constraint->getOption('classMessage', 'Must be instance of %class%'),
+          $this->constraint->classMessage,
           array('class' => $class),
           $context->getRoot(),
           $this->propertyPathBuilder->getPropertyPath(),

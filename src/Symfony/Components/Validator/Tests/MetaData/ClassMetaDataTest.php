@@ -9,7 +9,11 @@ use Symfony\Components\Validator\MetaData\ClassMetaData;
 use Symfony\Components\Validator\MetaData\PropertyMetaData;
 use Symfony\Components\Validator\Specification\ClassSpecification;
 use Symfony\Components\Validator\Specification\PropertySpecification;
-use Symfony\Components\Validator\Specification\ConstraintSpecification;
+use Symfony\Components\Validator\Engine\Constraint;
+
+
+class ClassMetaDataTest_InterfaceConstraint extends Constraint {}
+class ClassMetaDataTest_ChildConstraint extends Constraint {}
 
 
 class ClassMetaDataTest extends \PHPUnit_Framework_TestCase
@@ -92,17 +96,17 @@ class ClassMetaDataTest extends \PHPUnit_Framework_TestCase
 
   public function testInterfaceConstraintsAreMerged()
   {
-    $interfaceConstraint = new ConstraintSpecification('InterfaceConstraint');
+    $interfaceConstraint = new ClassMetaDataTest_InterfaceConstraint();
     $spec = new ClassSpecification('Interface', array(), array($interfaceConstraint));
     $interface = new ClassMetaData('Interface', $spec);
 
-    $childConstraint = new ConstraintSpecification('ChildConstraint');
+    $childConstraint = new ClassMetaDataTest_ChildConstraint();
     $spec = new ClassSpecification('SubClass', array(), array($childConstraint));
     $element = new ClassMetaData('SubClass', $spec, null, array($interface));
 
     $expected = array(
-      'ChildConstraint' => $childConstraint,
-      'InterfaceConstraint' => $interfaceConstraint,
+      get_class($childConstraint) => $childConstraint,
+      get_class($interfaceConstraint) => $interfaceConstraint,
     );
 
     $this->assertEquals($expected, $element->getConstraints());

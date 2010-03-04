@@ -3,7 +3,7 @@
 namespace Symfony\Components\Validator\Engine;
 
 use \Traversable;
-use Symfony\Components\Validator\Specification\ConstraintSpecification;
+use Symfony\Components\Validator\Constraints\Valid;
 
 class ValidateConstraint implements CommandInterface
 {
@@ -11,7 +11,7 @@ class ValidateConstraint implements CommandInterface
   protected $constraint;
   protected $propertyPathBuilder;
 
-  public function __construct($value, ConstraintSpecification $constraint, PropertyPathBuilder $propertyPathBuilder)
+  public function __construct($value, Constraint $constraint, PropertyPathBuilder $propertyPathBuilder)
   {
     $this->value = $value;
     $this->constraint = $constraint;
@@ -20,12 +20,12 @@ class ValidateConstraint implements CommandInterface
 
   public function getCacheKey(LocalExecutionContext $context)
   {
-    return $this->propertyPathBuilder->getPropertyPath()->__toString() . ':' . $this->constraint->getName();
+    return $this->propertyPathBuilder->getPropertyPath()->__toString() . ':' . get_class($this->constraint);
   }
 
   public function execute(ConstraintViolationList $violations, LocalExecutionContext $context)
   {
-    if ($this->constraint->getName() == 'Valid')
+    if ($this->constraint instanceof Valid)
     {
       if (is_array($this->value) || $this->value instanceof Traversable)
       {
@@ -49,10 +49,9 @@ class ValidateConstraint implements CommandInterface
     }
     else
     {
-      $validator = $context->getValidatorFactory()->getValidator($this->constraint->getName());
-      $validator->initialize($this->constraint->getOptions());
+      $validator = $context->getValidatorFactory()->getValidator($this->constraint);
 
-      if (!$validator->validate($this->value))
+      if (!$validator->isValid($this->value, $this->constraint))
       {
         $violations->add(new ConstraintViolation(
           $validator->getMessageTemplate(),

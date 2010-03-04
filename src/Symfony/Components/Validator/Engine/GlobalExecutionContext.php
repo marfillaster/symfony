@@ -83,10 +83,10 @@ class GlobalExecutionContext
 
       $command->execute($this->violations, $context);
     }
-    else if (!is_null($key))
-    {
-      var_dump('cache hit!');
-    }
+//    else if (!is_null($key))
+//    {
+//      var_dump('cache hit!');
+//    }
   }
 
   public function getRoot()

@@ -2,6 +2,7 @@
 
 namespace Symfony\Components\Validator\Specification\Builder;
 
+use Symfony\Components\Validator\Engine\Constraint;
 use Symfony\Components\Validator\Specification\ClassSpecification;
 use Symfony\Components\Validator\Specification\PropertySpecification;
 use Symfony\Components\Validator\Specification\ConstraintSpecification;
@@ -26,21 +27,43 @@ class ClassSpecificationBuilder
     return $this;
   }
 
-  public function addConstraint($name, $groups = null, array $options = array())
+  protected function getConstraint($className, $groups = null, array $options = array())
   {
-    $this->classConstraints[$name] = new ConstraintSpecification($name, $groups, $options);
+    $constraint = new $className;
+
+    if (!$constraint instanceof Constraint)
+    {
+      throw new ConstraintDefinitionException();
+    }
+
+    if (!is_null($groups))
+    {
+      $constraint->groups = $groups;
+    }
+
+    foreach ($options as $key => $value)
+    {
+      $constraint->$key = $value;
+    }
+
+    return $constraint;
+  }
+
+  public function addConstraint($className, $groups = null, array $options = array())
+  {
+    $this->classConstraints[$className] = $this->getConstraint($className, $groups, $options);
 
     return $this;
   }
 
-  public function addPropertyConstraint($property, $name, $groups = null, array $options = array())
+  public function addPropertyConstraint($property, $className, $groups = null, array $options = array())
   {
     if (!isset($this->propertyConstraints[$property]))
     {
       $this->propertyConstraints[$property] = array();
     }
 
-    $this->propertyConstraints[$property][$name] = new ConstraintSpecification($name, $groups, $options);
+    $this->propertyConstraints[$property][$className] = $this->getConstraint($className, $groups, $options);
 
     return $this;
   }

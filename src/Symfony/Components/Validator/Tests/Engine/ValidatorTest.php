@@ -6,11 +6,11 @@ require_once __DIR__.'/../TestInit.php';
 
 
 use Symfony\Components\Validator\Engine\Validator;
+use Symfony\Components\Validator\Engine\Constraint;
 use Symfony\Components\Validator\Engine\ConstraintViolation;
 use Symfony\Components\Validator\Engine\ConstraintViolationList;
 use Symfony\Components\Validator\Engine\PropertyPathBuilder;
 use Symfony\Components\Validator\MetaData\MetaData;
-use Symfony\Components\Validator\Specification\ConstraintSpecification;
 use Symfony\Components\Validator\Specification\PropertySpecification;
 use Symfony\Components\Validator\Specification\ClassSpecification;
 use Symfony\Components\Validator\Specification\Specification;
@@ -41,7 +41,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     $subject = new ValidatorTest_Class();
     $subjectClass = get_class($subject);
 
-    $constraint = new ConstraintSpecification('Constraint');
+    $constraint = new Constraint();
     $property = new PropertySpecification($subjectClass, 'firstName', array($constraint));
     $class = new ClassSpecification($subjectClass, array($property));
     $specification = new Specification(array($class));
@@ -49,8 +49,8 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
 
     $validatorMock = $this->getMock('Symfony\Components\Validator\ConstraintValidatorInterface');
     $validatorMock->expects($this->once())
-                  ->method('validate')
-                  ->with($this->equalTo('Bernhard'))
+                  ->method('isValid')
+                  ->with($this->equalTo('Bernhard'), $this->equalTo($constraint))
                   ->will($this->returnValue(false));
     $validatorMock->expects($this->atLeastOnce())
                   ->method('getMessageTemplate')
@@ -62,7 +62,7 @@ class ValidatorTest extends \PHPUnit_Framework_TestCase
     $factoryMock = $this->getMock('Symfony\Components\Validator\ConstraintValidatorFactoryInterface');
     $factoryMock->expects($this->once())
                 ->method('getValidator')
-                ->with($this->equalTo('Constraint'))
+                ->with($this->equalTo($constraint))
                 ->will($this->returnValue($validatorMock));
 
     $validator = new Validator($metaData, $factoryMock);
