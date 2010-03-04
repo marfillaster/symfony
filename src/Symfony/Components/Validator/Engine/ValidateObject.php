@@ -15,20 +15,23 @@ class ValidateObject implements CommandInterface
 
   public function getCacheKey()
   {
-    return spl_object_hash($this->object);
+    return is_null($this->object) ? null : spl_object_hash($this->object);
   }
 
   public function execute(ConstraintViolationList $violations, ExecutionContext $context)
   {
-    $classMetaData = $context->getMetaData()->getClassMetaData(get_class($this->object));
-
-    foreach ($classMetaData->getConstrainedProperties() as $property)
+    if (!is_null($this->object))
     {
-      $context->execute(new ValidateProperty(
-        $this->object,
-        $property,
-        $this->propertyPathBuilder
-      ));
+      $classMetaData = $context->getMetaData()->getClassMetaData(get_class($this->object));
+
+      foreach ($classMetaData->getConstrainedProperties() as $property)
+      {
+        $context->execute(new ValidateProperty(
+          $this->object,
+          $property,
+          $this->propertyPathBuilder->atProperty($property)
+        ));
+      }
     }
   }
 }

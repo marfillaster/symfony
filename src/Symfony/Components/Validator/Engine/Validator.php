@@ -31,14 +31,16 @@ class Validator implements ValidatorInterface
 
   public function validateProperty($object, $property, $groups = 'Symfony\Components\Validator\Groups\Base')
   {
-    $command = new ValidateProperty($object, $property, new PropertyPathBuilder());
+    $builder = new PropertyPathBuilder();
+    $command = new ValidateProperty($object, $property, $builder->atProperty($property));
 
     return $this->executeInContext(get_class($object), $groups, $command);
   }
 
   public function validateValue($class, $property, $value, $groups = 'Symfony\Components\Validator\Groups\Base')
   {
-    $command = new ValidateValue($class, $property, $value, new PropertyPathBuilder());
+    $builder = new PropertyPathBuilder();
+    $command = new ValidateValue($class, $property, $value, $builder->atProperty($property));
 
     return $this->executeInContext($class, $groups, $command);
   }

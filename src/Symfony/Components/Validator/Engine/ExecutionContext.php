@@ -14,6 +14,7 @@ class ExecutionContext
   protected $executed = array();
   protected $context;
   protected $violations;
+  protected $cachePrefixOffset;
 
   public function __construct($root, array $groups, MetaDataInterface $metaData, ConstraintValidatorFactoryInterface $validatorFactory)
   {
@@ -22,18 +23,27 @@ class ExecutionContext
     $this->groups = $groups;
     $this->metaData = $metaData;
     $this->validatorFactory = $validatorFactory;
+    $this->cachePrefixOffset = strlen(__NAMESPACE__ . '\\Validate');
   }
 
   public function execute(CommandInterface $command)
   {
-    $key = get_class($command).$command->getCacheKey();
+    $key = $command->getCacheKey();
+    $cachePrefix = substr(get_class($command), $this->cachePrefixOffset) . ':';
 
-    if (!isset($this->executed[$key]))
+    if (is_null($key) || !isset($this->executed[$cachePrefix . $key]))
     {
-      $this->executed[$key] = true;
+      if (!is_null($key))
+      {
+        $this->executed[$cachePrefix . $key] = true;
+      }
 
       $command->execute($this->violations, $this);
     }
+//    else if (!is_null($key))
+//    {
+//      var_dump('cache hit!');
+//    }
 
     return $this->violations;
   }

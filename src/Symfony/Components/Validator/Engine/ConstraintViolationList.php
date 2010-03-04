@@ -14,7 +14,12 @@ class ConstraintViolationList implements \IteratorAggregate
     {
       $param = $violation->getMessageParameters();
       $message = str_replace(array_keys($param), $param, $violation->getMessageTemplate());
-      $string .= $violation->getPropertyPath() . ":\n  " . $message . "\n";
+      $string .= <<<EOF
+{$violation->getRoot()}.{$violation->getPropertyPath()}:
+  $message
+  (invalid value = {$violation->getInvalidValue()})
+
+EOF;
     }
 
     return $string;

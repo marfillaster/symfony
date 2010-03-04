@@ -19,29 +19,32 @@ class ValidateReference implements CommandInterface
 
   public function getCacheKey()
   {
-    return spl_object_hash($this->object) . spl_object_hash($this->constraint);
+    return is_null($this->object) ? null : (spl_object_hash($this->object) . $this->constraint->getName());
   }
 
   public function execute(ConstraintViolationList $violations, ExecutionContext $context)
   {
-    $class = $this->constraint->getOption('class');
+    if (!is_null($this->object))
+    {
+      $class = $this->constraint->getOption('class');
 
-    if ($class && !$this->object instanceof $class)
-    {
-      $violations->add(new ConstraintViolation(
-        $this->constraint->getOption('classMessage', 'Must be instance of %class%'),
-        array('class' => $class),
-        $context->getRoot(),
-        $this->propertyPathBuilder->getPropertyPath(),
-        $object
-      ));
-    }
-    else
-    {
-      $context->execute(new ValidateObject(
-        $this->object,
-        $this->propertyPathBuilder
-      ));
+      if ($class && !$this->object instanceof $class)
+      {
+        $violations->add(new ConstraintViolation(
+          $this->constraint->getOption('classMessage', 'Must be instance of %class%'),
+          array('class' => $class),
+          $context->getRoot(),
+          $this->propertyPathBuilder->getPropertyPath(),
+          $object
+        ));
+      }
+      else
+      {
+        $context->execute(new ValidateObject(
+          $this->object,
+          $this->propertyPathBuilder
+        ));
+      }
     }
   }
 }
