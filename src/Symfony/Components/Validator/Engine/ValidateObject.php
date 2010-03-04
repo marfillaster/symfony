@@ -1,9 +1,6 @@
 <?php
 
-namespace Symfony\Components\Validator\Engine\Execution;
-
-use Symfony\Components\Validator\Engine\ConstraintViolationList;
-use Symfony\Components\Validator\Engine\PropertyPathBuilder;
+namespace Symfony\Components\Validator\Engine;
 
 class ValidateObject implements CommandInterface
 {

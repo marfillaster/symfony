@@ -1,10 +1,9 @@
 <?php
 
-namespace Symfony\Components\Validator\Engine\Execution;
+namespace Symfony\Components\Validator\Engine;
 
 use Symfony\Components\Validator\MetaDataInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
-use Symfony\Components\Validator\Engine\ConstraintViolationList;
 
 class ExecutionContext
 {

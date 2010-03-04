@@ -1,8 +1,6 @@
 <?php
 
-namespace Symfony\Components\Validator\Engine\Execution;
-
-use Symfony\Components\Validator\Engine\ConstraintViolationList;
+namespace Symfony\Components\Validator\Engine;
 
 interface CommandInterface
 {

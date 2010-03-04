@@ -1,11 +1,8 @@
 <?php
 
-namespace Symfony\Components\Validator\Engine\Execution;
+namespace Symfony\Components\Validator\Engine;
 
 use \Traversable;
-use Symfony\Components\Validator\Engine\ConstraintViolation;
-use Symfony\Components\Validator\Engine\ConstraintViolationList;
-use Symfony\Components\Validator\Engine\PropertyPathBuilder;
 use Symfony\Components\Validator\Specification\ConstraintSpecification;
 
 class ValidateConstraint implements CommandInterface

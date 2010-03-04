@@ -5,11 +5,11 @@ namespace Symfony\Components\Validator\Engine;
 use Symfony\Components\Validator\ValidatorInterface;
 use Symfony\Components\Validator\MetaDataInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
-use Symfony\Components\Validator\Engine\Execution\ExecutionContext;
-use Symfony\Components\Validator\Engine\Execution\CommandInterface;
-use Symfony\Components\Validator\Engine\Execution\ValidateObject;
-use Symfony\Components\Validator\Engine\Execution\ValidateProperty;
-use Symfony\Components\Validator\Engine\Execution\ValidateValue;
+use Symfony\Components\Validator\Engine\EngineContext;
+use Symfony\Components\Validator\Engine\CommandInterface;
+use Symfony\Components\Validator\Engine\ValidateObject;
+use Symfony\Components\Validator\Engine\ValidateProperty;
+use Symfony\Components\Validator\Engine\ValidateValue;
 
 class Validator implements ValidatorInterface
 {
