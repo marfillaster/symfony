@@ -6,6 +6,7 @@ require_once __DIR__.'/../TestInit.php';
 
 use Symfony\Components\Validator\MetaData\ConstraintFinder;
 use Symfony\Components\Validator\MetaData\ElementMetaData;
+use Symfony\Components\Validator\MetaData\GroupMetaData;
 use Symfony\Components\Validator\Specification\ConstraintSpecification;
 use Symfony\Components\Validator\Specification\ElementSpecification;
 
@@ -39,11 +40,13 @@ class ConstraintFinderTest extends \PHPUnit_Framework_TestCase
     $metaData = new ElementMetaData('Class', $spec);
     $finder = new ConstraintFinder($metaData);
 
+    $group = new GroupMetaData(__NAMESPACE__.'\Group');
+
     $expected = array(
       'Constraint1' => $constraint1,
     );
 
-    $this->assertEquals($expected, $finder->inGroups(__NAMESPACE__.'\Group')->getConstraints());
+    $this->assertEquals($expected, $finder->inGroups($group)->getConstraints());
   }
 
   public function testFindConstraintsInInheritingGroup()
@@ -54,11 +57,13 @@ class ConstraintFinderTest extends \PHPUnit_Framework_TestCase
     $metaData = new ElementMetaData('Class', $spec);
     $finder = new ConstraintFinder($metaData);
 
+    $group = new GroupMetaData(__NAMESPACE__.'\InheritingGroup');
+
     $expected = array(
       'Constraint1' => $constraint1,
     );
 
-    $this->assertEquals($expected, $finder->inGroups(__NAMESPACE__.'\InheritingGroup')->getConstraints());
+    $this->assertEquals($expected, $finder->inGroups($group)->getConstraints());
   }
 
   public function testFindConstraintsInMultipleGroups()
@@ -70,13 +75,14 @@ class ConstraintFinderTest extends \PHPUnit_Framework_TestCase
     $metaData = new ElementMetaData('Class', $spec);
     $finder = new ConstraintFinder($metaData);
 
+    $group1 = new GroupMetaData(__NAMESPACE__.'\Group');
+    $group2 = new GroupMetaData(__NAMESPACE__.'\OtherGroup');
+
     $expected = array(
       'Constraint1' => $constraint1,
       'Constraint3' => $constraint3,
     );
 
-    $groups = array(__NAMESPACE__.'\Group', __NAMESPACE__.'\OtherGroup');
-
-    $this->assertEquals($expected, $finder->inGroups($groups)->getConstraints());
+    $this->assertEquals($expected, $finder->inGroups(array($group1, $group2))->getConstraints());
   }
 }

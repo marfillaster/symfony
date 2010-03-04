@@ -22,7 +22,7 @@ class ValidateReference implements CommandInterface
     return is_null($this->object) ? null : (spl_object_hash($this->object) . $this->constraint->getName());
   }
 
-  public function execute(ConstraintViolationList $violations, ExecutionContext $context)
+  public function execute(ConstraintViolationList $violations, LocalExecutionContext $context)
   {
     if (!is_null($this->object))
     {
@@ -35,7 +35,7 @@ class ValidateReference implements CommandInterface
           array('class' => $class),
           $context->getRoot(),
           $this->propertyPathBuilder->getPropertyPath(),
-          $object
+          $this->object
         ));
       }
       else

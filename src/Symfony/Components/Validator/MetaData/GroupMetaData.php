@@ -10,19 +10,20 @@ class GroupMetaData
 {
   private $interfaceName;
   private $groupSequence;
+  private $refClass;
 
-  public function __construct($interfaceName, GroupSpecification $specification = null)
+  public function __construct($interfaceName, array $groupSequence = array())
   {
     $this->interfaceName = $interfaceName;
+    $this->groupSequence = $groupSequence;
+    $this->refClass = new ReflectionClass($interfaceName);
 
-    if (!is_null($specification))
-    {
-      $this->groupSequence = $specification->getGroupSequence();
-    }
-    else
-    {
-      $this->groupSequence = array($interfaceName);
-    }
+    // TODO: circle detection
+  }
+
+  public function __toString()
+  {
+    return $this->getInterfaceName();
   }
 
   public function getInterfaceName()
@@ -30,13 +31,23 @@ class GroupMetaData
     return $this->interfaceName;
   }
 
+  public function isGroupSequence()
+  {
+    return count($this->groupSequence) > 0;
+  }
+
   public function getGroupSequence()
   {
     return $this->groupSequence;
   }
 
-  public function isInstanceOf($interfaceName)
+  public function isInstanceOf($group)
   {
-    return is_subclass_of($this->interfaceName, $interfaceName);
+    if ($group instanceof GroupMetaData)
+    {
+      $group = $group->geTInterfaceName();
+    }
+
+    return $this->refClass->implementsInterface($group);
   }
 }

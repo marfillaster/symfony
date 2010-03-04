@@ -23,7 +23,7 @@ class ValidateConstraint implements CommandInterface
     return $this->propertyPathBuilder->getPropertyPath()->__toString() . ':' . $this->constraint->getName();
   }
 
-  public function execute(ConstraintViolationList $violations, ExecutionContext $context)
+  public function execute(ConstraintViolationList $violations, LocalExecutionContext $context)
   {
     if ($this->constraint->getName() == 'Valid')
     {

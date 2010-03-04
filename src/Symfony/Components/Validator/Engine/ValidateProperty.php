@@ -22,7 +22,7 @@ class ValidateProperty implements CommandInterface
     return is_null($this->object) ? null : (spl_object_hash($this->object) . $this->property);
   }
 
-  public function execute(ConstraintViolationList $violations, ExecutionContext $context)
+  public function execute(ConstraintViolationList $violations, LocalExecutionContext $context)
   {
     if (!is_null($this->object))
     {
@@ -39,7 +39,7 @@ class ValidateProperty implements CommandInterface
       }
       else
       {
-        throw new ValidatorException(sprintf('Neither property "%s" nor method "%s" is readable', $property, $getter));
+        throw new ValidatorException(sprintf('Neither property "%s" nor method "%s" is readable in class "%s"', $this->property, $getter, get_class($this->object)));
       }
 
       $context->execute(new ValidateValue(

@@ -35,6 +35,11 @@ class ClassMetaData extends ElementMetaData
     }
   }
 
+  public function __toString()
+  {
+    return $this->getClassName();
+  }
+
   public function getPropertyMetaData($name)
   {
     // TODO error treatment

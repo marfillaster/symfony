@@ -47,7 +47,7 @@ class Validator implements ValidatorInterface
 
   protected function executeInContext($root, $groups, CommandInterface $command)
   {
-    $context = new ExecutionContext($root, (array)$groups, $this->metaData, $this->validatorFactory);
+    $context = new GlobalExecutionContext($root, (array)$groups, $this->metaData, $this->validatorFactory);
 
     return $context->execute($command);
   }

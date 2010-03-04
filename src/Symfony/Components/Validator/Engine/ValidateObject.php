@@ -18,7 +18,7 @@ class ValidateObject implements CommandInterface
     return is_null($this->object) ? null : spl_object_hash($this->object);
   }
 
-  public function execute(ConstraintViolationList $violations, ExecutionContext $context)
+  public function execute(ConstraintViolationList $violations, LocalExecutionContext $context)
   {
     if (!is_null($this->object))
     {

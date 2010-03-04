@@ -3,6 +3,7 @@
 namespace Symfony\Components\Validator\MetaData;
 
 use \ReflectionClass;
+use Symfony\Components\Validator\Exception\GroupDefinitionException;
 use Symfony\Components\Validator\MetaDataInterface;
 use Symfony\Components\Validator\SpecificationInterface;
 
@@ -32,7 +33,23 @@ class MetaData implements MetaDataInterface
     if (!isset($this->groupMetaDatas[$interface]))
     {
       $specification =  $this->specification->getGroupSpecification($interface);
-      $this->groupMetaDatas[$interface] = new GroupMetaData($interface, $specification);
+      $this->groupMetaDatas[$interface] = true;
+
+      $sequence = array();
+
+      if (!is_null($specification))
+      {
+        foreach ($specification->getGroupSequence() as $group)
+        {
+          $sequence[] = $this->getGroupMetaData($group);
+        }
+      }
+
+      $this->groupMetaDatas[$interface] = new GroupMetaData($interface, $sequence);
+    }
+    else if ($this->groupMetaDatas[$interface] === true)
+    {
+      throw new GroupDefinitionException('Circle detected!');
     }
 
     return $this->groupMetaDatas[$interface];

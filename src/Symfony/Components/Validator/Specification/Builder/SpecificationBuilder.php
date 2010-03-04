@@ -6,24 +6,38 @@ use Symfony\Components\Validator\Specification\Specification;
 
 class SpecificationBuilder
 {
-  protected $classSpecificationBuilders = array();
+  protected $classBuilders = array();
+  protected $groupBuilders = array();
 
   public function buildClass($class)
   {
-    $this->classSpecificationBuilders[$class] = new ClassSpecificationBuilder($class, $this);
+    $this->classBuilders[$class] = new ClassSpecificationBuilder($class);
 
-    return $this->classSpecificationBuilders[$class];
+    return $this->classBuilders[$class];
+  }
+
+  public function buildGroup($interface)
+  {
+    $this->groupBuilders[$interface] = new GroupSpecificationBuilder($interface);
+
+    return $this->groupBuilders[$interface];
   }
 
   public function getSpecification()
   {
-    $specifications = array();
+    $classes = array();
+    $groups = array();
 
-    foreach ($this->classSpecificationBuilders as $class => $builder)
+    foreach ($this->classBuilders as $builder)
     {
-      $specifications[$class] = $builder->getClassSpecification();
+      $classes[] = $builder->getClassSpecification();
     }
 
-    return new Specification($specifications);
+    foreach ($this->groupBuilders as $builder)
+    {
+      $groups[] = $builder->getGroupSpecification();
+    }
+
+    return new Specification($classes, $groups);
   }
 }

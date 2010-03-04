@@ -8,18 +8,15 @@ use Symfony\Components\Validator\Specification\ConstraintSpecification;
 
 class ClassSpecificationBuilder
 {
-  protected $metaDataBuilder;
   protected $class;
 
   protected $classConstraints = array();
   protected $propertyConstraints = array();
-  protected $parents = array();
-  protected $groupSequence = array('Symfony\Components\Validator\Groups\Base');
+  protected $groupSequence = array();
 
-  public function __construct($class, SpecificationBuilder $metaDataBuilder)
+  public function __construct($class)
   {
     $this->class = $class;
-    $this->metaDataBuilder = $metaDataBuilder;
   }
 
   public function setGroupSequence(array $groupSequence)

@@ -2,7 +2,7 @@
 
 namespace Symfony\Components\Validator\Engine;
 
-class ConstraintViolationList implements \IteratorAggregate
+class ConstraintViolationList implements \IteratorAggregate, \Countable
 {
   protected $violations = array();
 
@@ -17,7 +17,6 @@ class ConstraintViolationList implements \IteratorAggregate
       $string .= <<<EOF
 {$violation->getRoot()}.{$violation->getPropertyPath()}:
   $message
-  (invalid value = {$violation->getInvalidValue()})
 
 EOF;
     }
@@ -41,5 +40,10 @@ EOF;
   public function getIterator()
   {
     return new \ArrayIterator($this->violations);
+  }
+
+  public function count()
+  {
+    return count($this->violations);
   }
 }

@@ -6,11 +6,12 @@ class GroupSpecification
 {
   private $className;
   private $interfaceName;
+  private $groupSequence;
 
   public function __construct($interfaceName, array $groupSequence = null)
   {
     $this->interfaceName = $interfaceName;
-    $this->groupSequence = is_null($groupSequence) ? array($interfaceName) : $groupSequence;
+    $this->groupSequence = is_null($groupSequence) ? array() : $groupSequence;
   }
 
   public function getInterfaceName()

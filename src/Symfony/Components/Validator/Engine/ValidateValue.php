@@ -22,7 +22,7 @@ class ValidateValue implements CommandInterface
     return $this->propertyPathBuilder->getPropertyPath()->__toString();
   }
 
-  public function execute(ConstraintViolationList $violations, ExecutionContext $context)
+  public function execute(ConstraintViolationList $violations, LocalExecutionContext $context)
   {
     $classMetaData = $context->getMetaData()->getClassMetaData($this->class);
     $propertyMetaData = $classMetaData->getPropertyMetaData($this->property);
