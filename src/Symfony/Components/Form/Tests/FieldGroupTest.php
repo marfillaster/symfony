@@ -7,14 +7,14 @@ require_once __DIR__ . '/TestInit.php';
 use Symfony\Components\Validator\ValidatorInterface;
 use Symfony\Components\Validator\AndValidator;
 
-use Symfony\Components\Form\FormField;
-use Symfony\Components\Form\FormFieldInterface;
-use Symfony\Components\Form\FormFieldGroup;
+use Symfony\Components\Form\Field;
+use Symfony\Components\Form\FieldInterface;
+use Symfony\Components\Form\FieldGroup;
 
 use Symfony\Components\I18N\Localizable;
 
 
-class FormFieldGroupTest_Object
+class FieldGroupTest_Object
 {
   private $privateProperty;
 
@@ -62,7 +62,7 @@ class FormFieldGroupTest_Object
   }
 }
 
-abstract class FormFieldGroupTest_LocalizableField implements FormFieldInterface, Localizable
+abstract class FieldGroupTest_LocalizableField implements FieldInterface, Localizable
 {
   public $locales = array();
 
@@ -73,16 +73,16 @@ abstract class FormFieldGroupTest_LocalizableField implements FormFieldInterface
 }
 
 
-class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
+class FieldGroupTest extends \PHPUnit_Framework_TestCase
 {
   protected $object;
   protected $group;
 
   protected function setUp()
   {
-    $this->object = new FormFieldGroupTest_Object();
+    $this->object = new FieldGroupTest_Object();
 
-    $this->group = new FormFieldGroup('author');
+    $this->group = new FieldGroup('author');
     $this->group->initialize($this->object);
     $this->group->add($this->createMockField('firstName'));
   }
@@ -107,8 +107,8 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testSupportsCountable()
   {
-    $group = new FormFieldGroup('group');
-    $group->initialize(new FormFieldGroupTest_Object());
+    $group = new FieldGroup('group');
+    $group->initialize(new FieldGroupTest_Object());
     $group->add($this->createMockField('firstName'));
     $group->add($this->createMockField('lastName'));
     $this->assertEquals(2, count($group));
@@ -119,7 +119,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testSupportsIterable()
   {
-    $group = new FormFieldGroup('group');
+    $group = new FieldGroup('group');
     $group->add($field1 = $this->createMockField('field1'));
     $group->add($field2 = $this->createMockField('field2'));
     $group->add($field3 = $this->createMockField('field3'));
@@ -142,7 +142,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testValidIfAllFieldsAreValid()
   {
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($this->object);
     $group->add($this->createValidMockField('firstName'));
     $group->add($this->createValidMockField('lastName'));
@@ -154,7 +154,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testInvalidIfFieldIsInvalid()
   {
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($this->object);
     $group->add($this->createInvalidMockField('firstName'));
     $group->add($this->createValidMockField('lastName'));
@@ -166,7 +166,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testInvalidIfBoundWithExtraFields()
   {
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($this->object);
     $group->add($this->createValidMockField('firstName'));
     $group->add($this->createValidMockField('lastName'));
@@ -183,7 +183,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
           ->method('bind')
           ->with($this->equalTo('Bernhard'));
 
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($this->object);
     $group->add($field);
 
@@ -197,7 +197,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
           ->method('getData')
           ->will($this->returnValue('Bernhard'));
 
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize(array());
     $group->add($field);
 
@@ -215,9 +215,9 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
           ->method('getData')
           ->will($this->returnValue('Bernhard'));
 
-    $object = new FormFieldGroupTest_Object();
+    $object = new FieldGroupTest_Object();
 
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($object);
     $group->add($field);
 
@@ -233,9 +233,9 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
           ->method('getData')
           ->will($this->returnValue('Schussek'));
 
-    $object = new FormFieldGroupTest_Object();
+    $object = new FieldGroupTest_Object();
 
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($object);
     $group->add($field);
 
@@ -246,9 +246,9 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testBindThrowsExceptionIfPropertyIsNotPublic()
   {
-    $object = new FormFieldGroupTest_Object();
+    $object = new FieldGroupTest_Object();
 
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($object);
     $group->add($this->createMockField('privateProperty'));
 
@@ -258,9 +258,9 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testBindThrowsExceptionIfSetterIsNotPublic()
   {
-    $object = new FormFieldGroupTest_Object();
+    $object = new FieldGroupTest_Object();
 
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($object);
     $group->add($this->createMockField('privateSetter'));
 
@@ -270,9 +270,9 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testBindThrowsExceptionIfPropertyDoesNotExist()
   {
-    $object = new FormFieldGroupTest_Object();
+    $object = new FieldGroupTest_Object();
 
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($object);
     $group->add($this->createMockField('noSetter'));
 
@@ -287,7 +287,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
           ->method('bind')
           ->with($this->equalTo(null));
 
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->initialize($this->object);
     $group->add($field);
 
@@ -304,10 +304,10 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testMergeAddsAnotherGroup()
   {
-    $group1 = new FormFieldGroup('author');
+    $group1 = new FieldGroup('author');
     $group1->add($field1 = $this->createMockField('firstName'));
 
-    $group2 = new FormFieldGroup('publisher');
+    $group2 = new FieldGroup('publisher');
     $group2->add($field2 = $this->createMockField('lastName'));
 
     $group1->merge($group2);
@@ -317,8 +317,8 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testMergeThrowsExceptionIfOtherGroupAlreadyBound()
   {
-    $group1 = new FormFieldGroup('author');
-    $group2 = new FormFieldGroup('publisher');
+    $group1 = new FieldGroup('author');
+    $group2 = new FieldGroup('publisher');
     $group2->initialize($this->object);
     $group2->add($this->createMockField('firstName'));
 
@@ -335,11 +335,11 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
           ->method('getData')
           ->will($this->returnValue('Bernhard'));
 
-    $object = new FormFieldGroupTest_Object();
+    $object = new FieldGroupTest_Object();
 
-    $group1 = new FormFieldGroup('author');
+    $group1 = new FieldGroup('author');
     $group1->initialize($object);
-    $group2 = new FormFieldGroup('nested');
+    $group2 = new FieldGroup('nested');
     $group2->add($field);
 
     $group1->merge($group2);
@@ -361,7 +361,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
           ->method('getDisplayedData')
           ->will($this->returnValue('Bernhard'));
 
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->add($field);
 
     $this->assertEquals(array('firstName' => 'Bernhard'), $group->getDisplayedData());
@@ -369,7 +369,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testIsMultipartIfAnyFieldIsMultipart()
   {
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->add($this->createMultipartMockField('firstName'));
     $group->add($this->createNonMultipartMockField('lastName'));
 
@@ -378,7 +378,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testIsNotMultipartIfNoFieldIsMultipart()
   {
-    $group = new FormFieldGroup('author');
+    $group = new FieldGroup('author');
     $group->add($this->createNonMultipartMockField('firstName'));
     $group->add($this->createNonMultipartMockField('lastName'));
 
@@ -401,7 +401,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testLocaleIsPassedToLocalizableField_SetAfterAddingTheField()
   {
-    $field = $this->getMockForAbstractClass(__NAMESPACE__ . '\FormFieldGroupTest_LocalizableField', array(), '', false, false);
+    $field = $this->getMockForAbstractClass(__NAMESPACE__ . '\FieldGroupTest_LocalizableField', array(), '', false, false);
     $field->expects($this->any())
           ->method('getKey')
           ->will($this->returnValue('firstName'));
@@ -472,7 +472,7 @@ class FormFieldGroupTest extends \PHPUnit_Framework_TestCase
   protected function createMockField($key)
   {
     $field = $this->getMock(
-      'Symfony\Components\Form\FormFieldInterface',
+      'Symfony\Components\Form\FieldInterface',
       array(),
       array(),
       '',

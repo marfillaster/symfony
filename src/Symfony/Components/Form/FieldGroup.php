@@ -25,14 +25,14 @@ use Symfony\Components\I18N\TranslatorInterface;
  */
 
 /**
- * FormFieldGroup represents an array of widgets bind to names and values.
+ * FieldGroup represents an array of widgets bind to names and values.
  *
  * @package    symfony
  * @subpackage form
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id: FormFieldGroup.php 247 2010-02-01 09:24:55Z bernhard $
+ * @version    SVN: $Id: FieldGroup.php 247 2010-02-01 09:24:55Z bernhard $
  */
-class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAggregate, \Countable
+class FieldGroup extends BaseField implements \ArrayAccess, \IteratorAggregate, \Countable
 {
   // $fields and $merged musst be kept synchronized => private
   private $fields = array();
@@ -60,7 +60,7 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
     }
   }
 
-  protected function addField(FormFieldInterface $field)
+  protected function addField(FieldInterface $field)
   {
     if ($this->isBound())
     {
@@ -107,16 +107,16 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
    *
    * $form = new Form('entity', $entity, $validator);
    *
-   * $locationGroup = new FormFieldGroup('location');
+   * $locationGroup = new FieldGroup('location');
    * $locationGroup->add(new TextField('longitude'));
    * $locationGroup->add(new TextField('latitude'));
    *
    * $form->add($locationGroup);
    * </code>
    *
-   * @param FormFieldInterface $field
+   * @param FieldInterface $field
    */
-  public function add(FormFieldInterface $field)
+  public function add(FieldInterface $field)
   {
     $this->addField($field);
 
@@ -148,16 +148,16 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
    *
    * $form = new Form('entity', $entity, $validator);
    *
-   * $locationGroup = new FormFieldGroup('location');
+   * $locationGroup = new FieldGroup('location');
    * $locationGroup->add(new TextField('longitude'));
    * $locationGroup->add(new TextField('latitude'));
    *
    * $form->merge($locationGroup);
    * </code>
    *
-   * @param FormFieldGroup $group
+   * @param FieldGroup $group
    */
-  public function merge(FormFieldGroup $group)
+  public function merge(FieldGroup $group)
   {
     if ($group->isBound())
     {
@@ -221,7 +221,7 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
    * Returns the field with the given key.
    *
    * @param  string $key
-   * @return FormFieldInterface
+   * @return FieldInterface
    */
   public function get($key, $includeMerged = false)
   {
@@ -253,7 +253,7 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
   /**
    * Initializes the field group with an object to operate on
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function initialize($data)
   {
@@ -379,7 +379,7 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
   /**
    * Returns the data of the field as it is displayed to the user.
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function getDisplayedData()
   {
@@ -555,7 +555,7 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
 
     foreach ($this->fields as $field)
     {
-      if ($field instanceof FormFieldGroup)
+      if ($field instanceof FieldGroup)
       {
         if ($recursive)
         {
@@ -588,7 +588,7 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
    *
    * @param string $key The offset of the value to get
    *
-   * @return FormField A form field instance
+   * @return Field A form field instance
    */
   public function offsetGet($key)
   {
@@ -679,7 +679,7 @@ class FormFieldGroup extends BaseFormField implements \ArrayAccess, \IteratorAgg
   /**
    * Sets the charset of the field
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function setCharset($charset)
   {

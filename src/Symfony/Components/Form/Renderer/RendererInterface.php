@@ -2,7 +2,7 @@
 
 namespace Symfony\Components\Form\Renderer;
 
-use Symfony\Components\Form\FormFieldInterface;
+use Symfony\Components\Form\FieldInterface;
 
 /**
  * Renders a given form field.
@@ -14,14 +14,14 @@ interface RendererInterface
   /**
    * Returns the textual representation of the given field.
    *
-   * @param  FormFieldInterface $field  The form field
+   * @param  FieldInterface $field  The form field
    * @param  array $attributes          The attributes to include in the
    *                                    rendered output
    * @return string                     The rendered output
    * @throws InvalidArgumentException   If the $field is not instance of the
    *                                    expected class
    */
-  public function render(FormFieldInterface $field, array $attributes = array());
+  public function render(FieldInterface $field, array $attributes = array());
 
   /**
    * Sets the charset used by the renderer.

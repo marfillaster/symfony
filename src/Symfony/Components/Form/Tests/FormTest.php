@@ -5,8 +5,8 @@ namespace Symfony\Components\Form\Tests;
 require_once __DIR__ . '/TestInit.php';
 
 use Symfony\Components\Form\Form;
-use Symfony\Components\Form\FormField;
-use Symfony\Components\Form\FormFieldGroup;
+use Symfony\Components\Form\Field;
+use Symfony\Components\Form\FieldGroup;
 use Symfony\Components\File\UploadedFile;
 use Symfony\Components\Validator\Engine\PropertyPathBuilder;
 use Symfony\Components\Validator\Engine\ConstraintViolation;
@@ -24,7 +24,7 @@ class FormTest_PreconfiguredForm extends Form
 {
   protected function configure()
   {
-    $this->add(new FormField('firstName'));
+    $this->add(new Field('firstName'));
   }
 }
 
@@ -234,7 +234,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
     $validator = $this->createMockValidator();
     $field = $this->createMockField('firstName');
     $form = new Form('author', $this->object, $validator);
-    $group = new FormFieldGroup('child');
+    $group = new FieldGroup('child');
     $group->add($field);
     $form->add($group);
 
@@ -299,7 +299,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
     $validator = $this->createMockValidator();
     $field = $this->createMockField('firstName');
     $form = new Form('author', $this->object, $validator);
-    $group = new FormFieldGroup('child');
+    $group = new FieldGroup('child');
     $group->add($field);
     $form->add($group);
 
@@ -332,7 +332,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
     $validator = $this->createMockValidator();
     $field = $this->createMockField('firstName');
     $form = new Form('author', $this->object, $validator);
-    $group = new FormFieldGroup('group');
+    $group = new FieldGroup('group');
     $group->add($field);
     $form->merge($group);
 
@@ -373,7 +373,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
   protected function createMockField($key)
   {
     $field = $this->getMock(
-      'Symfony\Components\Form\FormFieldInterface',
+      'Symfony\Components\Form\FieldInterface',
       array(),
       array(),
       '',
@@ -391,7 +391,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
   protected function createMockFieldGroup($key)
   {
     $field = $this->getMock(
-      'Symfony\Components\Form\FormFieldGroup',
+      'Symfony\Components\Form\FieldGroup',
       array(),
       array(),
       '',

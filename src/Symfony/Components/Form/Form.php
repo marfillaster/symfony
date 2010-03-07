@@ -45,7 +45,7 @@ use Symfony\Components\File\UploadedFile;
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @version    SVN: $Id: Form.php 245 2010-01-31 22:22:39Z flo $
  */
-class Form extends FormFieldGroup
+class Form extends FieldGroup
 {
   protected static
     $defaultCSRFSecret = false,
@@ -222,16 +222,16 @@ class Form extends FormFieldGroup
    * ...
    * </code>
    *
-   * @param FormFieldInterface $field
+   * @param FieldInterface $field
    * @param PropertyPath $path
    * @param ConstraintViolation$violation
    */
-  protected function addFieldError(FormFieldInterface $field, PropertyPath $path, ConstraintViolation $violation)
+  protected function addFieldError(FieldInterface $field, PropertyPath $path, ConstraintViolation $violation)
   {
     $path->next(); // jump to next iterator index
     $fieldName = $path->current();
 
-    if ($path->valid() && $field instanceof FormFieldGroup && $field->has($fieldName))
+    if ($path->valid() && $field instanceof FieldGroup && $field->has($fieldName))
     {
       $path->next(); // jump to next "iterator" (if exists)
 
@@ -254,16 +254,16 @@ class Form extends FormFieldGroup
    * ...
    * </code>
    *
-   * @param FormFieldInterface $field
+   * @param FieldInterface $field
    * @param PropertyPath $path
    * @param ConstraintViolation$violation
    */
-  protected function addDataError(FormFieldInterface $field, PropertyPath $path, ConstraintViolation $violation)
+  protected function addDataError(FieldInterface $field, PropertyPath $path, ConstraintViolation $violation)
   {
     $path->next(); // jump to next property name
     $fieldName = $path->current();
 
-    if ($path->valid() && $field instanceof FormFieldGroup && $field->has($fieldName, true))
+    if ($path->valid() && $field instanceof FieldGroup && $field->has($fieldName, true))
     {
       $this->addDataError($field->get($fieldName, true), $path, $violation);
     }

@@ -7,7 +7,7 @@ namespace Symfony\Components\Form;
  *
  * @author     Bernhard Schussek <bernhard.schussek@symfony-project.com>
  */
-interface ChoiceFieldInterface extends FormFieldInterface
+interface ChoiceFieldInterface extends FieldInterface
 {
   /**
    * The preferred choices.

@@ -15,7 +15,7 @@ use Symfony\Components\I18N\Localizable;
 use Symfony\Components\I18N\Translatable;
 use Symfony\Components\I18N\TranslatorInterface;
 
-abstract class BaseFormField implements FormFieldInterface, Localizable, Translatable
+abstract class BaseField implements FieldInterface, Localizable, Translatable
 {
   protected
     $options            = array(),
@@ -64,7 +64,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Returns the key of this field.
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function getKey()
   {
@@ -74,7 +74,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Returns the name of the field.
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function getName()
   {
@@ -84,7 +84,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Returns the ID of the field.
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function getId()
   {
@@ -94,7 +94,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Sets whether this field is required to be filled out when submitted.
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function setRequired($required)
   {
@@ -104,7 +104,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Returns whether the field is required to be filled out.
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function isRequired()
   {
@@ -121,9 +121,9 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Sets the parent field.
    *
-   * @param FormFieldInterface $parent  The parent field
+   * @param FieldInterface $parent  The parent field
    */
-  public function setParent(FormFieldInterface $parent)
+  public function setParent(FieldInterface $parent)
   {
     $this->parent = $parent;
   }
@@ -131,7 +131,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Returns the parent field.
    *
-   * @return FormFieldInterface  The parent field
+   * @return FieldInterface  The parent field
    */
   public function getParent()
   {
@@ -141,7 +141,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Updates the field with default data
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function initialize($data)
   {
@@ -183,7 +183,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Adds an error to the field.
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function addError($message, array $parameters = array())
   {
@@ -320,7 +320,7 @@ abstract class BaseFormField implements FormFieldInterface, Localizable, Transla
   /**
    * Sets the charset of the field
    *
-   * @see FormFieldInterface
+   * @see FieldInterface
    */
   public function setCharset($charset)
   {

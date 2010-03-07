@@ -5,7 +5,7 @@
  */
 namespace Symfony\Components\Form\Tests;
 
-use Symfony\Components\Form\FormFieldInterface;
+use Symfony\Components\Form\FieldInterface;
 use Symfony\Components\Form\Renderer\RendererInterface;
 use Symfony\Components\Validator\ValidatorInterface;
 use Symfony\Components\ValueTransformer\ValueTransformerInterface;
@@ -31,5 +31,5 @@ interface LocalizableValidator extends ValidatorInterface, Localizable {}
 interface TranslatableValidator extends ValidatorInterface, Translatable {}
 interface LocalizableValueTransformer extends ValueTransformerInterface, Localizable {}
 interface TranslatableValueTransformer extends ValueTransformerInterface, Translatable {}
-interface LocalizableField extends FormFieldInterface, Localizable {}
-interface TranslatableField extends FormFieldInterface, Translatable {}
+interface LocalizableField extends FieldInterface, Localizable {}
+interface TranslatableField extends FieldInterface, Translatable {}

@@ -4,12 +4,12 @@ namespace Symfony\Components\Form\Tests;
 
 require_once __DIR__ . '/TestInit.php';
 
-use Symfony\Components\Form\FormField;
-use Symfony\Components\Form\FormFieldGroup;
+use Symfony\Components\Form\Field;
+use Symfony\Components\Form\FieldGroup;
 use Symfony\Components\ValueTransformer\ValueTransformerInterface;
 
 
-class FormFieldTest_TestValueTransformer implements ValueTransformerInterface
+class FieldTest_TestValueTransformer implements ValueTransformerInterface
 {
   public function transform($value)
   {
@@ -23,15 +23,15 @@ class FormFieldTest_TestValueTransformer implements ValueTransformerInterface
 }
 
 
-class FormFieldTest extends \PHPUnit_Framework_TestCase
+class FieldTest extends \PHPUnit_Framework_TestCase
 {
   protected $field;
 
   protected function setUp()
   {
-    $this->field = new FormField('title');
+    $this->field = new Field('title');
     $this->field->initialize('default');
-    $this->field->setValueTransformer(new FormFieldTest_TestValueTransformer());
+    $this->field->setValueTransformer(new FieldTest_TestValueTransformer());
   }
 
   public function testIsBound()
@@ -79,7 +79,7 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
   public function testProcessDataHooksAfterReverseTransformation()
   {
     $field = $this->getMock(
-      'Symfony\Components\Form\FormField',
+      'Symfony\Components\Form\Field',
       array('processData'), // only mock processData()
       array('title')
     );
@@ -90,7 +90,7 @@ class FormFieldTest extends \PHPUnit_Framework_TestCase
           ->will($this->returnValue('processed[reverse[data]]'));
 
     $field->initialize('default');
-    $field->setValueTransformer(new FormFieldTest_TestValueTransformer());
+    $field->setValueTransformer(new FieldTest_TestValueTransformer());
 
     // test
     $field->bind('data');

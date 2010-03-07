@@ -16,9 +16,9 @@ use Symfony\Components\Form\Exception\UnexpectedTypeException;
  * @package    symfony
  * @subpackage form
  * @author     Bernhard Schussek <bernhard.schussek@symfony-project.com>
- * @version    SVN: $Id: FormFieldGroup.php 79 2009-12-08 12:53:15Z bernhard $
+ * @version    SVN: $Id: FieldGroup.php 79 2009-12-08 12:53:15Z bernhard $
  */
-class FormFieldRepeat extends FormFieldGroup
+class FieldRepeat extends FieldGroup
 {
   private
     $classOrCallable = null;
@@ -33,9 +33,9 @@ class FormFieldRepeat extends FormFieldGroup
       }
 
       $class = new \ReflectionClass($classOrCallable);
-      if (!$class->implementsInterface('Symfony\Components\Form\FormFieldInterface'))
+      if (!$class->implementsInterface('Symfony\Components\Form\FieldInterface'))
       {
-        throw new \LogicException(sprintf('%s is expected to implement FormFieldInterface', $classOrCallable));
+        throw new \LogicException(sprintf('%s is expected to implement FieldInterface', $classOrCallable));
       }
     }
     else if (!is_callable($classOrCallable))

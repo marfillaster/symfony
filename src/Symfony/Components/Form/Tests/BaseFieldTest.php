@@ -4,10 +4,10 @@ namespace Symfony\Components\Form\Tests;
 
 require_once __DIR__ . '/TestInit.php';
 
-use Symfony\Components\Form\BaseFormField;
+use Symfony\Components\Form\BaseField;
 
 
-abstract class BaseFormFieldTest_InvalidFormField extends BaseFormField
+abstract class BaseFieldTest_InvalidField extends BaseField
 {
   public function isValid()
   {
@@ -16,7 +16,7 @@ abstract class BaseFormFieldTest_InvalidFormField extends BaseFormField
 }
 
 
-class BaseFormFieldTest extends \PHPUnit_Framework_TestCase
+class BaseFieldTest extends \PHPUnit_Framework_TestCase
 {
   protected $field;
 
@@ -187,7 +187,7 @@ class BaseFormFieldTest extends \PHPUnit_Framework_TestCase
   protected function createMockBaseField($key)
   {
     return $this->getMockForAbstractClass(
-      'Symfony\Components\Form\BaseFormField',
+      'Symfony\Components\Form\BaseField',
       array($key)
     );
   }
@@ -195,7 +195,7 @@ class BaseFormFieldTest extends \PHPUnit_Framework_TestCase
   protected function createMockGroup()
   {
     return $this->getMock(
-      'Symfony\Components\Form\FormFieldGroup',
+      'Symfony\Components\Form\FieldGroup',
       array(),
       array(),
       '',

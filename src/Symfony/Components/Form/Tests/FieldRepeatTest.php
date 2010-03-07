@@ -4,21 +4,21 @@ namespace Symfony\Components\Form\Tests;
 
 require_once __DIR__ . '/TestInit.php';
 
-use Symfony\Components\Form\FormField;
-use Symfony\Components\Form\FormFieldRepeat;
+use Symfony\Components\Form\Field;
+use Symfony\Components\Form\FieldRepeat;
 use Symfony\Components\Validator\PassValidator;
 
 
-class FormFieldRepeatTest_CallableFormField extends FormField {}
+class FieldRepeatTest_CallableField extends Field {}
 
 
-class FormFieldRepeatTest extends \PHPUnit_Framework_TestCase
+class FieldRepeatTest extends \PHPUnit_Framework_TestCase
 {
   protected $repeat;
 
   protected function setUp()
   {
-    $this->repeat = new FormFieldRepeat('emails', 'Symfony\Components\Form\FormField');
+    $this->repeat = new FieldRepeat('emails', 'Symfony\Components\Form\Field');
   }
 
   public function testContainsNoFieldsByDefault()
@@ -30,8 +30,8 @@ class FormFieldRepeatTest extends \PHPUnit_Framework_TestCase
   {
     $this->repeat->initialize(array('foo@foo.com', 'foo@bar.com'));
 
-    $this->assertTrue($this->repeat[0] instanceof FormField);
-    $this->assertTrue($this->repeat[1] instanceof FormField);
+    $this->assertTrue($this->repeat[0] instanceof Field);
+    $this->assertTrue($this->repeat[1] instanceof Field);
     $this->assertEquals(2, count($this->repeat));
   }
 
@@ -45,51 +45,51 @@ class FormFieldRepeatTest extends \PHPUnit_Framework_TestCase
   {
     $this->setExpectedException('LogicException');
 
-    new FormFieldRepeat('emails', 'FoobarClass');
+    new FieldRepeat('emails', 'FoobarClass');
   }
 
-  public function testConstructRequiresClassImplementingFormFieldInterface()
+  public function testConstructRequiresClassImplementingFieldInterface()
   {
     $this->setExpectedException('LogicException');
 
-    new FormFieldRepeat('emails', 'stdClass');
+    new FieldRepeat('emails', 'stdClass');
   }
 
   public function callbackCreateField($key)
   {
-    return new FormFieldRepeatTest_CallableFormField($key);
+    return new FieldRepeatTest_CallableField($key);
   }
 
   public function testConstructAcceptsCallables()
   {
-    $repeat = new FormFieldRepeat('emails', array($this, 'callbackCreateField'));
+    $repeat = new FieldRepeat('emails', array($this, 'callbackCreateField'));
     $repeat->initialize(array('foo@bar.com'));
 
-    $this->assertTrue($repeat[0] instanceof FormFieldRepeatTest_CallableFormField);
+    $this->assertTrue($repeat[0] instanceof FieldRepeatTest_CallableField);
   }
 
   public function testConstructRequiresClassOrCallable()
   {
     $this->setExpectedException('InvalidArgumentException');
 
-    new FormFieldRepeat('emails', 1234);
+    new FieldRepeat('emails', 1234);
   }
 
   public function testModifiableRepeatsContainExtraField()
   {
-    $repeat = new FormFieldRepeat('emails', 'Symfony\Components\Form\FormField', array(
+    $repeat = new FieldRepeat('emails', 'Symfony\Components\Form\Field', array(
       'modifiable' => true,
     ));
     $repeat->initialize(array('foo@bar.com'));
 
-    $this->assertTrue($repeat['0'] instanceof FormField);
-    $this->assertTrue($repeat['$$key$$'] instanceof FormField);
+    $this->assertTrue($repeat['0'] instanceof Field);
+    $this->assertTrue($repeat['$$key$$'] instanceof Field);
     $this->assertEquals(2, count($repeat));
   }
 
   public function testNotResizedIfBoundWithMissingData()
   {
-    $repeat = new FormFieldRepeat('emails', 'Symfony\Components\Form\FormField');
+    $repeat = new FieldRepeat('emails', 'Symfony\Components\Form\Field');
     $repeat->initialize(array('foo@foo.com', 'bar@bar.com'));
     $repeat->bind(array('foo@bar.com'));
 
@@ -99,7 +99,7 @@ class FormFieldRepeatTest extends \PHPUnit_Framework_TestCase
 
   public function testResizedIfBoundWithMissingDataAndModifiable()
   {
-    $repeat = new FormFieldRepeat('emails', 'Symfony\Components\Form\FormField', array(
+    $repeat = new FieldRepeat('emails', 'Symfony\Components\Form\Field', array(
       'modifiable' => true,
     ));
     $repeat->initialize(array('foo@foo.com', 'bar@bar.com'));
@@ -111,7 +111,7 @@ class FormFieldRepeatTest extends \PHPUnit_Framework_TestCase
 
   public function testNotResizedIfBoundWithExtraData()
   {
-    $repeat = new FormFieldRepeat('emails', 'Symfony\Components\Form\FormField');
+    $repeat = new FieldRepeat('emails', 'Symfony\Components\Form\Field');
     $repeat->initialize(array('foo@bar.com'));
     $repeat->bind(array('foo@foo.com', 'bar@bar.com'));
 
@@ -121,7 +121,7 @@ class FormFieldRepeatTest extends \PHPUnit_Framework_TestCase
 
   public function testResizedIfBoundWithExtraDataAndModifiable()
   {
-    $repeat = new FormFieldRepeat('emails', 'Symfony\Components\Form\FormField', array(
+    $repeat = new FieldRepeat('emails', 'Symfony\Components\Form\Field', array(
       'modifiable' => true,
     ));
     $repeat->initialize(array('foo@bar.com'));

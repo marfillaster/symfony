@@ -23,14 +23,14 @@ use Symfony\Components\I18N\TranslatorInterface;
  */
 
 /**
- * FormField represents a widget bind to a name and a value.
+ * Field represents a widget bind to a name and a value.
  *
  * @package    symfony
  * @subpackage form
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
- * @version    SVN: $Id: FormField.php 244 2010-01-31 19:47:33Z bernhard $
+ * @version    SVN: $Id: Field.php 244 2010-01-31 19:47:33Z bernhard $
  */
-class FormField extends BaseFormField
+class Field extends BaseField
 {
   private
     $valueTransformer   = null;

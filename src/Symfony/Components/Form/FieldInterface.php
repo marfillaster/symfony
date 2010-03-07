@@ -6,9 +6,9 @@ namespace Symfony\Components\Form;
  * A form field that can be embedded in a form.
  *
  * @author     Bernhard Schussek <bernhard.schussek@symfony-project.com>
- * @version    SVN: $Id: FormFieldInterface.php 247 2010-02-01 09:24:55Z bernhard $
+ * @version    SVN: $Id: FieldInterface.php 247 2010-02-01 09:24:55Z bernhard $
  */
-interface FormFieldInterface
+interface FieldInterface
 {
   /**
    * Clones this field.
@@ -18,9 +18,9 @@ interface FormFieldInterface
   /**
    * Sets the parent field.
    *
-   * @param FormFieldInterface $parent  The parent field
+   * @param FieldInterface $parent  The parent field
    */
-  public function setParent(FormFieldInterface $parent);
+  public function setParent(FieldInterface $parent);
 
   /**
    * Returns the key by which the field is identified in field groups.
