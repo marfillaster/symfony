@@ -1,6 +1,6 @@
 <?php
 
-namespace Symfony\Components\ValueTransformer;
+namespace Symfony\Components\Form\ValueTransformer;
 
 /**
  * Transforms a value between different representations.
