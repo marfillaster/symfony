@@ -2,6 +2,7 @@
 
 namespace Symfony\Components\Validator\MetaData;
 
+use \ReflectionClass;
 use Symfony\Components\Validator\Specification\ElementSpecification;
 
 // IMMUTABLE
@@ -48,9 +49,27 @@ class ElementMetaData
     return count($this->constraints) > 0;
   }
 
-  public function findConstraints()
+  public function findConstraints(array $groups)
   {
-    return new ConstraintFinder($this);
+    $constraints = array();
+
+    foreach ($this->constraints as $constraint)
+    {
+      foreach ($groups as $group)
+      {
+        $reflClass = new ReflectionClass($group);
+        foreach ((array)$constraint->groups as $constraintGroup)
+        {
+          if ($reflClass->implementsInterface($constraintGroup))
+          {
+            $constraints[get_class($constraint)] = $constraint;
+            break 2;
+          }
+        }
+      }
+    }
+
+    return $constraints;
   }
 
   protected function mergeConstraints(ElementMetaData $metaData)

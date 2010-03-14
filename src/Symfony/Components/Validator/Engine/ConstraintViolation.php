@@ -10,7 +10,7 @@ class ConstraintViolation
   protected $propertyPath;
   protected $invalidValue;
 
-  public function __construct($messageTemplate, array $messageParameters, $root, PropertyPath $propertyPath, $invalidValue)
+  public function __construct($messageTemplate, array $messageParameters, $root, $propertyPath, $invalidValue)
   {
     $this->messageTemplate = $messageTemplate;
     $this->messageParameters = $messageParameters;

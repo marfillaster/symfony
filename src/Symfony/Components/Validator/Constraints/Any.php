@@ -4,8 +4,8 @@ namespace Symfony\Components\Validator\Constraints;
 
 use Symfony\Components\Validator\Engine\Constraint;
 
-class Valid extends Constraint
+class Any extends Constraint
 {
-  public $class;
-  public $classMessage = 'Value must be instance of %class%';
+  public $constraints = array();
+  public $message = 'The value must be traversable';
 }

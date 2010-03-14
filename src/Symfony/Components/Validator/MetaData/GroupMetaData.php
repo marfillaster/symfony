@@ -2,7 +2,6 @@
 
 namespace Symfony\Components\Validator\MetaData;
 
-use \ReflectionClass;
 use Symfony\Components\Validator\Specification\GroupSpecification;
 
 // IMMUTABLE object
@@ -41,13 +40,13 @@ class GroupMetaData
     return $this->groupSequence;
   }
 
-  public function isInstanceOf($group)
-  {
-    if ($group instanceof GroupMetaData)
-    {
-      $group = $group->geTInterfaceName();
-    }
-
-    return $this->refClass->implementsInterface($group);
-  }
+//  public function isInstanceOf($group)
+//  {
+//    if ($group instanceof GroupMetaData)
+//    {
+//      $group = $group->getInterfaceName();
+//    }
+//
+//    return $this->refClass->implementsInterface($group);
+//  }
 }

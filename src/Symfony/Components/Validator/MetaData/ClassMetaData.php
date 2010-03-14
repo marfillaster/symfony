@@ -40,6 +40,27 @@ class ClassMetaData extends ElementMetaData
     return $this->getClassName();
   }
 
+  public function getPropertyValue($object, $property)
+  {
+    $getter = 'get'.ucfirst($property);
+    $isser = 'is'.ucfirst($property);
+
+    if (property_exists($object, $property))
+    {
+      $value = $object->$property;
+    }
+    else if (method_exists($object, $getter))
+    {
+      $value = $object->$getter();
+    }
+    else
+    {
+      throw new ValidatorException(sprintf('Neither property "%s" nor method "%s" is readable in class "%s"', $property, $getter, get_class($object)));
+    }
+
+    return $value;
+  }
+
   public function getPropertyMetaData($name)
   {
     // TODO error treatment
