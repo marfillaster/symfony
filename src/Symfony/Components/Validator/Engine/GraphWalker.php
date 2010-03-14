@@ -3,27 +3,27 @@
 namespace Symfony\Components\Validator\Engine;
 
 use \Traversable;
-use Symfony\Components\Validator\MetaDataInterface;
+use Symfony\Components\Validator\ClassMetadataFactoryInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
 use Symfony\Components\Validator\Constraints\All;
 use Symfony\Components\Validator\Constraints\Any;
 use Symfony\Components\Validator\Constraints\Valid;
-use Symfony\Components\Validator\MetaData\ClassMetaData;
-use Symfony\Components\Validator\MetaData\PropertyMetaData;
+use Symfony\Components\Validator\Mapping\ClassMetadata;
+use Symfony\Components\Validator\Mapping\PropertyMetadata;
 
 class GraphWalker
 {
   protected $violations;
   protected $root;
   protected $validatorFactory;
-  protected $metaData;
+  protected $metadataFactory;
 
-  public function __construct($root, MetaDataInterface $metaData, ConstraintValidatorFactoryInterface $factory)
+  public function __construct($root, ClassMetadataFactoryInterface $metadataFactory, ConstraintValidatorFactoryInterface $factory)
   {
     $this->violations = new ConstraintViolationList();
     $this->root = $root;
     $this->validatorFactory = $factory;
-    $this->metaData = $metaData;
+    $this->metadataFactory = $metadataFactory;
   }
 
   public function getViolations()
@@ -31,7 +31,7 @@ class GraphWalker
     return $this->violations;
   }
 
-  public function walkClass(ClassMetaData $classMeta, $object, array $groups, $propertyPath)
+  public function walkClass(ClassMetadata $classMeta, $object, array $groups, $propertyPath)
   {
     foreach ($classMeta->findConstraints($groups) as $constraint)
     {
@@ -42,7 +42,7 @@ class GraphWalker
     {
       foreach ($classMeta->getConstrainedProperties() as $property)
       {
-        $propertyMeta = $classMeta->getPropertyMetaData($property);
+        $propertyMeta = $classMeta->getPropertyMetadata($property);
         $value = $classMeta->getPropertyValue($object, $property);
 
         $this->walkProperty($propertyMeta, $value, $groups, empty($propertyPath) ? $property : $propertyPath.'.'.$property);
@@ -50,7 +50,7 @@ class GraphWalker
     }
   }
 
-  public function walkProperty(PropertyMetaData $propertyMeta, $value, array $groups, $propertyPath)
+  public function walkProperty(PropertyMetadata $propertyMeta, $value, array $groups, $propertyPath)
   {
     foreach ($propertyMeta->findConstraints($groups) as $constraint)
     {
@@ -113,7 +113,7 @@ class GraphWalker
       }
       else
       {
-        $classMeta = $this->metaData->getClassMetaData(get_class($value));
+        $classMeta = $this->metadataFactory->getClassMetadata(get_class($value));
         $this->walkClass($classMeta, $value, $groups, $propertyPath);
       }
     }

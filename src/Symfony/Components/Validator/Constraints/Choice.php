@@ -15,7 +15,7 @@ use Symfony\Components\Validator\Engine\ConstraintValidator;
 
 class Choice extends Constraint
 {
-  public $choices;
+  public $choices = array();
   public $callback;
   public $message = '%value% is not a valid choice';
   public $multiple = false;

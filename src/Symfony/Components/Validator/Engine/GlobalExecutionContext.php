@@ -3,32 +3,32 @@
 namespace Symfony\Components\Validator\Engine;
 
 use Symfony\Components\Validator\Exception\ValidatorException;
-use Symfony\Components\Validator\MetaDataInterface;
+use Symfony\Components\Validator\MappingInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
 
 class GlobalExecutionContext
 {
   protected $root;
   protected $groups;
-  protected $metaData;
+  protected $metadata;
   protected $validatorFactory;
   protected $executed = array();
   protected $context;
   protected $violations;
   protected $cachePrefixOffset;
 
-  public function __construct($root, array $groups, MetaDataInterface $metaData, ConstraintValidatorFactoryInterface $validatorFactory)
+  public function __construct($root, array $groups, MetadataInterface $metadata, ConstraintValidatorFactoryInterface $validatorFactory)
   {
     $this->violations = new ConstraintViolationList();
     $this->root = $root;
-    $this->metaData = $metaData;
+    $this->metadata = $metadata;
     $this->validatorFactory = $validatorFactory;
     $this->cachePrefixOffset = strlen(__NAMESPACE__ . '\\Validate');
     $this->sequence = false;
 
     foreach ($groups as $key => $interface)
     {
-      $this->groups[$key] = $this->metaData->getGroupMetaData($interface);
+      $this->groups[$key] = $this->metadata->getGroupMetadata($interface);
       $this->sequence = $this->sequence || $this->groups[$key]->isGroupSequence();
     }
 
@@ -73,9 +73,9 @@ class GlobalExecutionContext
     return $this->root;
   }
 
-  public function getMetaData()
+  public function getMetadata()
   {
-    return $this->metaData;
+    return $this->metadata;
   }
 
   public function getValidatorFactory()

@@ -1,11 +1,11 @@
 <?php
 
-namespace Symfony\Components\Validator\MetaData;
+namespace Symfony\Components\Validator\Mapping;
 
 use Symfony\Components\Validator\Specification\GroupSpecification;
 
 // IMMUTABLE object
-class GroupMetaData
+class GroupMetadata
 {
   private $interfaceName;
   private $groupSequence;
@@ -42,7 +42,7 @@ class GroupMetaData
 
 //  public function isInstanceOf($group)
 //  {
-//    if ($group instanceof GroupMetaData)
+//    if ($group instanceof GroupMetadata)
 //    {
 //      $group = $group->getInterfaceName();
 //    }
