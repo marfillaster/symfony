@@ -7,15 +7,15 @@ use Symfony\Components\Validator\Specification\PropertySpecification;
 // IMMUTABLE
 class PropertyMetadata extends ElementMetadata
 {
-  private $propertyName;
+  private $name;
 
-  public function __construct($propertyName)
+  public function __construct($name)
   {
-    $this->propertyName = $propertyName;
+    $this->name = $name;
   }
 
-  public function getPropertyName()
+  public function getName()
   {
-    return $this->propertyName;
+    return $this->name;
   }
 }

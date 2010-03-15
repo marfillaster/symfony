@@ -31,28 +31,28 @@ class GraphWalker
     return $this->violations;
   }
 
-  public function walkClass(ClassMetadata $classMeta, $object, array $groups, $propertyPath)
+  public function walkClass(ClassMetadata $metadata, $object, array $groups, $propertyPath)
   {
-    foreach ($classMeta->findConstraints($groups) as $constraint)
+    foreach ($metadata->findConstraints($groups) as $constraint)
     {
       $this->walkConstraint($constraint, $object, $propertyPath);
     }
 
     if (!is_null($object))
     {
-      foreach ($classMeta->getConstrainedProperties() as $property)
+      foreach ($metadata->getConstrainedProperties() as $property)
       {
-        $propertyMeta = $classMeta->getPropertyMetadata($property);
-        $value = $classMeta->getPropertyValue($object, $property);
+        $propMetadata = $metadata->getPropertyMetadata($property);
+        $value = $metadata->getPropertyValue($object, $property);
 
-        $this->walkProperty($propertyMeta, $value, $groups, empty($propertyPath) ? $property : $propertyPath.'.'.$property);
+        $this->walkProperty($propMetadata, $value, $groups, empty($propertyPath) ? $property : $propertyPath.'.'.$property);
       }
     }
   }
 
-  public function walkProperty(PropertyMetadata $propertyMeta, $value, array $groups, $propertyPath)
+  public function walkProperty(PropertyMetadata $propMetadata, $value, array $groups, $propertyPath)
   {
-    foreach ($propertyMeta->findConstraints($groups) as $constraint)
+    foreach ($propMetadata->findConstraints($groups) as $constraint)
     {
       $this->walkDeepConstraint($constraint, $value, $groups, $propertyPath);
     }
@@ -77,16 +77,17 @@ class GraphWalker
         $backup = clone $this->violations;
         $anyValid = false;
 
+        $n = 0;
         foreach ($value as $key => $element)
         {
-          $n = 0;
           foreach ($constraint->constraints as $constr)
           {
-            $this->walkDeepConstraint($constraint, $value, $groups, $propertyPath.'['.$key.']');
-            $m = count($this->violations);
-            $anyValid = $anyValid || $m == $n;
-            $n = $m;
+            $this->walkDeepConstraint($constr, $element, $groups, $propertyPath.'['.$key.']');
           }
+
+          $m = count($this->violations);
+          $anyValid = $anyValid || $m == $n;
+          $n = $m;
         }
 
         if ($constraint instanceof Any && $anyValid)
@@ -113,8 +114,8 @@ class GraphWalker
       }
       else
       {
-        $classMeta = $this->metadataFactory->getClassMetadata(get_class($value));
-        $this->walkClass($classMeta, $value, $groups, $propertyPath);
+        $metadata = $this->metadataFactory->getClassMetadata(get_class($value));
+        $this->walkClass($metadata, $value, $groups, $propertyPath);
       }
     }
   }

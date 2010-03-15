@@ -2,29 +2,42 @@
 
 namespace Symfony\Components\Validator\Mapping;
 
-use \ReflectionClass;
 use Symfony\Components\Validator\Engine\Constraint;
 
 class ClassMetadata extends ElementMetadata
 {
-  protected $className;
+  protected $name;
   protected $properties = array();
   protected $reflClass;
+  protected $reflProperties;
 
-  public function __construct($className)
+  public function __construct($name)
   {
-    $this->className = $className;
-    $this->reflClass = new ReflectionClass($className);
+    $this->name = $name;
+    $this->reflClass = new \ReflectionClass($name);
   }
 
-  public function getClassName()
+  public function getName()
   {
-    return $this->className;
+    return $this->name;
   }
 
   public function getReflectionClass()
   {
     return $this->reflClass;
+  }
+
+  protected function getReflectionProperty($property)
+  {
+    if (!isset($this->reflProperties[$property]))
+    {
+      $reflProp = $this->reflClass->getProperty($property);
+      $reflProp->setAccessible(true);
+
+      $this->reflProperties[$property] = $reflProp;
+    }
+
+    return $this->reflProperties[$property];
   }
 
   public function addPropertyConstraint($name, Constraint $constraint)
@@ -56,7 +69,7 @@ class ClassMetadata extends ElementMetadata
 
     if (property_exists($object, $property))
     {
-      $value = $object->$property;
+      $value = $this->getReflectionProperty($property)->getValue($object);
     }
     else if (method_exists($object, $getter))
     {

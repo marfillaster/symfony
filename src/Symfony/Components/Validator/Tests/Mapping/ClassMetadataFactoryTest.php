@@ -29,16 +29,16 @@ class ClassMetadataFactoryTest_ConstraintLoader implements LoaderInterface
   public function loadClassMetadata(ClassMetadata $metadata)
   {
     $constraint = new ClassMetadataFactoryTest_ConstraintA();
-    $constraint->definedOn = $metadata->getClassName();
+    $constraint->definedOn = $metadata->getName();
 
     $metadata->addConstraint($constraint);
 
-    if ($metadata->getClassName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Parent')
+    if ($metadata->getName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Parent')
     {
       $metadata->addConstraint(new ClassMetadataFactoryTest_ConstraintB());
     }
 
-    if ($metadata->getClassName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Interface')
+    if ($metadata->getName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Interface')
     {
       $metadata->addConstraint(new ClassMetadataFactoryTest_ConstraintC());
     }
@@ -54,16 +54,16 @@ class ClassMetadataFactoryTest_PropertyConstraintLoader implements LoaderInterfa
   public function loadClassMetadata(ClassMetadata $metadata)
   {
     $constraint = new ClassMetadataFactoryTest_ConstraintA();
-    $constraint->definedOn = $metadata->getClassName();
+    $constraint->definedOn = $metadata->getName();
 
     $metadata->addPropertyConstraint('property', $constraint);
 
-    if ($metadata->getClassName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Parent')
+    if ($metadata->getName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Parent')
     {
       $metadata->addPropertyConstraint('property', new ClassMetadataFactoryTest_ConstraintB());
     }
 
-    if ($metadata->getClassName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Interface')
+    if ($metadata->getName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Interface')
     {
       $metadata->addPropertyConstraint('property', new ClassMetadataFactoryTest_ConstraintC());
     }
@@ -88,7 +88,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals(array($constraint1, $constraint2), array_values($metadata->getConstraints()));
   }
 
-  public function testClassMetadataFactoryTest_ConstraintBsAreIncluded()
+  public function testConstraintsAreIncluded()
   {
     $factory = new ClassMetadataFactory(new ClassMetadataFactoryTest_ConstraintLoader());
     $metadata = $factory->getClassMetadata(__NAMESPACE__.'\ClassMetadataFactoryTest_Child');
