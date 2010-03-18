@@ -1,8 +1,8 @@
 <?php
 
-namespace Symfony\Components\Validator\Tests\Engine;
+namespace Symfony\Tests\Components\Validator\Engine;
 
-require_once __DIR__.'/../TestInit.php';
+require_once __DIR__.'/../../../bootstrap.php';
 
 
 use Symfony\Components\Validator\Engine\Validator;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Symfony\Components\Validator\Tests\Mapping;
+namespace Symfony\Tests\Components\Validator\Mapping;
 
-require_once __DIR__.'/../TestInit.php';
+require_once __DIR__.'/../../../bootstrap.php';
 
 use Symfony\Components\Validator\Engine\Constraint;
 use Symfony\Components\Validator\Mapping\ClassMetadataFactory;
