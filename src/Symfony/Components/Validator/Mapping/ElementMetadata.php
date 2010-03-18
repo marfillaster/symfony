@@ -8,10 +8,35 @@ use Symfony\Components\Validator\Engine\Constraint;
 class ElementMetadata
 {
   private $constraints = array();
+  private $constraintMap = array();
 
   public function addConstraint(Constraint $constraint)
   {
-    $this->constraints[get_class($constraint)] = $constraint;
+    $class = get_class($constraint);
+    $this->constraints[$class] = $constraint;
+
+    $this->addToConstraintMap($constraint->groups, $constraint);
+
+    foreach ($constraint->groups as $group)
+    {
+      $this->addToConstraintMap(class_parents($group), $constraint);
+      $this->addToConstraintMap(class_implements($group), $constraint);
+    }
+  }
+
+  private function addToConstraintMap(array $groups, Constraint $constraint)
+  {
+    $class = get_class($constraint);
+
+    foreach ($groups as $group)
+    {
+      if (!isset($this->constraintMap[$group]))
+      {
+        $this->constraintMap[$group] = array();
+      }
+
+      $this->constraintMap[$group][$class] = $constraint;
+    }
   }
 
   public function getConstraints()
@@ -29,26 +54,10 @@ class ElementMetadata
     return count($this->constraints) > 0;
   }
 
-  public function findConstraints(array $groups)
+  public function findConstraints(ClassMetadata $group)
   {
-    $constraints = array();
+    $name = $group->getName();
 
-    foreach ($this->constraints as $constraint)
-    {
-      foreach ($groups as $group)
-      {
-        $reflClass = new ReflectionClass($group);
-        foreach ((array)$constraint->groups as $constraintGroup)
-        {
-          if ($reflClass->implementsInterface($constraintGroup))
-          {
-            $constraints[get_class($constraint)] = $constraint;
-            break 2;
-          }
-        }
-      }
-    }
-
-    return $constraints;
+    return isset($this->constraintMap[$name]) ? $this->constraintMap[$name] : array();
   }
 }

@@ -6,5 +6,5 @@ interface ClassMetadataFactoryInterface
 {
   function getClassMetadata($class);
 
-  function getGroupMetadata($interface);
+  function getClassMetadatas(array $classes);
 }

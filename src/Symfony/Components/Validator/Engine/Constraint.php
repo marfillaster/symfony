@@ -4,7 +4,15 @@ namespace Symfony\Components\Validator\Engine;
 
 class Constraint
 {
-  public $groups = 'Symfony\Components\Validator\Groups\Base';
+  public $groups = 'Base';
+
+  public function __construct(array $values = array())
+  {
+    foreach ($values as $key => $value)
+    {
+      $this->$key = $value;
+    }
+  }
 
   public function requiredFields()
   {

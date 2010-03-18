@@ -8,15 +8,8 @@ use Symfony\Components\Validator\Validators\Exception\MissingOptionsException;
 
 abstract class ConstraintValidator implements ConstraintValidatorInterface
 {
-  protected $context;
-
   private $messageTemplate = '';
   private $messageParameters = array();
-
-  public function initialize(LocalExecutionContext $context)
-  {
-    $this->context = $context;
-  }
 
   public function getMessageTemplate()
   {

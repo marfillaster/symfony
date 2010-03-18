@@ -5,7 +5,7 @@ namespace Symfony\Components\Validator\Mapping\Loader;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Mapping\GroupMetadata;
 
-abstract class AbstractFileLoader implements LoaderInterface
+abstract class FileLoader implements LoaderInterface
 {
   protected $paths;
   protected $extension;
@@ -32,26 +32,11 @@ abstract class AbstractFileLoader implements LoaderInterface
 
   public function loadClassMetadata(ClassMetadata $metadata)
   {
-    $class = $metadata->getClassName();
-
-    if ($fileName = $this->findMappingFile($class))
+    if ($fileName = $this->findMappingFile($metadata->getName()))
     {
       $this->parseClassMetadata($fileName, $metadata);
     }
   }
 
   abstract protected function parseClassMetadata($file, ClassMetadata $metadata);
-
-  public function loadGroupMetadata(GroupMetadata $metadata)
-  {
-    $class = $metadata->getClassName();
-
-    if ($fileName = $this->findMappingFile($class))
-    {
-      $this->parseGroupMetadata($fileName, $metadata);
-    }
-  }
-
-  abstract protected function parseGroupMetadata($file, GroupMetadata $metadata);
-
 }

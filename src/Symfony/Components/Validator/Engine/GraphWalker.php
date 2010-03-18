@@ -2,7 +2,6 @@
 
 namespace Symfony\Components\Validator\Engine;
 
-use \Traversable;
 use Symfony\Components\Validator\ClassMetadataFactoryInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
 use Symfony\Components\Validator\Constraints\All;
@@ -31,9 +30,9 @@ class GraphWalker
     return $this->violations;
   }
 
-  public function walkClass(ClassMetadata $metadata, $object, array $groups, $propertyPath)
+  public function walkClass(ClassMetadata $metadata, $object, ClassMetadata $group, $propertyPath)
   {
-    foreach ($metadata->findConstraints($groups) as $constraint)
+    foreach ($metadata->findConstraints($group) as $constraint)
     {
       $this->walkConstraint($constraint, $object, $propertyPath);
     }
@@ -45,24 +44,24 @@ class GraphWalker
         $propMetadata = $metadata->getPropertyMetadata($property);
         $value = $metadata->getPropertyValue($object, $property);
 
-        $this->walkProperty($propMetadata, $value, $groups, empty($propertyPath) ? $property : $propertyPath.'.'.$property);
+        $this->walkProperty($propMetadata, $value, $group, empty($propertyPath) ? $property : $propertyPath.'.'.$property);
       }
     }
   }
 
-  public function walkProperty(PropertyMetadata $propMetadata, $value, array $groups, $propertyPath)
+  public function walkProperty(PropertyMetadata $propMetadata, $value, ClassMetadata $group, $propertyPath)
   {
-    foreach ($propMetadata->findConstraints($groups) as $constraint)
+    foreach ($propMetadata->findConstraints($group) as $constraint)
     {
-      $this->walkDeepConstraint($constraint, $value, $groups, $propertyPath);
+      $this->walkDeepConstraint($constraint, $value, $group, $propertyPath);
     }
   }
 
-  protected function walkArray(Constraint $constraint, $value, array $groups, $propertyPath)
+  protected function walkArray(Constraint $constraint, $value, ClassMetadata $group, $propertyPath)
   {
     if (!is_null($value))
     {
-      if (!is_array($value) && !$value instanceof Traversable)
+      if (!is_array($value) && !$value instanceof \Traversable)
       {
         $this->violations->add(new ConstraintViolation(
           $constraint->message,
@@ -82,7 +81,7 @@ class GraphWalker
         {
           foreach ($constraint->constraints as $constr)
           {
-            $this->walkDeepConstraint($constr, $element, $groups, $propertyPath.'['.$key.']');
+            $this->walkDeepConstraint($constr, $element, $group, $propertyPath.'['.$key.']');
           }
 
           $m = count($this->violations);
@@ -98,7 +97,7 @@ class GraphWalker
     }
   }
 
-  protected function walkReference(Valid $constraint, $value, array $groups, $propertyPath)
+  protected function walkReference(Valid $constraint, $value, ClassMetadata $group, $propertyPath)
   {
     if (!is_null($value))
     {
@@ -115,20 +114,20 @@ class GraphWalker
       else
       {
         $metadata = $this->metadataFactory->getClassMetadata(get_class($value));
-        $this->walkClass($metadata, $value, $groups, $propertyPath);
+        $this->walkClass($metadata, $value, $group, $propertyPath);
       }
     }
   }
 
-  protected function walkDeepConstraint(Constraint $constraint, $value, array $groups, $propertyPath)
+  protected function walkDeepConstraint(Constraint $constraint, $value, ClassMetadata $group, $propertyPath)
   {
     if ($constraint instanceof All || $constraint instanceof Any)
     {
-      $this->walkArray($constraint, $value, $groups, $propertyPath);
+      $this->walkArray($constraint, $value, $group, $propertyPath);
     }
     else if ($constraint instanceof Valid)
     {
-      $this->walkReference($constraint, $value, $groups, $propertyPath);
+      $this->walkReference($constraint, $value, $group, $propertyPath);
     }
     else
     {

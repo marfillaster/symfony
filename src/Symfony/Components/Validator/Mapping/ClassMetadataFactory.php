@@ -9,7 +9,6 @@ class ClassMetadataFactory implements ClassMetadataFactoryInterface
   protected $loader;
 
   protected $loadedClasses = array();
-  protected $loadedGroups = array();
 
   public function __construct(Loader\LoaderInterface $loader)
   {
@@ -18,6 +17,8 @@ class ClassMetadataFactory implements ClassMetadataFactoryInterface
 
   public function getClassMetadata($class)
   {
+    $class = ltrim($class, '\\');
+
     if (!isset($this->loadedClasses[$class]))
     {
       $metadata = new ClassMetadata($class);
@@ -36,10 +37,27 @@ class ClassMetadataFactory implements ClassMetadataFactoryInterface
 
       $this->loader->loadClassMetadata($metadata);
 
+      // Expand group names
+      $metadata->setGroupSequence($metadata->resolveGroupNames($metadata->getGroupSequence()));
+
       $this->loadedClasses[$class] = $metadata;
+
+      // Create cross references to other groups
+      // Note that this should not be cached and must happen after the assignment!
+      $metadata->setGroupSequence($this->getClassMetadatas($metadata->getGroupSequence()));
     }
 
     return $this->loadedClasses[$class];
+  }
+
+  public function getClassMetadatas(array $classes)
+  {
+    foreach ($classes as $key => $class)
+    {
+      $classes[$key] = $this->getClassMetadata($class);
+    }
+
+    return $classes;
   }
 
   protected function mergeConstraints(ClassMetadata $from, ClassMetadata $to)
@@ -58,19 +76,5 @@ class ClassMetadataFactory implements ClassMetadataFactoryInterface
         $to->addPropertyConstraint($property, $constraint);
       }
     }
-  }
-
-  public function getGroupMetadata($interface)
-  {
-    if (!isset($this->loadedGroups[$interface]))
-    {
-      $metadata = new ClassMetadata($class);
-
-      $this->loader->loadGroupMetadata($metadata);
-
-      $this->loadedGroups[$interface] = $metadata;
-    }
-
-    return $this->loadedGroups[$interface];
   }
 }

@@ -8,6 +8,4 @@ use Symfony\Components\Validator\Mapping\GroupMetadata;
 interface LoaderInterface
 {
   function loadClassMetadata(ClassMetadata $metadata);
-
-  function loadGroupMetadata(GroupMetadata $metadata);
 }

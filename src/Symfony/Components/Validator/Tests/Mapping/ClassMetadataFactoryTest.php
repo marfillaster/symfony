@@ -19,10 +19,11 @@ class ClassMetadataFactoryTest_ConstraintB extends Constraint {}
 class ClassMetadataFactoryTest_ConstraintC extends Constraint {}
 
 interface ClassMetadataFactoryTest_Interface {}
-
 class ClassMetadataFactoryTest_Parent {}
-
 class ClassMetadataFactoryTest_Child extends ClassMetadataFactoryTest_Parent implements ClassMetadataFactoryTest_Interface {}
+
+class ClassMetadataFactoryTest_Group1 {}
+class ClassMetadataFactoryTest_Group2 {}
 
 class ClassMetadataFactoryTest_ConstraintLoader implements LoaderInterface
 {
@@ -42,10 +43,6 @@ class ClassMetadataFactoryTest_ConstraintLoader implements LoaderInterface
     {
       $metadata->addConstraint(new ClassMetadataFactoryTest_ConstraintC());
     }
-  }
-
-  public function loadGroupMetadata(GroupMetadata $metadata)
-  {
   }
 }
 
@@ -68,9 +65,16 @@ class ClassMetadataFactoryTest_PropertyConstraintLoader implements LoaderInterfa
       $metadata->addPropertyConstraint('property', new ClassMetadataFactoryTest_ConstraintC());
     }
   }
+}
 
-  public function loadGroupMetadata(GroupMetadata $metadata)
+class ClassMetadataFactoryTest_GroupSequenceLoader implements LoaderInterface
+{
+  public function loadClassMetadata(ClassMetadata $metadata)
   {
+    $metadata->setGroupSequence(array(
+      __NAMESPACE__.'\ClassMetadataFactoryTest_Group1',
+      __NAMESPACE__.'\ClassMetadataFactoryTest_Group2',
+    ));
   }
 }
 
@@ -115,4 +119,16 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals(array($constraint1, $constraint2, $constraint3), array_values($metadata->getConstraints()));
   }
 
+  public function testLoadClassWithSequence()
+  {
+    $factory = new ClassMetadataFactory(new ClassMetadataFactoryTest_GroupSequenceLoader());
+    $metadata = $factory->getClassMetadata(__NAMESPACE__.'\ClassMetadataFactoryTest_Parent');
+
+    $sequence = array(
+      __NAMESPACE__.'\ClassMetadataFactoryTest_Group1',
+      __NAMESPACE__.'\ClassMetadataFactoryTest_Group2',
+    );
+
+    $this->assertEquals($sequence, $metadata->getGroupSequence());
+  }
 }
