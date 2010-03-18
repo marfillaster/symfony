@@ -28,6 +28,17 @@ namespace Symfony\Components\Templating\Helper;
 class JavascriptsHelper extends Helper
 {
   protected $javascripts = array();
+  protected $assetHelper;
+
+  /**
+   * Constructor.
+   *
+   * @param AssetsHelper $assetHelper A AssetsHelper instance
+   */
+  public function __construct(AssetsHelper $assetHelper)
+  {
+    $this->assetHelper = $assetHelper;
+  }
 
   /**
    * Adds a JavaScript file.
@@ -37,7 +48,7 @@ class JavascriptsHelper extends Helper
    */
   public function add($javascript, $attributes = array())
   {
-    $this->javascripts[$this->engine->get('assets')->getUrl($javascript)] = $attributes;
+    $this->javascripts[$this->assetHelper->getUrl($javascript)] = $attributes;
   }
 
   /**
@@ -51,11 +62,11 @@ class JavascriptsHelper extends Helper
   }
 
   /**
-   * Returns a string representation of this helper as HTML.
+   * Returns HTML representation of the links to JavaScripts.
    *
    * @return string The HTML representation of the JavaScripts
    */
-  public function __toString()
+  public function render()
   {
     $html = '';
     foreach ($this->javascripts as $path => $attributes)
@@ -63,13 +74,32 @@ class JavascriptsHelper extends Helper
       $atts = '';
       foreach ($attributes as $key => $value)
       {
-        $atts .= ' '.sprintf('%s="%s"', $key, $this->engine->escape($value));
+        $atts .= ' '.sprintf('%s="%s"', $key, htmlspecialchars($value, ENT_QUOTES, $this->charset));
       }
 
       $html .= sprintf('<script type="text/javascript" src="%s"%s></script>', $path, $atts)."\n";
     }
 
     return $html;
+  }
+
+  /**
+   * Outputs HTML representation of the links to JavaScripts.
+   * 
+   */
+  public function output()
+  {
+    echo $this->render();
+  }
+
+  /**
+   * Returns a string representation of this helper as HTML.
+   *
+   * @return string The HTML representation of the JavaScripts
+   */
+  public function __toString()
+  {
+    return $this->render();
   }
 
   /**

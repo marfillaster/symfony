@@ -5,9 +5,9 @@ namespace Symfony\Foundation\Bundle;
 use Symfony\Foundation\Bundle\Bundle;
 use Symfony\Foundation\ClassCollectionLoader;
 use Symfony\Components\DependencyInjection\ContainerInterface;
-use Symfony\Components\DependencyInjection\Container;
 use Symfony\Components\DependencyInjection\Loader\Loader;
-use Symfony\Components\Debug\ErrorHandler;
+use Symfony\Components\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Components\DependencyInjection\BuilderConfiguration;
 
 /*
  * This file is part of the symfony framework.
@@ -29,6 +29,19 @@ class KernelBundle extends Bundle
   public function buildContainer(ContainerInterface $container)
   {
     Loader::registerExtension(new KernelExtension());
+
+    $configuration = new BuilderConfiguration();
+
+    $loader = new XmlFileLoader(array(__DIR__.'/../Resources/config', __DIR__.'/Resources/config'));
+    $configuration->merge($loader->load('services.xml'));
+
+    if ($container->getParameter('kernel.debug'))
+    {
+      $configuration->merge($loader->load('debug.xml'));
+      $configuration->setDefinition('event_dispatcher', $configuration->findDefinition('debug.event_dispatcher'));
+    }
+
+    return $configuration;
   }
 
   public function boot(ContainerInterface $container)

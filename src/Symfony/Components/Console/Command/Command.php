@@ -406,7 +406,7 @@ class Command
    */
   public function getSynopsis()
   {
-    return sprintf('%%s %s %s', $this->getFullName(), $this->definition->getSynopsis());
+    return sprintf('%s %s', $this->getFullName(), $this->definition->getSynopsis());
   }
 
   /**
@@ -424,6 +424,20 @@ class Command
   }
 
   /**
+   * Gets a helper instance by name.
+   *
+   * @param string $name The helper name
+   *
+   * @return mixed The helper value
+   *
+   * @throws \InvalidArgumentException if the helper is not defined
+   */
+  public function __get($name)
+  {
+    return $this->application->getHelperSet()->get($name);
+  }
+
+  /**
    * Returns a text representation of the command.
    *
    * @return string A string representing the command
@@ -432,7 +446,7 @@ class Command
   {
     $messages = array(
       '<comment>Usage:</comment>',
-      sprintf(' '.$this->getSynopsis(), null === $this->application ? '' : $this->application->getName()),
+      ' '.$this->getSynopsis(),
       '',
     );
 
