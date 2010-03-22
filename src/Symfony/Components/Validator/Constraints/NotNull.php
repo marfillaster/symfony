@@ -2,9 +2,6 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
-use Symfony\Components\Validator\Engine\Constraint;
-use Symfony\Components\Validator\Engine\ConstraintValidator;
-
 class NotNull extends Constraint
 {
   public $message = 'Value should not be null';

@@ -3,7 +3,7 @@
 namespace Symfony\Components\Validator;
 
 use Symfony\Components\Validator\Engine\LocalExecutionContext;
-use Symfony\Components\Validator\Engine\Constraint;
+use Symfony\Components\Validator\Constraints\Constraint;
 
 interface ConstraintValidatorInterface
 {

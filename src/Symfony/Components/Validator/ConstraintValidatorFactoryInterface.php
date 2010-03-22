@@ -2,7 +2,7 @@
 
 namespace Symfony\Components\Validator;
 
-use Symfony\Components\Validator\Engine\Constraint;
+use Symfony\Components\Validator\Constraints\Constraint;
 
 interface ConstraintValidatorFactoryInterface
 {

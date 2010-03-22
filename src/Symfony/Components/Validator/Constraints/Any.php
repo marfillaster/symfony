@@ -2,8 +2,6 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
-use Symfony\Components\Validator\Engine\Constraint;
-
 class Any extends Constraint
 {
   public $constraints = array();

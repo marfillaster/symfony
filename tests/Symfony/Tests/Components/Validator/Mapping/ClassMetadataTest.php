@@ -4,7 +4,7 @@ namespace Symfony\Tests\Components\Validator\Mapping;
 
 require_once __DIR__.'/../../../bootstrap.php';
 
-use Symfony\Components\Validator\Engine\Constraint;
+use Symfony\Components\Validator\Constraints\Constraint;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Mapping\PropertyMetadata;
 

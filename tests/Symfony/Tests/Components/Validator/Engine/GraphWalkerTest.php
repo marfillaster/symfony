@@ -5,7 +5,7 @@ namespace Symfony\Tests\Components\Validator\Engine;
 require_once __DIR__.'/../../../bootstrap.php';
 
 use Symfony\Components\Validator\Engine\GraphWalker;
-use Symfony\Components\Validator\Engine\Constraint;
+use Symfony\Components\Validator\Constraints\Constraint;
 use Symfony\Components\Validator\Engine\ConstraintViolation;
 use Symfony\Components\Validator\Engine\ConstraintViolationList;
 use Symfony\Components\Validator\Engine\ConstraintValidator;

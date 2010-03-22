@@ -1,6 +1,6 @@
 <?php
 
-namespace Symfony\Components\Validator\Engine;
+namespace Symfony\Components\Validator\Constraints;
 
 use Symfony\Components\Validator\ConstraintValidatorInterface;
 use Symfony\Components\Validator\Validators\Exception\UnknownOptionsException;

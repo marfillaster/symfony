@@ -6,7 +6,7 @@ require_once __DIR__.'/../../../bootstrap.php';
 
 
 use Symfony\Components\Validator\Engine\Validator;
-use Symfony\Components\Validator\Engine\Constraint;
+use Symfony\Components\Validator\Constraints\Constraint;
 use Symfony\Components\Validator\Engine\ConstraintViolation;
 use Symfony\Components\Validator\Engine\ConstraintViolationList;
 use Symfony\Components\Validator\Engine\PropertyPathBuilder;

@@ -3,7 +3,7 @@
 namespace Symfony\Components\Validator\Engine;
 
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
-use Symfony\Components\Validator\Engine\Constraint;
+use Symfony\Components\Validator\Constraints\Constraint;
 
 class CachingConstraintValidatorFactory implements ConstraintValidatorFactoryInterface
 {
