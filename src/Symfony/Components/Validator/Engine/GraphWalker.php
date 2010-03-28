@@ -4,6 +4,7 @@ namespace Symfony\Components\Validator\Engine;
 
 use Symfony\Components\Validator\ClassMetadataFactoryInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
+use Symfony\Components\Validator\Constraints\Constraint;
 use Symfony\Components\Validator\Constraints\All;
 use Symfony\Components\Validator\Constraints\Any;
 use Symfony\Components\Validator\Constraints\Valid;
@@ -30,7 +31,7 @@ class GraphWalker
     return $this->violations;
   }
 
-  public function walkClass(ClassMetadata $metadata, $object, ClassMetadata $group, $propertyPath)
+  public function walkClass(ClassMetadata $metadata, $object, $group, $propertyPath)
   {
     foreach ($metadata->findConstraints($group) as $constraint)
     {
@@ -49,7 +50,7 @@ class GraphWalker
     }
   }
 
-  public function walkProperty(PropertyMetadata $propMetadata, $value, ClassMetadata $group, $propertyPath)
+  public function walkProperty(PropertyMetadata $propMetadata, $value, $group, $propertyPath)
   {
     foreach ($propMetadata->findConstraints($group) as $constraint)
     {
@@ -57,7 +58,7 @@ class GraphWalker
     }
   }
 
-  protected function walkArray(Constraint $constraint, $value, ClassMetadata $group, $propertyPath)
+  protected function walkArray(Constraint $constraint, $value, $group, $propertyPath)
   {
     if (!is_null($value))
     {
@@ -97,7 +98,7 @@ class GraphWalker
     }
   }
 
-  protected function walkReference(Valid $constraint, $value, ClassMetadata $group, $propertyPath)
+  protected function walkReference(Valid $constraint, $value, $group, $propertyPath)
   {
     if (!is_null($value))
     {
@@ -119,7 +120,7 @@ class GraphWalker
     }
   }
 
-  protected function walkDeepConstraint(Constraint $constraint, $value, ClassMetadata $group, $propertyPath)
+  protected function walkDeepConstraint(Constraint $constraint, $value, $group, $propertyPath)
   {
     if ($constraint instanceof All || $constraint instanceof Any)
     {

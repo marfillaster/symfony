@@ -3,31 +3,23 @@
 namespace Symfony\Components\Validator\Mapping;
 
 use Symfony\Components\Validator\Constraints\Constraint;
+use Symfony\Components\Validator\Exception\ValidatorException;
 
 class ClassMetadata extends ElementMetadata
 {
-  const DEFAULT_GROUP = 'Symfony\Components\Validator\Groups\Base';
-
   protected $name;
   protected $properties = array();
   protected $groupSequence = array();
-  protected $groupAliases = array();
   protected $reflClass;
   protected $reflProperties;
 
-  public function __construct($name, array $knownGroups = array())
+  public function __construct($name)
   {
     $this->name = $name;
     $this->reflClass = new \ReflectionClass($name);
-
-    foreach ($knownGroups as $group)
-    {
-      $className = substr($group, strrpos($group, '\\'));
-      $this->groupAliases[$className] = $group;
-    }
   }
 
-  public function getName()
+  public function getClassName()
   {
     return $this->name;
   }
@@ -52,8 +44,7 @@ class ClassMetadata extends ElementMetadata
 
   public function addConstraint(Constraint $constraint)
   {
-    // TODO: testen
-    $constraint->groups = $this->resolveGroupNames((array)$constraint->groups);
+    $constraint->groups = (array)$constraint->groups;
 
     $this->addImplicitGroupNames($constraint);
 
@@ -69,8 +60,7 @@ class ClassMetadata extends ElementMetadata
       $this->properties[$name] = new PropertyMetadata($name);
     }
 
-    // TODO: testen
-    $constraint->groups = $this->resolveGroupNames((array)$constraint->groups);
+    $constraint->groups = (array)$constraint->groups;
 
     $this->addImplicitGroupNames($constraint);
 
@@ -85,9 +75,9 @@ class ClassMetadata extends ElementMetadata
 
   protected function addImplicitGroupNames(Constraint $constraint)
   {
-    if (in_array(self::DEFAULT_GROUP, $constraint->groups) && !in_array($this->name, $constraint->groups))
+    if (in_array(Constraint::DEFAULT_GROUP, $constraint->groups) && !in_array($this->name, $constraint->groups))
     {
-      $constraint->groups[] = $this->name;
+      $constraint->groups[] = $this->reflClass->getShortName();
     }
 
     return $this;
@@ -124,47 +114,6 @@ class ClassMetadata extends ElementMetadata
     }
 
     return $value;
-  }
-
-  // TODO: testen
-  public function resolveGroupName($group)
-  {
-    if ($group == $this->reflClass->getShortName())
-    {
-      return $this->name;
-    }
-    else if ($group == 'Base')
-    {
-      return self::DEFAULT_GROUP;
-    }
-    else if (isset($this->groupAliases[$group]))
-    {
-      return $this->groupAliases[$group];
-    }
-    else if (strpos($group, '\\') === false)
-    {
-      return $this->reflClass->getNamespaceName() . '\\' . $group;
-    }
-    else
-    {
-      return ltrim($group, '\\');
-    }
-  }
-
-  // TODO: testen
-  public function resolveGroupNames(array $groups)
-  {
-    foreach ($groups as $key => $group)
-    {
-      $groups[$key] = $this->resolveGroupName($group);
-    }
-
-    return $groups;
-  }
-
-  public function isDefaultGroup()
-  {
-    return $this->name == self::DEFAULT_GROUP;
   }
 
   public function setGroupSequence(array $groups)

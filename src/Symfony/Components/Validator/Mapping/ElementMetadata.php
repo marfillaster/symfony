@@ -8,35 +8,20 @@ use Symfony\Components\Validator\Constraints\Constraint;
 class ElementMetadata
 {
   private $constraints = array();
-  private $constraintMap = array();
+  private $constraintsByGroup = array();
 
   public function addConstraint(Constraint $constraint)
   {
-    $class = get_class($constraint);
-    $groups = (array)$constraint->groups;
-    $this->constraints[$class] = $constraint;
+    $this->constraints[] = $constraint;
 
-    $this->addToConstraintMap($groups, $constraint);
-
-    foreach ($groups as $group)
+    foreach ((array)$constraint->groups as $group)
     {
-      $this->addToConstraintMap(class_parents($group), $constraint);
-      $this->addToConstraintMap(class_implements($group), $constraint);
-    }
-  }
-
-  private function addToConstraintMap(array $groups, Constraint $constraint)
-  {
-    $class = get_class($constraint);
-
-    foreach ($groups as $group)
-    {
-      if (!isset($this->constraintMap[$group]))
+      if (!isset($this->constraintsByGroup[$group]))
       {
-        $this->constraintMap[$group] = array();
+        $this->constraintsByGroup[$group] = array();
       }
 
-      $this->constraintMap[$group][$class] = $constraint;
+      $this->constraintsByGroup[$group][] = $constraint;
     }
   }
 
@@ -55,10 +40,10 @@ class ElementMetadata
     return count($this->constraints) > 0;
   }
 
-  public function findConstraints(ClassMetadata $group)
+  public function findConstraints($group)
   {
-    $name = $group->getName();
-
-    return isset($this->constraintMap[$name]) ? $this->constraintMap[$name] : array();
+    return isset($this->constraintsByGroup[$group])
+        ? $this->constraintsByGroup[$group]
+        : array();
   }
 }

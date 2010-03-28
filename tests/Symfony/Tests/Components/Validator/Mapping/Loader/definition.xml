@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.symfony-project.org/schema/dic/constraint-mapping http://www.symfony-project.org/schema/dic/services/constraint-mapping-1.0.xsd">
     
-    <class name="Symfony\Tests\Components\Validator\Mapping\Loader\XmlEntity">
+    <class name="Symfony\Tests\Components\Validator\Entity">
     	<!-- CLASS CONSTRAINTS -->
     	
     	<!-- Constraint without value -->
@@ -29,13 +29,13 @@
 	   	
 	   	<!-- PROPERTY CONSTRAINTS -->
 	   	
-	   	<property name="property">
+	   	<property name="foo">
 	   		<constraint name="NotNull" />
 	   	</property>
 	   	
 	   	<!-- GETTER CONSTRAINTS -->
 	   	
-	   	<getter property="property">
+	   	<getter property="bar">
 	   		<constraint name="NotNull" />
 	   	</getter>
 	</class>

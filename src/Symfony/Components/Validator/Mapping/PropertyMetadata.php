@@ -14,7 +14,7 @@ class PropertyMetadata extends ElementMetadata
     $this->name = $name;
   }
 
-  public function getName()
+  public function getPropertyName()
   {
     return $this->name;
   }

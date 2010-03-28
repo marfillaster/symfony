@@ -3,8 +3,13 @@
 namespace Symfony\Tests\Components\Validator\Mapping;
 
 require_once __DIR__.'/../../../bootstrap.php';
+require_once __DIR__.'/../Entity.php';
+require_once __DIR__.'/../ConstraintA.php';
+require_once __DIR__.'/../ConstraintB.php';
 
-use Symfony\Components\Validator\Constraints\Constraint;
+use Symfony\Tests\Components\Validator\Entity;
+use Symfony\Tests\Components\Validator\ConstraintA;
+use Symfony\Tests\Components\Validator\ConstraintB;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Mapping\PropertyMetadata;
 
@@ -14,41 +19,52 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
   public function setUp()
   {
-    $this->metadata = new ClassMetadata(__NAMESPACE__.'\ClassEntity');
+    $this->metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
   }
 
-  public function testPropertyConstraintsCanBeAdded()
+  public function testAddPropertyConstraints()
   {
-    $this->metadata->addPropertyConstraint('foo', new ClassConstraintA());
-    $this->metadata->addPropertyConstraint('bar', new ClassConstraintB());
+    $this->metadata->addPropertyConstraint('firstName', new ConstraintA());
+    $this->metadata->addPropertyConstraint('bar', new ConstraintB());
 
-    $expected = new PropertyMetadata('foo');
-    $expected->addConstraint(new ClassConstraintA());
-
-    $this->assertEquals(array('foo', 'bar'), $this->metadata->getConstrainedProperties());
-    $this->assertEquals($expected, $this->metadata->getPropertyMetadata('foo'));
+    $this->assertEquals(array('firstName', 'bar'), $this->metadata->getConstrainedProperties());
   }
 
-  public function testPropertyConstraintsAreUnique()
+  public function testConstraintsReceiveDefaultGroups()
   {
-    $constraint1 = new ClassConstraintA();
-    $constraint1->foo = 'A';
-    $constraint2 = new ClassConstraintA();
-    $constraint2->foo = 'B';
+    $this->metadata->addConstraint(new ConstraintA());
 
-    $this->metadata->addPropertyConstraint('foo', $constraint1);
-    $this->metadata->addPropertyConstraint('foo', $constraint2);
+    $constraints = array(new ConstraintA(array('groups' => array(
+      'Default',
+      'Entity',
+    ))));
 
-    $expected = new PropertyMetadata('foo');
-    $expected->addConstraint($constraint2);
+    $this->assertEquals($constraints, $this->metadata->getConstraints());
+  }
 
-    $this->assertEquals($expected, $this->metadata->getPropertyMetadata('foo'));
+  public function testPropertyConstraintsReceiveDefaultGroups()
+  {
+    $this->metadata->addPropertyConstraint('firstName', new ConstraintA());
+
+    $constraints = array(new ConstraintA(array('groups' => array(
+      'Default',
+      'Entity',
+    ))));
+
+    $this->assertEquals($constraints, $this->metadata->getPropertyMetadata('firstName')->getConstraints());
+  }
+
+  public function testMultipleConstraintsOfTheSameType()
+  {
+    $constraint1 = new ConstraintA(array('attr' => 'A'));
+    $constraint2 = new ConstraintA(array('attr' => 'B'));
+
+    $this->metadata->addPropertyConstraint('firstName', $constraint1);
+    $this->metadata->addPropertyConstraint('firstName', $constraint2);
+
+    $expected = array($constraint1, $constraint2);
+
+    $this->assertEquals($expected, $this->metadata->getPropertyMetadata('firstName')->getConstraints());
   }
 }
 
-class ClassConstraintA extends Constraint
-{
-  public $foo;
-}
-class ClassConstraintB extends Constraint {}
-class ClassEntity {}

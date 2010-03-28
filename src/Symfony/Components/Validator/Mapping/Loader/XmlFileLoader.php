@@ -29,9 +29,9 @@ class XmlFileLoader extends FileLoader
       }
     }
 
-    if (isset($this->classes[$metadata->getName()]))
+    if (isset($this->classes[$metadata->getClassName()]))
     {
-      $xml = $this->classes[$metadata->getName()];
+      $xml = $this->classes[$metadata->getClassName()];
 
       foreach ($this->parseConstraints($xml->constraint) as $constraint)
       {

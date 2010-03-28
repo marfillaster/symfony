@@ -10,9 +10,9 @@ namespace Symfony\Components\Validator;
  */
 interface ValidatorInterface
 {
-  public function validate($object, $groups = 'Base');
+  public function validate($object, $groups = null);
 
-  public function validateProperty($object, $property, $groups = 'Base');
+  public function validateProperty($object, $property, $groups = null);
 
-  public function validateValue($class, $property, $value, $groups = 'Base');
+  public function validateValue($class, $property, $value, $groups = null);
 }

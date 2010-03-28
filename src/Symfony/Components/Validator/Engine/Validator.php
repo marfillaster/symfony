@@ -5,6 +5,7 @@ namespace Symfony\Components\Validator\Engine;
 use Symfony\Components\Validator\ValidatorInterface;
 use Symfony\Components\Validator\ClassMetadataFactoryInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
+use Symfony\Components\Validator\Constraints\Constraint;
 use Symfony\Components\Validator\Mapping\ElementMetadata;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Exception\GroupDefinitionException;
@@ -20,32 +21,26 @@ class Validator implements ValidatorInterface
     $this->validatorFactory = new CachingConstraintValidatorFactory($validatorFactory);
   }
 
-  public function validate($object, $groups = 'Base')
+  public function validate($object, $groups = null)
   {
     $classMeta = $this->metadataFactory->getClassMetadata(get_class($object));
-    $groups = $classMeta->resolveGroupNames((array)$groups);
-    $groups = $this->metadataFactory->getClassMetadatas($groups);
 
     return $this->validateGraph('walkClass', $object, $classMeta, $classMeta, $object, $groups);
   }
 
-  public function validateProperty($object, $property, $groups = 'Base')
+  public function validateProperty($object, $property, $groups = null)
   {
     $classMeta = $this->metadataFactory->getClassMetadata(get_class($object));
     $propertyMeta = $classMeta->getPropertyMetadata($property);
     $value = $classMeta->getPropertyValue($object, $property);
-    $groups = $classMeta->resolveGroupNames((array)$groups);
-    $groups = $this->metadataFactory->getClassMetadatas($groups);
 
     return $this->validateGraph('walkProperty', $object, $classMeta, $propertyMeta, $value, $groups, $property);
   }
 
-  public function validateValue($class, $property, $value, $groups = 'Base')
+  public function validateValue($class, $property, $value, $groups = null)
   {
     $classMeta = $this->metadataFactory->getClassMetadata($class);
     $propertyMeta = $classMeta->getPropertyMetadata($property);
-    $groups = $classMeta->resolveGroupNames((array)$groups);
-    $groups = $this->metadataFactory->getClassMetadatas($groups);
 
     return $this->validateGraph('walkProperty', $class, $classMeta, $propertyMeta, $value, $groups, $property);
   }
@@ -59,7 +54,7 @@ class Validator implements ValidatorInterface
     return $walker->getViolations();
   }
 
-  protected function validateGraph($walkerMethod, $root, ClassMetadata $classMeta, ElementMetadata $metadata, $value, array $groups, $propertyPath = '')
+  protected function validateGraph($walkerMethod, $root, ClassMetadata $classMeta, ElementMetadata $metadata, $value, $groups, $propertyPath = '')
   {
     $walker = new GraphWalker($root, $this->metadataFactory, $this->validatorFactory);
     $groupChain = $this->buildGroupChain($classMeta, $groups);
@@ -87,29 +82,24 @@ class Validator implements ValidatorInterface
     return $walker->getViolations();
   }
 
-  protected function buildGroupChain(ClassMetadata $class, array $groups)
+  protected function buildGroupChain(ClassMetadata $class, $groups)
   {
+    if (is_null($groups))
+    {
+      $groups = array(Constraint::DEFAULT_GROUP);
+    }
+    else
+    {
+      $groups = (array)$groups;
+    }
+
     $chain = new GroupChain();
 
     foreach ($groups as $group)
     {
-      if (!$group instanceof ClassMetadata)
+      if ($group == Constraint::DEFAULT_GROUP && $class->hasGroupSequence())
       {
-        throw new \InvalidArgumentException('Groups must be instance of ClassMetadata');
-      }
-
-      $expandedSequence = array();
-      $processedGroups = array();
-
-      if ($group->isDefaultGroup() && $class->hasGroupSequence())
-      {
-        $this->expandGroupSequence($class, $expandedSequence, $processedGroups);
-        $chain->addGroupSequence($expandedSequence);
-      }
-      else if ($group->hasGroupSequence() && $group != $class)
-      {
-        $this->expandGroupSequence($group, $expandedSequence, $processedGroups);
-        $chain->addGroupSequence($expandedSequence);
+        $chain->addGroupSequence($class->getGroupSequence());
       }
       else
       {
@@ -118,28 +108,5 @@ class Validator implements ValidatorInterface
     }
 
     return $chain;
-  }
-
-  private function expandGroupSequence(ClassMetadata $group, array &$expandedSequence, array &$processedGroups)
-  {
-    if (isset($processedGroups[$group->getName()]))
-    {
-      throw new GroupDefinitionException('Circle detected!');
-    }
-
-    $processedGroups[$group->getName()] = true;
-
-    foreach ($group->getGroupSequence() as $nestedGroup)
-    {
-      // The group may contain itself in the group sequence
-      if ($nestedGroup->hasGroupSequence())
-      {
-        $this->expandGroupSequence($nestedGroup, $expandedSequence, $processedGroups);
-      }
-      else
-      {
-        $expandedSequence[] = $nestedGroup;
-      }
-    }
   }
 }

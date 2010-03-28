@@ -9,9 +9,9 @@ class GroupChain
   protected $groups = array();
   protected $groupSequences = array();
 
-  public function addGroup(ClassMetadata $group)
+  public function addGroup($group)
   {
-    $this->groups[$group->getName()] = $group;
+    $this->groups[$group] = $group;
   }
 
   public function addGroupSequence(array $groups)
@@ -19,14 +19,6 @@ class GroupChain
     if (count($groups) == 0)
     {
       throw new \InvalidArgumentException('A group sequence must contain at least one group');
-    }
-
-    foreach ($groups as $group)
-    {
-      if (!$group instanceof ClassMetadata)
-      {
-        throw new \InvalidArgumentException('Groups must be instance of ClassMetadata');
-      }
     }
 
     if (!in_array($groups, $this->groupSequences, true))

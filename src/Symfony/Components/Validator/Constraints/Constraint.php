@@ -4,7 +4,9 @@ namespace Symfony\Components\Validator\Constraints;
 
 class Constraint
 {
-  public $groups = 'Base';
+  const DEFAULT_GROUP = 'Default';
+
+  public $groups = self::DEFAULT_GROUP;
 
   public function __construct($value = null)
   {

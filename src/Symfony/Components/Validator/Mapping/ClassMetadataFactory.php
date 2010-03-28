@@ -37,14 +37,7 @@ class ClassMetadataFactory implements ClassMetadataFactoryInterface
 
       $this->loader->loadClassMetadata($metadata);
 
-      // Expand group names
-      $metadata->setGroupSequence($metadata->resolveGroupNames($metadata->getGroupSequence()));
-
       $this->loadedClasses[$class] = $metadata;
-
-      // Create cross references to other groups
-      // Note that this should not be cached and must happen after the assignment!
-      $metadata->setGroupSequence($this->getClassMetadatas($metadata->getGroupSequence()));
     }
 
     return $this->loadedClasses[$class];
