@@ -12,13 +12,13 @@ use Symfony\Components\Validator\Exception\GroupDefinitionException;
 
 class Validator implements ValidatorInterface
 {
-  protected $metadata;
+  protected $metadataFactory;
   protected $validatorFactory;
 
   public function __construct(ClassMetadataFactoryInterface $metadataFactory, ConstraintValidatorFactoryInterface $validatorFactory)
   {
     $this->metadataFactory = $metadataFactory;
-    $this->validatorFactory = new CachingConstraintValidatorFactory($validatorFactory);
+    $this->validatorFactory = $validatorFactory;
   }
 
   public function validate($object, $groups = null)

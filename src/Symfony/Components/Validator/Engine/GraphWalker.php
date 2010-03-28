@@ -140,7 +140,7 @@ class GraphWalker
   {
     // TODO: exception if constraint is Valid, Any or All
 
-    $validator = $this->validatorFactory->getInstance($constraint->validatedBy());
+    $validator = $this->validatorFactory->getInstance($constraint);
 
     if (!$validator->isValid($value, $constraint))
     {

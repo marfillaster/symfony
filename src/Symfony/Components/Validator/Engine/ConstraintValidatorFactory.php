@@ -3,11 +3,21 @@
 namespace Symfony\Components\Validator\Engine;
 
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
+use Symfony\Components\Validator\Constraints\Constraint;
 
 class ConstraintValidatorFactory implements ConstraintValidatorFactoryInterface
 {
-  public function getInstance($className)
+  protected $validators = array();
+
+  public function getInstance(Constraint $constraint)
   {
-    return new $className();
+    $className = $constraint->validatedBy();
+
+    if (!isset($this->validators[$className]))
+    {
+      $this->validators[$className] = new $className();
+    }
+
+    return $this->validators[$className];
   }
 }
