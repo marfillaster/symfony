@@ -14,6 +14,7 @@ class Constraint
     {
       foreach ($value as $property => $val)
       {
+        // TODO throw exception if property does not exist
         $this->$property = $val;
       }
     }

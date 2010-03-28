@@ -9,13 +9,13 @@ use Symfony\Components\Validator\Constraints\NotNull;
 use Symfony\Components\Validator\Constraints\Min;
 use Symfony\Components\Validator\Constraints\Choice;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
-use Symfony\Components\Validator\Mapping\Loader\XmlFileLoader;
+use Symfony\Components\Validator\Mapping\Loader\YamlFileLoader;
 
-class XmlFileLoaderTest extends \PHPUnit_Framework_TestCase
+class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
 {
   public function testLoadClassMetadataReturnsTrueIfSuccessful()
   {
-    $loader = new XmlFileLoader(__DIR__.'/constraint-mapping.xml');
+    $loader = new YamlFileLoader(__DIR__.'/constraint-mapping.yml');
     $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
 
     $this->assertTrue($loader->loadClassMetadata($metadata));
@@ -23,7 +23,7 @@ class XmlFileLoaderTest extends \PHPUnit_Framework_TestCase
 
   public function testLoadClassMetadataReturnsFalseIfNotSuccessful()
   {
-    $loader = new XmlFileLoader(__DIR__.'/constraint-mapping.xml');
+    $loader = new YamlFileLoader(__DIR__.'/constraint-mapping.yml');
     $metadata = new ClassMetadata('\stdClass');
 
     $this->assertFalse($loader->loadClassMetadata($metadata));
@@ -31,7 +31,7 @@ class XmlFileLoaderTest extends \PHPUnit_Framework_TestCase
 
   public function testLoadClassMetadata()
   {
-    $loader = new XmlFileLoader(__DIR__.'/constraint-mapping.xml');
+    $loader = new YamlFileLoader(__DIR__.'/constraint-mapping.yml');
     $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
 
     $loader->loadClassMetadata($metadata);

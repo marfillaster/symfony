@@ -2,6 +2,7 @@
 
 namespace Symfony\Components\Validator\Mapping\Loader;
 
+use Symfony\Components\Validator\Exception\MappingException;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Mapping\GroupMetadata;
 
