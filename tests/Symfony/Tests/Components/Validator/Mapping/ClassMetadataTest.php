@@ -8,31 +8,22 @@ use Symfony\Components\Validator\Constraints\Constraint;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Mapping\PropertyMetadata;
 
-class ClassMetadataTest_ConstraintA extends Constraint
-{
-  public $foo;
-}
-
-class ClassMetadataTest_ConstraintB extends Constraint {}
-
-class ClassMetadataTest_Class {}
-
 class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 {
   protected $metadata;
 
   public function setUp()
   {
-    $this->metadata = new ClassMetadata(__NAMESPACE__.'\ClassMetadataTest_Class');
+    $this->metadata = new ClassMetadata(__NAMESPACE__.'\ClassEntity');
   }
 
   public function testPropertyConstraintsCanBeAdded()
   {
-    $this->metadata->addPropertyConstraint('foo', new ClassMetadataTest_ConstraintA());
-    $this->metadata->addPropertyConstraint('bar', new ClassMetadataTest_ConstraintB());
+    $this->metadata->addPropertyConstraint('foo', new ClassConstraintA());
+    $this->metadata->addPropertyConstraint('bar', new ClassConstraintB());
 
     $expected = new PropertyMetadata('foo');
-    $expected->addConstraint(new ClassMetadataTest_ConstraintA());
+    $expected->addConstraint(new ClassConstraintA());
 
     $this->assertEquals(array('foo', 'bar'), $this->metadata->getConstrainedProperties());
     $this->assertEquals($expected, $this->metadata->getPropertyMetadata('foo'));
@@ -40,9 +31,9 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
   public function testPropertyConstraintsAreUnique()
   {
-    $constraint1 = new ClassMetadataTest_ConstraintA();
+    $constraint1 = new ClassConstraintA();
     $constraint1->foo = 'A';
-    $constraint2 = new ClassMetadataTest_ConstraintA();
+    $constraint2 = new ClassConstraintA();
     $constraint2->foo = 'B';
 
     $this->metadata->addPropertyConstraint('foo', $constraint1);
@@ -53,5 +44,11 @@ class ClassMetadataTest extends \PHPUnit_Framework_TestCase
 
     $this->assertEquals($expected, $this->metadata->getPropertyMetadata('foo'));
   }
-
 }
+
+class ClassConstraintA extends Constraint
+{
+  public $foo;
+}
+class ClassConstraintB extends Constraint {}
+class ClassEntity {}

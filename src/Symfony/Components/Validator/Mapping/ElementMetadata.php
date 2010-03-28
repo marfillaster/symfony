@@ -13,11 +13,12 @@ class ElementMetadata
   public function addConstraint(Constraint $constraint)
   {
     $class = get_class($constraint);
+    $groups = (array)$constraint->groups;
     $this->constraints[$class] = $constraint;
 
-    $this->addToConstraintMap($constraint->groups, $constraint);
+    $this->addToConstraintMap($groups, $constraint);
 
-    foreach ($constraint->groups as $group)
+    foreach ($groups as $group)
     {
       $this->addToConstraintMap(class_parents($group), $constraint);
       $this->addToConstraintMap(class_implements($group), $constraint);

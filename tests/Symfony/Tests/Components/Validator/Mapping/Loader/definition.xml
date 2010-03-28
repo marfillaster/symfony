@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+
+<constraint-mapping xmlns="http://www.symfony-project.org/schema/dic/constraint-mapping"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.symfony-project.org/schema/dic/constraint-mapping http://www.symfony-project.org/schema/dic/services/constraint-mapping-1.0.xsd">
+    
+    <class name="Symfony\Tests\Components\Validator\Mapping\Loader\XmlEntity">
+    	<!-- CLASS CONSTRAINTS -->
+    	
+    	<!-- Constraint without value -->
+	   	<constraint name="NotNull" />
+	   	<!-- Constraint with single value -->
+		<constraint name="Min">3</constraint>
+		<!-- Constraint with multiple values -->
+	   	<constraint name="Choice">
+	   		<value>A</value>
+	   		<value>B</value>
+	   	</constraint>
+	   	<!-- Constraint with attributes -->
+	   	<constraint name="Choice">
+	   		<!-- Attribute with single value -->
+	   		<attribute name="message">Must be one of %choices%</attribute>
+	   		<!-- Attribute with multiple values -->
+	   		<attribute name="values">
+	   			<value>A</value>
+	   			<value>B</value>
+	   		</attribute>
+	   	</constraint>
+	   	
+	   	<!-- PROPERTY CONSTRAINTS -->
+	   	
+	   	<property name="property">
+	   		<constraint name="NotNull" />
+	   	</property>
+	   	
+	   	<!-- GETTER CONSTRAINTS -->
+	   	
+	   	<getter property="property">
+	   		<constraint name="NotNull" />
+	   	</getter>
+	</class>
+</constraint-mapping>

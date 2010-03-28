@@ -20,4 +20,9 @@ class Choice extends Constraint
   public $minMessage = 'Please select at least %min% choices';
   public $max;
   public $maxMessage = 'Please select no more than %max% choices';
+
+  public function defaultAttribute()
+  {
+    return 'choices';
+  }
 }

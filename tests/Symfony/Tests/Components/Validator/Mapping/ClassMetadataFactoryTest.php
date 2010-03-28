@@ -10,70 +10,55 @@ use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Mapping\GroupMetadata;
 use Symfony\Components\Validator\Mapping\Loader\LoaderInterface;
 
-class ClassMetadataFactoryTest_ConstraintA extends Constraint
-{
-  public $definedOn;
-}
-
-class ClassMetadataFactoryTest_ConstraintB extends Constraint {}
-class ClassMetadataFactoryTest_ConstraintC extends Constraint {}
-
-interface ClassMetadataFactoryTest_Interface {}
-class ClassMetadataFactoryTest_Parent {}
-class ClassMetadataFactoryTest_Child extends ClassMetadataFactoryTest_Parent implements ClassMetadataFactoryTest_Interface {}
-
-class ClassMetadataFactoryTest_Group1 {}
-class ClassMetadataFactoryTest_Group2 {}
-
-class ClassMetadataFactoryTest_ConstraintLoader implements LoaderInterface
+class FactoryConstraintLoader implements LoaderInterface
 {
   public function loadClassMetadata(ClassMetadata $metadata)
   {
-    $constraint = new ClassMetadataFactoryTest_ConstraintA();
+    $constraint = new FactoryConstraintA();
     $constraint->definedOn = $metadata->getName();
 
     $metadata->addConstraint($constraint);
 
-    if ($metadata->getName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Parent')
+    if ($metadata->getName() == __NAMESPACE__.'\FactoryParent')
     {
-      $metadata->addConstraint(new ClassMetadataFactoryTest_ConstraintB());
+      $metadata->addConstraint(new FactoryConstraintB());
     }
 
-    if ($metadata->getName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Interface')
+    if ($metadata->getName() == __NAMESPACE__.'\FactoryInterface')
     {
-      $metadata->addConstraint(new ClassMetadataFactoryTest_ConstraintC());
+      $metadata->addConstraint(new FactoryConstraintC());
     }
   }
 }
 
-class ClassMetadataFactoryTest_PropertyConstraintLoader implements LoaderInterface
+class FactoryPropertyConstraintLoader implements LoaderInterface
 {
   public function loadClassMetadata(ClassMetadata $metadata)
   {
-    $constraint = new ClassMetadataFactoryTest_ConstraintA();
+    $constraint = new FactoryConstraintA();
     $constraint->definedOn = $metadata->getName();
 
     $metadata->addPropertyConstraint('property', $constraint);
 
-    if ($metadata->getName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Parent')
+    if ($metadata->getName() == __NAMESPACE__.'\FactoryParent')
     {
-      $metadata->addPropertyConstraint('property', new ClassMetadataFactoryTest_ConstraintB());
+      $metadata->addPropertyConstraint('property', new FactoryConstraintB());
     }
 
-    if ($metadata->getName() == __NAMESPACE__.'\ClassMetadataFactoryTest_Interface')
+    if ($metadata->getName() == __NAMESPACE__.'\FactoryInterface')
     {
-      $metadata->addPropertyConstraint('property', new ClassMetadataFactoryTest_ConstraintC());
+      $metadata->addPropertyConstraint('property', new FactoryConstraintC());
     }
   }
 }
 
-class ClassMetadataFactoryTest_GroupSequenceLoader implements LoaderInterface
+class FactoryGroupSequenceLoader implements LoaderInterface
 {
   public function loadClassMetadata(ClassMetadata $metadata)
   {
     $metadata->setGroupSequence(array(
-      __NAMESPACE__.'\ClassMetadataFactoryTest_Group1',
-      __NAMESPACE__.'\ClassMetadataFactoryTest_Group2',
+      __NAMESPACE__.'\FactoryGroup1',
+      __NAMESPACE__.'\FactoryGroup2',
     ));
   }
 }
@@ -82,53 +67,68 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
 {
   public function testLoadClassMetadata()
   {
-    $factory = new ClassMetadataFactory(new ClassMetadataFactoryTest_ConstraintLoader());
-    $metadata = $factory->getClassMetadata(__NAMESPACE__.'\ClassMetadataFactoryTest_Parent');
+    $factory = new ClassMetadataFactory(new FactoryConstraintLoader());
+    $metadata = $factory->getClassMetadata(__NAMESPACE__.'\FactoryParent');
 
-    $constraint1 = new ClassMetadataFactoryTest_ConstraintA();
-    $constraint1->definedOn = __NAMESPACE__.'\ClassMetadataFactoryTest_Parent';
-    $constraint2 = new ClassMetadataFactoryTest_ConstraintB();
+    $constraint1 = new FactoryConstraintA();
+    $constraint1->definedOn = __NAMESPACE__.'\FactoryParent';
+    $constraint2 = new FactoryConstraintB();
 
     $this->assertEquals(array($constraint1, $constraint2), array_values($metadata->getConstraints()));
   }
 
   public function testConstraintsAreIncluded()
   {
-    $factory = new ClassMetadataFactory(new ClassMetadataFactoryTest_ConstraintLoader());
-    $metadata = $factory->getClassMetadata(__NAMESPACE__.'\ClassMetadataFactoryTest_Child');
+    $factory = new ClassMetadataFactory(new FactoryConstraintLoader());
+    $metadata = $factory->getClassMetadata(__NAMESPACE__.'\FactoryChild');
 
-    $constraint1 = new ClassMetadataFactoryTest_ConstraintA();
-    $constraint1->definedOn = __NAMESPACE__.'\ClassMetadataFactoryTest_Child';
-    $constraint2 = new ClassMetadataFactoryTest_ConstraintB();
-    $constraint3 = new ClassMetadataFactoryTest_ConstraintC();
+    $constraint1 = new FactoryConstraintA();
+    $constraint1->definedOn = __NAMESPACE__.'\FactoryChild';
+    $constraint2 = new FactoryConstraintB();
+    $constraint3 = new FactoryConstraintC();
 
     $this->assertEquals(array($constraint1, $constraint2, $constraint3), array_values($metadata->getConstraints()));
   }
 
   public function testParentPropertyConstraintsAreIncluded()
   {
-    $factory = new ClassMetadataFactory(new ClassMetadataFactoryTest_PropertyConstraintLoader());
-    $metadata = $factory->getClassMetadata(__NAMESPACE__.'\ClassMetadataFactoryTest_Child');
+    $factory = new ClassMetadataFactory(new FactoryPropertyConstraintLoader());
+    $metadata = $factory->getClassMetadata(__NAMESPACE__.'\FactoryChild');
     $metadata = $metadata->getPropertyMetadata('property');
 
-    $constraint1 = new ClassMetadataFactoryTest_ConstraintA();
-    $constraint1->definedOn = __NAMESPACE__.'\ClassMetadataFactoryTest_Child';
-    $constraint2 = new ClassMetadataFactoryTest_ConstraintB();
-    $constraint3 = new ClassMetadataFactoryTest_ConstraintC();
+    $constraint1 = new FactoryConstraintA();
+    $constraint1->definedOn = __NAMESPACE__.'\FactoryChild';
+    $constraint2 = new FactoryConstraintB();
+    $constraint3 = new FactoryConstraintC();
 
     $this->assertEquals(array($constraint1, $constraint2, $constraint3), array_values($metadata->getConstraints()));
   }
 
   public function testLoadClassWithSequence()
   {
-    $factory = new ClassMetadataFactory(new ClassMetadataFactoryTest_GroupSequenceLoader());
-    $metadata = $factory->getClassMetadata(__NAMESPACE__.'\ClassMetadataFactoryTest_Parent');
+    $factory = new ClassMetadataFactory(new FactoryGroupSequenceLoader());
+    $metadata = $factory->getClassMetadata(__NAMESPACE__.'\FactoryParent');
 
     $sequence = array(
-      __NAMESPACE__.'\ClassMetadataFactoryTest_Group1',
-      __NAMESPACE__.'\ClassMetadataFactoryTest_Group2',
+      __NAMESPACE__.'\FactoryGroup1',
+      __NAMESPACE__.'\FactoryGroup2',
     );
 
     $this->assertEquals($sequence, $metadata->getGroupSequence());
   }
 }
+
+class FactoryConstraintA extends Constraint
+{
+  public $definedOn;
+}
+
+class FactoryConstraintB extends Constraint {}
+class FactoryConstraintC extends Constraint {}
+
+interface FactoryInterface {}
+class FactoryParent {}
+class FactoryChild extends FactoryParent implements FactoryInterface {}
+
+class FactoryGroup1 {}
+class FactoryGroup2 {}

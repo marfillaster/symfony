@@ -3,9 +3,12 @@
 namespace Symfony\Components\Validator\Mapping\Loader;
 
 use Symfony\Components\Validator\Mapping\ClassMetadata;
-use Symfony\Components\Validator\Mapping\GroupMetadata;
 
 interface LoaderInterface
 {
+  /**
+   * @param  ClassMetadata $metadata
+   * @return boolean
+   */
   function loadClassMetadata(ClassMetadata $metadata);
 }

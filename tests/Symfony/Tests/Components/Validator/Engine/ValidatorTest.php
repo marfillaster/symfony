@@ -5,11 +5,10 @@ namespace Symfony\Tests\Components\Validator\Engine;
 require_once __DIR__.'/../../../bootstrap.php';
 
 
-use Symfony\Components\Validator\Engine\Validator;
 use Symfony\Components\Validator\Constraints\Constraint;
+use Symfony\Components\Validator\Engine\Validator;
 use Symfony\Components\Validator\Engine\ConstraintViolation;
 use Symfony\Components\Validator\Engine\ConstraintViolationList;
-use Symfony\Components\Validator\Engine\PropertyPathBuilder;
 use Symfony\Components\Validator\Mapping\Metadata;
 use Symfony\Components\Validator\Specification\PropertySpecification;
 use Symfony\Components\Validator\Specification\ClassSpecification;

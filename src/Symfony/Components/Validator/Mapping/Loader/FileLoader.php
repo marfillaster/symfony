@@ -7,36 +7,20 @@ use Symfony\Components\Validator\Mapping\GroupMetadata;
 
 abstract class FileLoader implements LoaderInterface
 {
-  protected $paths;
-  protected $extension;
+  protected $file;
 
-  public function __construct(array $paths)
+  public function __construct($file)
   {
-    $this->paths = $paths;
-  }
-
-  protected function findMappingFile($class)
-  {
-    $fileName = str_replace('\\', '.', $class) . $this->extension;
-
-    foreach ($this->paths as $path)
+    if (!file_exists($file))
     {
-      if (file_exists($path . DIRECTORY_SEPARATOR . $fileName))
-      {
-        return $path . DIRECTORY_SEPARATOR . $fileName;
-      }
+      throw new MappingException(sprintf('The mapping file %s does not exist', $file));
     }
 
-    return false;
-  }
-
-  public function loadClassMetadata(ClassMetadata $metadata)
-  {
-    if ($fileName = $this->findMappingFile($metadata->getName()))
+    if (!is_readable($file))
     {
-      $this->parseClassMetadata($fileName, $metadata);
+      throw new MappingException(sprintf('The mapping file %s is not readable', $file));
     }
-  }
 
-  abstract protected function parseClassMetadata($file, ClassMetadata $metadata);
+    $this->file = $file;
+  }
 }

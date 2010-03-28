@@ -58,6 +58,8 @@ class ClassMetadata extends ElementMetadata
     $this->addImplicitGroupNames($constraint);
 
     parent::addConstraint($constraint);
+
+    return $this;
   }
 
   public function addPropertyConstraint($name, Constraint $constraint)
@@ -73,6 +75,12 @@ class ClassMetadata extends ElementMetadata
     $this->addImplicitGroupNames($constraint);
 
     $this->properties[$name]->addConstraint($constraint);
+
+    return $this;
+  }
+
+  public function addGetterConstraint($property, Constraint $constraint)
+  {
   }
 
   protected function addImplicitGroupNames(Constraint $constraint)
@@ -81,6 +89,8 @@ class ClassMetadata extends ElementMetadata
     {
       $constraint->groups[] = $this->name;
     }
+
+    return $this;
   }
 
   public function getPropertyMetadata($name)
@@ -160,6 +170,8 @@ class ClassMetadata extends ElementMetadata
   public function setGroupSequence(array $groups)
   {
     $this->groupSequence = $groups;
+
+    return $this;
   }
 
   public function hasGroupSequence()
