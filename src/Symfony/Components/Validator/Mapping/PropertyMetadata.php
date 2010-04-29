@@ -2,20 +2,38 @@
 
 namespace Symfony\Components\Validator\Mapping;
 
-use Symfony\Components\Validator\Specification\PropertySpecification;
+use Symfony\Components\Validator\Exception\ValidatorException;
 
-// IMMUTABLE
-class PropertyMetadata extends ElementMetadata
+class PropertyMetadata extends AbstractPropertyMetadata
 {
-  private $name;
+  protected $reflProperty;
 
-  public function __construct($name)
+  /**
+   * {@inheritDoc}
+   */
+  protected function readPropertyValue($object)
   {
-    $this->name = $name;
+    return $this->getReflectionProperty()->getValue($object);
   }
 
-  public function getPropertyName()
+  /**
+   * Returns the ReflectionProperty instance for this property.
+   *
+   * @return ReflectionProperty
+   */
+  protected function getReflectionProperty()
   {
-    return $this->name;
+    if (!isset($this->reflProperty))
+    {
+      if (!$this->reflClass->hasProperty($this->name))
+      {
+        throw new ValidatorException(sprintf('Property %s does not exist in class "%s"', $property, get_class($object)));
+      }
+
+      $this->reflProperty = $this->reflClass->getProperty($this->name);
+      $this->reflProperty->setAccessible(true);
+    }
+
+    return $this->reflProperty;
   }
 }

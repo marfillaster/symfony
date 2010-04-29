@@ -24,28 +24,42 @@ class Validator implements ValidatorInterface
   public function validate($object, $groups = null)
   {
     $classMeta = $this->metadataFactory->getClassMetadata(get_class($object));
+    $groupChain = $this->buildGroupChain($classMeta, $groups);
 
-    return $this->validateGraph('walkClass', $object, $classMeta, $classMeta, $object, $groups);
+    $closure = function(GraphWalker $walker, $group) use ($classMeta, $object) {
+      return $walker->walkClass($classMeta, $object, $group, '');
+    };
+
+    return $this->validateGraph($object, $closure, $groupChain);
   }
 
   public function validateProperty($object, $property, $groups = null)
   {
     $classMeta = $this->metadataFactory->getClassMetadata(get_class($object));
+    $groupChain = $this->buildGroupChain($classMeta, $groups);
     $propertyMeta = $classMeta->getPropertyMetadata($property);
-    $value = $classMeta->getPropertyValue($object, $property);
 
-    return $this->validateGraph('walkProperty', $object, $classMeta, $propertyMeta, $value, $groups, $property);
+    $closure = function(GraphWalker $walker, $group) use ($classMeta, $object) {
+      return $walker->walkProperty($propertyMeta, $object, $group, '');
+    };
+
+    return $this->validateGraph($object, $closure, $groupChain);
   }
 
-  public function validateValue($class, $property, $value, $groups = null)
+  public function validatePropertyValue($class, $property, $value, $groups = null)
   {
     $classMeta = $this->metadataFactory->getClassMetadata($class);
+    $groupChain = $this->buildGroupChain($classMeta, $groups);
     $propertyMeta = $classMeta->getPropertyMetadata($property);
 
-    return $this->validateGraph('walkProperty', $class, $classMeta, $propertyMeta, $value, $groups, $property);
+    $closure = function(GraphWalker $walker, $group) use ($classMeta, $value) {
+      return $walker->walkPropertyValue($propertyMeta, $value, $group, '');
+    };
+
+    return $this->validateGraph($object, $closure, $groupChain);
   }
 
-  public function validateConstraint(Constraint $constraint, $value)
+  public function validateValue($value, Constraint $constraint)
   {
     $walker = new GraphWalker($value, $this->metadataFactory, $this->validatorFactory);
 
@@ -54,14 +68,13 @@ class Validator implements ValidatorInterface
     return $walker->getViolations();
   }
 
-  protected function validateGraph($walkerMethod, $root, ClassMetadata $classMeta, ElementMetadata $metadata, $value, $groups, $propertyPath = '')
+  protected function validateGraph($root, $closure, GroupChain $groupChain)
   {
     $walker = new GraphWalker($root, $this->metadataFactory, $this->validatorFactory);
-    $groupChain = $this->buildGroupChain($classMeta, $groups);
 
     foreach ($groupChain->getGroups() as $group)
     {
-      $walker->$walkerMethod($metadata, $value, $group, $propertyPath);
+      $closure($walker, $group);
     }
 
     foreach ($groupChain->getGroupSequences() as $sequence)
@@ -70,7 +83,7 @@ class Validator implements ValidatorInterface
 
       foreach ($sequence as $group)
       {
-        $walker->$walkerMethod($metadata, $value, $group, $propertyPath);
+        $closure($walker, $group);
 
         if (count($walker->getViolations()) > $violationCount)
         {

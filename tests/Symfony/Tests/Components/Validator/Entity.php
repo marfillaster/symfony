@@ -9,4 +9,9 @@ class Entity extends EntityParent implements EntityInterface
 {
   public $firstName;
   public $lastName;
+
+  public function getFirstName()
+  {
+    return $this->firstName;
+  }
 }

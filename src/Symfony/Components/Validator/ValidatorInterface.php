@@ -2,6 +2,8 @@
 
 namespace Symfony\Components\Validator;
 
+use Symfony\Components\Validator\Constraints\Constraint;
+
 /**
  * Validates a given value.
  *
@@ -14,5 +16,7 @@ interface ValidatorInterface
 
   public function validateProperty($object, $property, $groups = null);
 
-  public function validateValue($class, $property, $value, $groups = null);
+  public function validatePropertyValue($class, $property, $value, $groups = null);
+
+  public function validateValue($value, Constraint $constraint);
 }

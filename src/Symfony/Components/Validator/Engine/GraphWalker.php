@@ -9,7 +9,7 @@ use Symfony\Components\Validator\Constraints\All;
 use Symfony\Components\Validator\Constraints\Any;
 use Symfony\Components\Validator\Constraints\Valid;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
-use Symfony\Components\Validator\Mapping\PropertyMetadata;
+use Symfony\Components\Validator\Mapping\AbstractPropertyMetadata;
 
 class GraphWalker
 {
@@ -42,17 +42,31 @@ class GraphWalker
     {
       foreach ($metadata->getConstrainedProperties() as $property)
       {
-        $propMetadata = $metadata->getPropertyMetadata($property);
-        $value = $metadata->getPropertyValue($object, $property);
+        $localPropertyPath = empty($propertyPath) ? $property : $propertyPath.'.'.$property;
 
-        $this->walkProperty($propMetadata, $value, $group, empty($propertyPath) ? $property : $propertyPath.'.'.$property);
+        if ($propMetadata = $metadata->getPropertyMetadata($property))
+        {
+          $this->walkProperty($propMetadata, $object, $group, $localPropertyPath);
+        }
+
+        if ($getterMetadata = $metadata->getGetterMetadata($property))
+        {
+          $this->walkProperty($getterMetadata, $object, $group, $localPropertyPath);
+        }
       }
     }
   }
 
-  public function walkProperty(PropertyMetadata $propMetadata, $value, $group, $propertyPath)
+  public function walkProperty(AbstractPropertyMetadata $metadata, $object, $group, $propertyPath)
   {
-    foreach ($propMetadata->findConstraints($group) as $constraint)
+    $value = $metadata->getPropertyValue($object);
+
+    $this->walkPropertyValue($metadata, $value, $group, $propertyPath);
+  }
+
+  public function walkPropertyValue(AbstractPropertyMetadata $metadata, $value, $group, $propertyPath)
+  {
+    foreach ($metadata->findConstraints($group) as $constraint)
     {
       $this->walkDeepConstraint($constraint, $value, $group, $propertyPath);
     }
@@ -138,7 +152,7 @@ class GraphWalker
 
   public function walkConstraint(Constraint $constraint, $value, $propertyPath)
   {
-    // TODO: exception if constraint is Valid, Any or All
+    // TODO: exception if constraint is Valid
 
     $validator = $this->validatorFactory->getInstance($constraint);
 

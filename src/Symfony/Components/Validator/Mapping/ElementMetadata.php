@@ -7,8 +7,8 @@ use Symfony\Components\Validator\Constraints\Constraint;
 
 class ElementMetadata
 {
-  private $constraints = array();
-  private $constraintsByGroup = array();
+  protected $constraints = array();
+  protected $constraintsByGroup = array();
 
   public function addConstraint(Constraint $constraint)
   {
