@@ -29,8 +29,8 @@ class ElementMetadataTest extends \PHPUnit_Framework_TestCase
 
   public function testMultipleConstraintsOfTheSameType()
   {
-    $constraint1 = new ConstraintA(array('attr' => 'A'));
-    $constraint2 = new ConstraintA(array('attr' => 'B'));
+    $constraint1 = new ConstraintA(array('property1' => 'A'));
+    $constraint2 = new ConstraintA(array('property1' => 'B'));
 
     $this->metadata->addConstraint($constraint1);
     $this->metadata->addConstraint($constraint2);
