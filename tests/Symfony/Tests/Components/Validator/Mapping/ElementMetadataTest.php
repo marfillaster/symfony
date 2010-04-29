@@ -3,11 +3,11 @@
 namespace Symfony\Tests\Components\Validator\Mapping;
 
 require_once __DIR__.'/../../../bootstrap.php';
-require_once __DIR__.'/../ConstraintA.php';
-require_once __DIR__.'/../ConstraintB.php';
+require_once __DIR__.'/../Fixtures/ConstraintA.php';
+require_once __DIR__.'/../Fixtures/ConstraintB.php';
 
-use Symfony\Tests\Components\Validator\ConstraintA;
-use Symfony\Tests\Components\Validator\ConstraintB;
+use Symfony\Tests\Components\Validator\Fixtures\ConstraintA;
+use Symfony\Tests\Components\Validator\Fixtures\ConstraintB;
 use Symfony\Components\Validator\Mapping\ElementMetadata;
 
 class ElementMetadataTest extends \PHPUnit_Framework_TestCase

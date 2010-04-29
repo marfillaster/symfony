@@ -3,7 +3,7 @@
 namespace Symfony\Tests\Components\Validator\Mapping\Loader;
 
 require_once __DIR__.'/../../../../bootstrap.php';
-require_once __DIR__.'/../../Entity.php';
+require_once __DIR__.'/../../Fixtures/Entity.php';
 
 use Symfony\Components\Validator\Constraints\NotNull;
 use Symfony\Components\Validator\Constraints\Min;
@@ -16,7 +16,7 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
   public function testLoadClassMetadataReturnsTrueIfSuccessful()
   {
     $loader = new YamlFileLoader(__DIR__.'/constraint-mapping.yml');
-    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
 
     $this->assertTrue($loader->loadClassMetadata($metadata));
   }
@@ -32,11 +32,11 @@ class YamlFileLoaderTest extends \PHPUnit_Framework_TestCase
   public function testLoadClassMetadata()
   {
     $loader = new YamlFileLoader(__DIR__.'/constraint-mapping.yml');
-    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
 
     $loader->loadClassMetadata($metadata);
 
-    $expected = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $expected = new ClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
     $expected->addConstraint(new NotNull());
     $expected->addConstraint(new Min(3));
     $expected->addConstraint(new Choice(array('A', 'B')));

@@ -1,4 +1,4 @@
-Symfony\Tests\Components\Validator\Entity:
+Symfony\Tests\Components\Validator\Fixtures\Entity:
   constraints:
     # Constraint without value
     NotNull: ~

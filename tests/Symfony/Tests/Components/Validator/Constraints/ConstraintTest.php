@@ -3,13 +3,13 @@
 namespace Symfony\Tests\Components\Validator\Constraints;
 
 require_once __DIR__.'/../../../bootstrap.php';
-require_once __DIR__.'/../ConstraintA.php';
-require_once __DIR__.'/../ConstraintB.php';
-require_once __DIR__.'/../ConstraintC.php';
+require_once __DIR__.'/../Fixtures/ConstraintA.php';
+require_once __DIR__.'/../Fixtures/ConstraintB.php';
+require_once __DIR__.'/../Fixtures/ConstraintC.php';
 
-use Symfony\Tests\Components\Validator\ConstraintA;
-use Symfony\Tests\Components\Validator\ConstraintB;
-use Symfony\Tests\Components\Validator\ConstraintC;
+use Symfony\Tests\Components\Validator\Fixtures\ConstraintA;
+use Symfony\Tests\Components\Validator\Fixtures\ConstraintB;
+use Symfony\Tests\Components\Validator\Fixtures\ConstraintC;
 
 class ConstraintTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Symfony\Tests\Components\Validator;
+namespace Symfony\Tests\Components\Validator\Fixtures;
 
 require_once __DIR__.'/EntityParent.php';
 require_once __DIR__.'/EntityInterface.php';

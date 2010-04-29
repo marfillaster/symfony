@@ -1,18 +1,18 @@
 <?php
 
-namespace Symfony\Tests\Components\Validator\Engine;
+namespace Symfony\Tests\Components\Validator;
 
-require_once __DIR__.'/../../../bootstrap.php';
-require_once __DIR__.'/../Entity.php';
-require_once __DIR__.'/../ConstraintA.php';
-require_once __DIR__.'/../ConstraintAValidator.php';
+require_once __DIR__.'/../../bootstrap.php';
+require_once __DIR__.'/Fixtures/Entity.php';
+require_once __DIR__.'/Fixtures/ConstraintA.php';
+require_once __DIR__.'/Fixtures/ConstraintAValidator.php';
 
-use Symfony\Tests\Components\Validator\Entity;
-use Symfony\Tests\Components\Validator\ConstraintA;
-use Symfony\Components\Validator\Engine\GraphWalker;
-use Symfony\Components\Validator\Engine\ConstraintViolation;
-use Symfony\Components\Validator\Engine\ConstraintViolationList;
-use Symfony\Components\Validator\Engine\ConstraintValidatorFactory;
+use Symfony\Tests\Components\Validator\Fixtures\Entity;
+use Symfony\Tests\Components\Validator\Fixtures\ConstraintA;
+use Symfony\Components\Validator\GraphWalker;
+use Symfony\Components\Validator\ConstraintViolation;
+use Symfony\Components\Validator\ConstraintViolationList;
+use Symfony\Components\Validator\ConstraintValidatorFactory;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Mapping\PropertyMetadata;
 use Symfony\Components\Validator\Constraints\All;
@@ -31,7 +31,7 @@ class GraphWalkerTest extends \PHPUnit_Framework_TestCase
 
   public function testWalkClassValidatesConstraints()
   {
-    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
     $metadata->addConstraint(new ConstraintA());
 
     $this->walker->walkClass($metadata, new Entity(), 'Default', '');
@@ -41,7 +41,7 @@ class GraphWalkerTest extends \PHPUnit_Framework_TestCase
 
   public function testWalkClassValidatesPropertyConstraints()
   {
-    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
     $metadata->addPropertyConstraint('firstName', new ConstraintA());
 
     $this->walker->walkClass($metadata, new Entity(), 'Default', '');
@@ -51,7 +51,7 @@ class GraphWalkerTest extends \PHPUnit_Framework_TestCase
 
   public function testWalkClassValidatesGetterConstraints()
   {
-    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
     $metadata->addGetterConstraint('firstName', new ConstraintA());
 
     $this->walker->walkClass($metadata, new Entity(), 'Default', '');
@@ -123,12 +123,12 @@ class GraphWalkerTest extends \PHPUnit_Framework_TestCase
 
   public function testWalkPropertyValueValidatesObjects()
   {
-    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
     $metadata->addConstraint(new ConstraintA());
 
     $this->factory->expects($this->once())
         ->method('getClassMetadata')
-        ->with($this->equalTo('Symfony\Tests\Components\Validator\Entity'))
+        ->with($this->equalTo('Symfony\Tests\Components\Validator\Fixtures\Entity'))
         ->will($this->returnValue($metadata));
 
     $metadata = new PropertyMetadata('firstName');
@@ -154,15 +154,15 @@ class GraphWalkerTest extends \PHPUnit_Framework_TestCase
 
   public function testWalkPropertyValueValidatesObjects_ClassCheck_Succeeds()
   {
-    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $metadata = new ClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
 
     $this->factory->expects($this->once())
         ->method('getClassMetadata')
-        ->with($this->equalTo('Symfony\Tests\Components\Validator\Entity'))
+        ->with($this->equalTo('Symfony\Tests\Components\Validator\Fixtures\Entity'))
         ->will($this->returnValue($metadata));
 
     $constraint = new Valid();
-    $constraint->class = 'Symfony\Tests\Components\Validator\Entity';
+    $constraint->class = 'Symfony\Tests\Components\Validator\Fixtures\Entity';
 
     $metadata = new PropertyMetadata('firstName');
     $metadata->addConstraint($constraint);

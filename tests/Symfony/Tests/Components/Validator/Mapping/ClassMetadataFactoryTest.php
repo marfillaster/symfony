@@ -3,13 +3,13 @@
 namespace Symfony\Tests\Components\Validator\Mapping;
 
 require_once __DIR__.'/../../../bootstrap.php';
-require_once __DIR__.'/../Entity.php';
-require_once __DIR__.'/../ConstraintA.php';
-require_once __DIR__.'/../ConstraintB.php';
+require_once __DIR__.'/../Fixtures/Entity.php';
+require_once __DIR__.'/../Fixtures/ConstraintA.php';
+require_once __DIR__.'/../Fixtures/ConstraintB.php';
 
-use Symfony\Tests\Components\Validator\Entity;
-use Symfony\Tests\Components\Validator\ConstraintA;
-use Symfony\Tests\Components\Validator\ConstraintB;
+use Symfony\Tests\Components\Validator\Fixtures\Entity;
+use Symfony\Tests\Components\Validator\Fixtures\ConstraintA;
+use Symfony\Tests\Components\Validator\Fixtures\ConstraintB;
 use Symfony\Components\Validator\Mapping\ClassMetadataFactory;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Mapping\GroupMetadata;
@@ -20,7 +20,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
   public function testLoadClassMetadata()
   {
     $factory = new ClassMetadataFactory(new TestLoader());
-    $metadata = $factory->getClassMetadata('Symfony\Tests\Components\Validator\EntityParent');
+    $metadata = $factory->getClassMetadata('Symfony\Tests\Components\Validator\Fixtures\EntityParent');
 
     $constraints = array(
       new ConstraintA(array('groups' => array('Default', 'EntityParent'))),
@@ -32,7 +32,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
   public function testIncludeParentConstraints()
   {
     $factory = new ClassMetadataFactory(new TestLoader());
-    $metadata = $factory->getClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $metadata = $factory->getClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
 
     $constraints = array(
       new ConstraintA(array('groups' => array( // from EntityParent
@@ -57,7 +57,7 @@ class ClassMetadataFactoryTest extends \PHPUnit_Framework_TestCase
   public function testIncludeParentPropertyConstraints()
   {
     $factory = new ClassMetadataFactory(new TestLoader());
-    $class = $factory->getClassMetadata('Symfony\Tests\Components\Validator\Entity');
+    $class = $factory->getClassMetadata('Symfony\Tests\Components\Validator\Fixtures\Entity');
     $metadata = $class->getPropertyMetadata('firstName');
 
     $constraints = array(

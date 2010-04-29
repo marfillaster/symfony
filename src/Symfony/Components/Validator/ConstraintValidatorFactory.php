@@ -1,6 +1,6 @@
 <?php
 
-namespace Symfony\Components\Validator\Engine;
+namespace Symfony\Components\Validator;
 
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
 use Symfony\Components\Validator\Constraints\Constraint;
