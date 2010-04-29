@@ -3,7 +3,7 @@
 namespace Symfony\Foundation;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -12,13 +12,17 @@ namespace Symfony\Foundation;
  */
 
 /**
- * 
+ * ClassCollectionLoader.
  *
- * @package    symfony
+ * @package    Symfony
+ * @subpackage Foundation
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class ClassCollectionLoader
 {
+  /**
+   * @throws \InvalidArgumentException When class can't be loaded
+   */
   static public function load($classes, $cacheDir, $name, $autoReload)
   {
     $cache = $cacheDir.'/'.$name.'.php';

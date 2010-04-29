@@ -3,6 +3,7 @@
 namespace Symfony\Foundation\Bundle;
 
 use Symfony\Components\DependencyInjection\ContainerInterface;
+use Symfony\Components\Console\Application;
 
 
 
@@ -15,6 +16,40 @@ abstract class Bundle implements BundleInterface
 
   public function boot(ContainerInterface $container)
   {
+  }
+
+  public function shutdown(ContainerInterface $container)
+  {
+  }
+
+  public function registerCommands(Application $application)
+  {
+    foreach ($application->getKernel()->getBundleDirs() as $dir)
+    {
+      $bundleBase = dirname(str_replace('\\', '/', get_class($this)));
+      $commandDir = $dir.'/'.basename($bundleBase).'/Command';
+      if (!is_dir($commandDir))
+      {
+        continue;
+      }
+
+            foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($commandDir), \RecursiveIteratorIterator::LEAVES_ONLY) as $file)
+      {
+        if ($file->isDir() || substr($file, -4) !== '.php')
+        {
+          continue;
+        }
+
+        $class = str_replace('/', '\\', $bundleBase).'\\Command\\'.str_replace(realpath($commandDir).'/', '', basename(realpath($file), '.php'));
+
+        $r = new \ReflectionClass($class);
+
+        if ($r->isSubclassOf('Symfony\\Components\\Console\\Command\\Command') && !$r->isAbstract())
+        {
+          $application->addCommand(new $class());
+        }
+      }
+    }
   }
 }
 
@@ -31,6 +66,8 @@ interface BundleInterface
   public function buildContainer(ContainerInterface $container);
 
   public function boot(ContainerInterface $container);
+
+  public function shutdown(ContainerInterface $container);
 }
 
 
@@ -70,22 +107,36 @@ class KernelBundle extends Bundle
   {
     $container->getErrorHandlerService();
 
-        ClassCollectionLoader::load($container->getParameter('kernel.compiled_classes'), $container->getParameter('kernel.cache_dir'), 'classes', $container->getParameter('kernel.debug'));
+        if ($container->getParameter('kernel.include_core_classes'))
+    {
+      ClassCollectionLoader::load($container->getParameter('kernel.compiled_classes'), $container->getParameter('kernel.cache_dir'), 'classes', $container->getParameter('kernel.debug'));
+    }
   }
 }
 
 
 namespace Symfony\Foundation\Bundle;
 
-
-
 use Symfony\Components\DependencyInjection\Loader\LoaderExtension;
 use Symfony\Components\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Components\DependencyInjection\BuilderConfiguration;
 
 
+
+
 class KernelExtension extends LoaderExtension
 {
+  public function testLoad($config)
+  {
+    $configuration = new BuilderConfiguration();
+
+    $loader = new XmlFileLoader(array(__DIR__.'/../Resources/config', __DIR__.'/Resources/config'));
+    $configuration->merge($loader->load('test.xml'));
+    $configuration->setParameter('kernel.include_core_classes', false);
+
+    return $configuration;
+  }
+
   public function configLoad($config)
   {
     $configuration = new BuilderConfiguration();
@@ -103,10 +154,8 @@ class KernelExtension extends LoaderExtension
         'Symfony\\Components\\EventDispatcher\\Event',
         'Symfony\\Components\\Routing\\Matcher\\UrlMatcherInterface',
         'Symfony\\Components\\Routing\\Matcher\\UrlMatcher',
-        'Symfony\\Components\\RequestHandler\\RequestInterface',
-        'Symfony\\Components\\RequestHandler\\Request',
         'Symfony\\Components\\RequestHandler\\RequestHandler',
-        'Symfony\\Components\\RequestHandler\\ResponseInterface',
+        'Symfony\\Components\\RequestHandler\\Request',
         'Symfony\\Components\\RequestHandler\\Response',
         'Symfony\\Components\\Templating\\Loader\\LoaderInterface',
         'Symfony\\Components\\Templating\\Loader\\Loader',
@@ -193,6 +242,7 @@ class ErrorHandler
     set_error_handler(array($this, 'handle'));
   }
 
+  
   public function handle($level, $message, $file, $line, $context)
   {
     if (0 === $this->level)
@@ -217,6 +267,7 @@ namespace Symfony\Foundation;
 
 class ClassCollectionLoader
 {
+  
   static public function load($classes, $cacheDir, $name, $autoReload)
   {
     $cache = $cacheDir.'/'.$name.'.php';
@@ -310,17 +361,18 @@ class ClassCollectionLoader
 
 namespace Symfony\Foundation;
 
-
-
 use Symfony\Components\DependencyInjection\ContainerInterface;
 use Symfony\Components\DependencyInjection\Builder;
 use Symfony\Components\DependencyInjection\BuilderConfiguration;
 use Symfony\Components\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Components\DependencyInjection\FileResource;
-use Symfony\Components\RequestHandler\RequestInterface;
+use Symfony\Components\RequestHandler\Request;
+use Symfony\Components\RequestHandler\RequestHandlerInterface;
 
 
-abstract class Kernel
+
+
+abstract class Kernel implements RequestHandlerInterface, \Serializable
 {
   protected $bundles;
   protected $bundleDirs;
@@ -331,6 +383,7 @@ abstract class Kernel
   protected $booted;
   protected $name;
   protected $startTime;
+  protected $request;
 
   const VERSION = '2.0.0-DEV';
 
@@ -398,12 +451,33 @@ abstract class Kernel
     return $this;
   }
 
-  public function run()
+  
+  public function shutdown()
   {
-    $this->handle()->send();
+    $this->booted = false;
+
+    foreach ($this->bundles as $bundle)
+    {
+      $bundle->shutdown($this->container);
+    }
+
+    $this->container = null;
   }
 
-  public function handle(RequestInterface $request = null)
+  
+  public function reboot()
+  {
+    $this->shutdown();
+    $this->boot();
+  }
+
+  
+  public function getRequest()
+  {
+    return $this->request;
+  }
+
+  public function handle(Request $request = null, $main = true)
   {
     if (false === $this->booted)
     {
@@ -413,6 +487,15 @@ abstract class Kernel
     if (null === $request)
     {
       $request = $this->container->getRequestService();
+    }
+    else
+    {
+      $this->container->setService('request', $request);
+    }
+
+    if (true === $main)
+    {
+      $this->request = $request;
     }
 
     return $this->container->getRequestHandlerService()->handle($request);
@@ -648,6 +731,18 @@ abstract class Kernel
 
     @rename($tmpFile, $file);
     chmod($file, 0644);
+  }
+
+  public function serialize()
+  {
+    return serialize(array($this->environment, $this->debug));
+  }
+
+  public function unserialize($data)
+  {
+    list($environment, $debug) = unserialize($data);
+
+    $this->__construct($environment, $debug);
   }
 }
 

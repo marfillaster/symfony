@@ -3,7 +3,7 @@
 namespace Symfony\Components\DependencyInjection\Loader;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -14,8 +14,8 @@ namespace Symfony\Components\DependencyInjection\Loader;
 /**
  * FileLoader is the abstract class used by all built-in loaders that are file based.
  *
- * @package    symfony
- * @subpackage dependency_injection
+ * @package    Symfony
+ * @subpackage Components_DependencyInjection
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 abstract class FileLoader extends Loader
@@ -37,6 +37,9 @@ abstract class FileLoader extends Loader
     $this->paths = $paths;
   }
 
+  /**
+   * @throws \InvalidArgumentException When provided file does not exist
+   */
   protected function findFile($file)
   {
     $path = $this->getAbsolutePath($file);
@@ -74,16 +77,24 @@ abstract class FileLoader extends Loader
 
   static protected function isAbsolutePath($file)
   {
-    if ($file[0] == '/' || $file[0] == '\\' ||
-        (strlen($file) > 3 && ctype_alpha($file[0]) &&
-         $file[1] == ':' &&
-         ($file[2] == '\\' || $file[2] == '/')
+    return
+      '/' == $file[0]
+      ||
+      '\\' == $file[0]
+      ||
+      (
+        3 < strlen($file)
+        &&
+        ctype_alpha($file[0])
+        &&
+        ':' == $file[1]
+        &&
+        (
+          '\\' == $file[2]
+          ||
+          '/' == $file[2]
         )
-       )
-    {
-      return true;
-    }
-
-    return false;
+      )
+    ;
   }
 }

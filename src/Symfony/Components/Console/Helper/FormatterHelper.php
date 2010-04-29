@@ -3,7 +3,7 @@
 namespace Symfony\Components\Console\Helper;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -14,8 +14,8 @@ namespace Symfony\Components\Console\Helper;
 /**
  * The Formatter class provides helpers to format messages.
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class FormatterHelper extends Helper
@@ -29,7 +29,7 @@ class FormatterHelper extends Helper
    */
   public function formatSection($section, $message, $style = 'info')
   {
-    return sprintf("<%s>[%s]</%s> %s", $style, $section, $style, $message);
+    return sprintf('<%s>[%s]</%s> %s', $style, $section, $style, $message);
   }
 
   /**

@@ -7,7 +7,7 @@ use Symfony\Components\Routing\Route;
 use Symfony\Components\Routing\FileResource;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -18,8 +18,8 @@ use Symfony\Components\Routing\FileResource;
 /**
  * XmlFileLoader loads XML routing files.
  *
- * @package    symfony
- * @subpackage routing
+ * @package    Symfony
+ * @subpackage Components_Routing
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class XmlFileLoader extends FileLoader
@@ -30,6 +30,8 @@ class XmlFileLoader extends FileLoader
    * @param  string $file A XML file path
    *
    * @return RouteCollection A RouteCollection instance
+   *
+   * @throws \InvalidArgumentException When a tag can't be parsed
    */
   public function load($file)
   {
@@ -51,8 +53,8 @@ class XmlFileLoader extends FileLoader
       switch ($node->tagName)
       {
         case 'route':
-         $this->parseRoute($collection, $node, $path);
-         break;
+          $this->parseRoute($collection, $node, $path);
+          break;
         case 'import':
           $this->parseImport($collection, $node, $path);
           break;
@@ -123,6 +125,9 @@ class XmlFileLoader extends FileLoader
     $collection->addCollection($loader->load($importedFile), (string) $node->getAttribute('prefix'));
   }
 
+  /**
+   * @throws \InvalidArgumentException When loading of XML file returns error
+   */
   protected function loadFile($path)
   {
     $dom = new \DOMDocument();
@@ -139,6 +144,9 @@ class XmlFileLoader extends FileLoader
     return $dom;
   }
 
+  /**
+   * @throws \InvalidArgumentException When xml doesn't validate its xsd schema
+   */
   protected function validate($dom, $file)
   {
     libxml_use_internal_errors(true);

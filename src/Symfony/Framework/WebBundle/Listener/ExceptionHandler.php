@@ -7,7 +7,7 @@ use Symfony\Components\EventDispatcher\Event;
 use Symfony\Foundation\LoggerInterface;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -16,9 +16,10 @@ use Symfony\Foundation\LoggerInterface;
  */
 
 /**
- * 
+ * ExceptionHandler.
  *
- * @package    symfony
+ * @package    Symfony
+ * @subpackage Framework_WebBundle
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class ExceptionHandler
@@ -67,11 +68,13 @@ class ExceptionHandler
       'logs'            => $this->container->hasService('zend.logger.writer.debug') ? $this->container->getService('zend.logger.writer.debug')->getLogs() : array(),
     );
 
-    $request = $event->getParameter('request')->duplicate(array('path' => $parameters));
+    $request = $event->getParameter('request')->duplicate(null, null, $parameters);
 
     try
     {
       $response = $event->getSubject()->handleRaw($request, false);
+
+      error_log(sprintf('%s: %s', get_class($exception), $exception->getMessage()));
     }
     catch (\Exception $e)
     {

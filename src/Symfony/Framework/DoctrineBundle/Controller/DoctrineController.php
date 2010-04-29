@@ -7,7 +7,7 @@ use Symfony\Components\RequestHandler\Request;
 use Symfony\Components\RequestHandler\Exception\NotFoundHttpException;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -18,7 +18,8 @@ use Symfony\Components\RequestHandler\Exception\NotFoundHttpException;
 /**
  * Doctrine ORM controller gives you access to entity managers and DQL queries.
  *
- * @package    symfony
+ * @package    Symfony
+ * @subpackage Framework_DoctrineBundle
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @author     Jonathan H. Wage <jonwage@gmail.com>
  */
@@ -41,7 +42,8 @@ class DoctrineController extends Controller
    * with the given name.
    *
    * @param string $name Optional entity manager service name
-   * @return object $em
+   *
+   * @return object
    */
   protected function getEntityManager($name = null)
   {
@@ -69,8 +71,9 @@ class DoctrineController extends Controller
   /**
    * Create a new Query instance.
    *
-   * @param string $dql Optional Dql string to create the query from
+   * @param string $dql  Optional Dql string to create the query from
    * @param string $name Optional entity manager service name
+   *
    * @return object QueryBuilder
    */
   public function createQuery($dql = '', $name = null)

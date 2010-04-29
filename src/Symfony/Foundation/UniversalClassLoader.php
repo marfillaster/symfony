@@ -3,7 +3,7 @@
 namespace Symfony\Foundation;
 
 /*
- * This file is part of the symfony package.
+ * This file is part of the Symfony package.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -17,7 +17,7 @@ namespace Symfony\Foundation;
  * It is able to load classes that use either:
  *
  *  * The technical interoperability standards for PHP 5.3 namespaces and
- *    class names (http://groups.google.com/group/php-standards/web/final-proposal);
+ *    class names (http://groups.google.com/group/php-standards/web/psr-0-final-proposal);
  *
  *  * The PEAR naming convention for classes (http://pear.php.net/).
  *
@@ -49,8 +49,8 @@ namespace Symfony\Foundation;
  * directory, and it will then fallback to the framework/ directory if not
  * found before giving up.
  *
- * @package    symfony
- * @subpackage foundation
+ * @package    Symfony
+ * @subpackage Foundation
  * @author     Fabien Potencier <fabien.potencier@symfony-project.org>
  */
 class UniversalClassLoader

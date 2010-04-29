@@ -9,9 +9,8 @@
  * file that was distributed with this source code.
  */
 
-require_once __DIR__.'/../../../src/Symfony/Foundation/ClassLoader.php';
-require_once 'PHPUnit/Framework.php';
+require_once __DIR__.'/../../../src/Symfony/Foundation/UniversalClassLoader.php';
 
-$loader = new Symfony\Foundation\ClassLoader();
+$loader = new Symfony\Foundation\UniversalClassLoader();
 $loader->registerNamespace('Symfony', __DIR__.'/../../../src');
 $loader->register();

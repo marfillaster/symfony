@@ -6,7 +6,7 @@ use Symfony\Components\Routing\Route;
 use Symfony\Components\Routing\RouteCollection;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -17,8 +17,8 @@ use Symfony\Components\Routing\RouteCollection;
 /**
  * UrlGenerator generates URL based on a set of routes.
  *
- * @package    symfony
- * @subpackage routing
+ * @package    Symfony
+ * @subpackage Components_Routing
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class UrlGenerator implements UrlGeneratorInterface
@@ -38,7 +38,7 @@ class UrlGenerator implements UrlGeneratorInterface
   public function __construct(RouteCollection $routes, array $context = array(), array $defaults = array())
   {
     $this->routes = $routes;
-    $this->context = array_merge(array('base_url' => ''), $context);
+    $this->context = $context;
     $this->defaults = $defaults;
     $this->cache = array();
   }
@@ -51,6 +51,8 @@ class UrlGenerator implements UrlGeneratorInterface
    * @param  Boolean $absolute   Whether to generate an absolute URL
    *
    * @return string The generated URL
+   *
+   * @throws \InvalidArgumentException When route doesn't exist
    */
   public function generate($name, array $parameters, $absolute = false)
   {
@@ -67,6 +69,9 @@ class UrlGenerator implements UrlGeneratorInterface
     return $this->doGenerate($this->cache[$name]->getVariables(), $route->getDefaults(), $route->getRequirements(), $this->cache[$name]->getTokens(), $parameters, $name, $absolute);
   }
 
+  /**
+   * @throws \InvalidArgumentException When route has some missing mandatory parameters
+   */
   protected function doGenerate($variables, $defaults, $requirements, $tokens, $parameters, $name, $absolute)
   {
     $defaults = array_merge($this->defaults, $defaults);
@@ -123,7 +128,7 @@ class UrlGenerator implements UrlGeneratorInterface
       $url .= '?'.http_build_query($extra);
     }
 
-    $url = $this->context['base_url'].$url;
+    $url = (isset($this->context['base_url']) ? $this->context['base_url'] : '').$url;
 
     if ($absolute && isset($this->context['host']))
     {

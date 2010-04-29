@@ -9,7 +9,7 @@ use Symfony\Components\RequestHandler\Response;
 use Symfony\Components\RequestHandler\Exception\HttpException;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -18,13 +18,17 @@ use Symfony\Components\RequestHandler\Exception\HttpException;
  */
 
 /**
- * 
+ * ExceptionController.
  *
- * @package    symfony
+ * @package    Symfony
+ * @subpackage Framework_WebBundle
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class ExceptionController extends Controller
 {
+  /**
+   * @throws \InvalidArgumentException When the exception template does not exist
+   */
   public function exceptionAction(\Exception $exception, Request $originalRequest, array $logs)
   {
     $template = $this->container->getParameter('kernel.debug') ? 'exception' : 'error';

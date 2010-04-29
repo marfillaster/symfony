@@ -10,7 +10,7 @@ use Symfony\Components\Console\Output\OutputInterface;
 use Symfony\Components\Console\Application;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -21,8 +21,8 @@ use Symfony\Components\Console\Application;
 /**
  * Base class for all commands.
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Command
@@ -43,6 +43,8 @@ class Command
    * Constructor.
    *
    * @param string $name The name of the command
+   *
+   * @throws \LogicException When the command name is empty
    */
   public function __construct($name = null)
   {
@@ -88,6 +90,8 @@ class Command
    * @param OutputInterface $output An OutputInterface instance
    *
    * @return integer 0 if everything went fine, or an error code
+   *
+   * @throws \LogicException When this abstrass class is not implemented
    */
   protected function execute(InputInterface $input, OutputInterface $output)
   {
@@ -220,7 +224,7 @@ class Command
   /**
    * Gets the InputDefinition attached to this Command.
    *
-   * @return InputDefinition $definition An InputDefinition instance
+   * @return InputDefinition An InputDefinition instance
    */
   public function getDefinition()
   {
@@ -273,10 +277,12 @@ class Command
    * @param string $name The command name
    *
    * @return Command The current instance
+   *
+   * @throws \InvalidArgumentException When command name given is empty
    */
   public function setName($name)
   {
-    if (false !== $pos = strpos($name, ':'))
+    if (false !== $pos = strrpos($name, ':'))
     {
       $namespace = substr($name, 0, $pos);
       $name = substr($name, $pos + 1);
@@ -288,7 +294,7 @@ class Command
 
     if (!$name)
     {
-      throw new \InvalidArgumentException('A command name cannot be empty');
+      throw new \InvalidArgumentException('A command name cannot be empty.');
     }
 
     $this->namespace = $namespace;
@@ -376,6 +382,28 @@ class Command
   }
 
   /**
+   * Returns the processed help for the command replacing the %command.name% and
+   * %command.full_name% patterns with the real values dynamically.
+   *
+   * @return string  The processed help for the command
+   */
+  public function getProcessedHelp()
+  {
+    $name = $this->namespace.':'.$this->name;
+
+    $placeholders = array(
+      '%command.name%',
+      '%command.full_name%'
+    );
+    $replacements = array(
+      $name,
+      $_SERVER['PHP_SELF'].' '.$name
+    );
+
+    return str_replace($placeholders, $replacements, $this->getHelp());
+  }
+
+  /**
    * Sets the aliases for the command.
    *
    * @param array $aliases An array of aliases for the command
@@ -457,7 +485,7 @@ class Command
 
     $messages[] = $this->definition->asText();
 
-    if ($help = $this->getHelp())
+    if ($help = $this->getProcessedHelp())
     {
       $messages[] = '<comment>Help:</comment>';
       $messages[] = ' '.implode("\n ", explode("\n", $help))."\n";

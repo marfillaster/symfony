@@ -10,8 +10,6 @@
 
 namespace Symfony\Tests\Components\Console\Tester;
 
-require_once __DIR__.'/../../../bootstrap.php';
-
 use Symfony\Components\Console\Application;
 use Symfony\Components\Console\Output\Output;
 use Symfony\Components\Console\Tester\ApplicationTester;
@@ -37,8 +35,8 @@ class ApplicationTesterTest extends \PHPUnit_Framework_TestCase
 
   public function testRun()
   {
-    $this->assertEquals(false, $this->tester->getInput()->isInteractive(), '->execute() takes an interactive option');
-    $this->assertEquals(false, $this->tester->getOutput()->isDecorated(), '->execute() takes a decorated option');
+    $this->assertFalse($this->tester->getInput()->isInteractive(), '->execute() takes an interactive option');
+    $this->assertFalse($this->tester->getOutput()->isDecorated(), '->execute() takes a decorated option');
     $this->assertEquals(Output::VERBOSITY_VERBOSE, $this->tester->getOutput()->getVerbosity(), '->execute() takes a verbosity option');
   }
 
@@ -50,11 +48,11 @@ class ApplicationTesterTest extends \PHPUnit_Framework_TestCase
   public function testGetOutput()
   {
     rewind($this->tester->getOutput()->getStream());
-    $this->assertEquals("foo\n", stream_get_contents($this->tester->getOutput()->getStream()), '->getOutput() returns the current output instance');
+    $this->assertEquals('foo'.PHP_EOL, stream_get_contents($this->tester->getOutput()->getStream()), '->getOutput() returns the current output instance');
   }
 
   public function testGetDisplay()
   {
-    $this->assertEquals("foo\n", $this->tester->getDisplay(), '->getDisplay() returns the display of the last execution');
+    $this->assertEquals('foo'.PHP_EOL, $this->tester->getDisplay(), '->getDisplay() returns the display of the last execution');
   }
 }

@@ -10,8 +10,6 @@
 
 namespace Symfony\Tests\Components\Console\Output;
 
-require_once __DIR__.'/../../../bootstrap.php';
-
 use Symfony\Components\Console\Output\NullOutput;
 
 class NullOutputTest extends \PHPUnit_Framework_TestCase
@@ -20,6 +18,6 @@ class NullOutputTest extends \PHPUnit_Framework_TestCase
   {
     $output = new NullOutput();
     $output->write('foo');
-    $this->assertTrue(true, '->write() does nothing');
+    $this->assertTrue(true, '->write() does nothing'); // FIXME
   }
 }

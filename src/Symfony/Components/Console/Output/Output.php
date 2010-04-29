@@ -3,7 +3,7 @@
 namespace Symfony\Components\Console\Output;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -20,8 +20,8 @@ namespace Symfony\Components\Console\Output;
  *  * verbose: -v (more output - debug)
  *  * quiet: -q (no output)
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 abstract class Output implements OutputInterface
@@ -127,6 +127,8 @@ abstract class Output implements OutputInterface
    * @param string|array $messages The message as an array of lines of a single string
    * @param Boolean      $newline  Whether to add a newline or not
    * @param integer      $type     The type of output
+   *
+   * @throws \InvalidArgumentException When unknown output type is given
    */
   public function write($messages, $newline = false, $type = 0)
   {
@@ -182,6 +184,9 @@ abstract class Output implements OutputInterface
     return preg_replace_callback('#</([a-z][a-z0-9\-_]+)>#i', array($this, 'replaceEndStyle'), $message);
   }
 
+  /**
+   * @throws \InvalidArgumentException When style is unknown
+   */
   protected function replaceStartStyle($match)
   {
     if (!$this->decorated)
@@ -215,7 +220,7 @@ abstract class Output implements OutputInterface
       }
     }
 
-    return "\033[".implode(';', $codes)."m";
+    return "\033[".implode(';', $codes).'m';
   }
 
   protected function replaceEndStyle($match)

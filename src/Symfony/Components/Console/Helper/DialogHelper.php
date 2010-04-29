@@ -5,7 +5,7 @@ namespace Symfony\Components\Console\Helper;
 use Symfony\Components\Console\Output\OutputInterface;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -16,8 +16,8 @@ use Symfony\Components\Console\Output\OutputInterface;
 /**
  * The Dialog class provides helpers to interact with the user.
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class DialogHelper extends Helper
@@ -82,6 +82,8 @@ class DialogHelper extends Helper
    * @param integer         $attempts Max number of times to ask before giving up (false by default, which means infinite)
    *
    * @return mixed
+   *
+   * @throws \Exception When any of the validator returns an error
    */
   public function askAndValidate(OutputInterface $output, $question, \Closure $validator, $attempts = false)
   {

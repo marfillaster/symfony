@@ -8,7 +8,7 @@ use Symfony\Components\Routing\FileResource;
 use Symfony\Components\Yaml\Yaml;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -19,8 +19,8 @@ use Symfony\Components\Yaml\Yaml;
 /**
  * YamlFileLoader loads Yaml routing files.
  *
- * @package    symfony
- * @subpackage routing
+ * @package    Symfony
+ * @subpackage Components_Routing
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class YamlFileLoader extends FileLoader
@@ -31,6 +31,8 @@ class YamlFileLoader extends FileLoader
    * @param  string $file A Yaml file path
    *
    * @return RouteCollection A RouteCollection instance
+   *
+   * @throws \InvalidArgumentException When route can't be parsed
    */
   public function load($file)
   {
@@ -60,6 +62,9 @@ class YamlFileLoader extends FileLoader
     return $collection;
   }
 
+  /**
+   * @throws \InvalidArgumentException When config pattern is not defined for the given route
+   */
   protected function parseRoute(RouteCollection $collection, $name, $config, $file)
   {
     $defaults = isset($config['defaults']) ? $config['defaults'] : array();
@@ -76,6 +81,9 @@ class YamlFileLoader extends FileLoader
     $collection->addRoute($name, $route);
   }
 
+  /**
+   * @throws \InvalidArgumentException When import resource is not defined
+   */
   protected function parseImport(RouteCollection $collection, $name, $import, $file)
   {
     if (!isset($import['resource']))

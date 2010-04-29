@@ -10,7 +10,7 @@ use Symfony\Components\Console\Output\Output;
 use Symfony\Components\Console\Command\Command;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -21,8 +21,8 @@ use Symfony\Components\Console\Command\Command;
 /**
  * HelpCommand displays the help for a given command.
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class HelpCommand extends Command
@@ -47,11 +47,11 @@ class HelpCommand extends Command
       ->setHelp(<<<EOF
 The <info>help</info> command displays help for a given command:
 
-  <info>./symfony help test:all</info>
+  <info>./symfony help list</info>
 
 You can also output the help as XML by using the <comment>--xml</comment> option:
 
-  <info>./symfony help --xml test:all</info>
+  <info>./symfony help --xml list</info>
 EOF
       );
   }

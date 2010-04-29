@@ -2,8 +2,16 @@
 
 namespace Symfony\Foundation;
 
+use Symfony\Components\DependencyInjection\ContainerInterface;
+use Symfony\Components\DependencyInjection\Builder;
+use Symfony\Components\DependencyInjection\BuilderConfiguration;
+use Symfony\Components\DependencyInjection\Dumper\PhpDumper;
+use Symfony\Components\DependencyInjection\FileResource;
+use Symfony\Components\RequestHandler\Request;
+use Symfony\Components\RequestHandler\RequestHandlerInterface;
+
 /*
- * This file is part of the symfony package.
+ * This file is part of the Symfony package.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -11,21 +19,15 @@ namespace Symfony\Foundation;
  * file that was distributed with this source code.
  */
 
-use Symfony\Components\DependencyInjection\ContainerInterface;
-use Symfony\Components\DependencyInjection\Builder;
-use Symfony\Components\DependencyInjection\BuilderConfiguration;
-use Symfony\Components\DependencyInjection\Dumper\PhpDumper;
-use Symfony\Components\DependencyInjection\FileResource;
-use Symfony\Components\RequestHandler\RequestInterface;
-
 /**
  * The Kernel is the heart of the Symfony system. It manages an environment
  * that can host bundles.
  *
- * @package Symfony
- * @author  Fabien Potencier <fabien.potencier@symfony-project.org>
+ * @package    Symfony
+ * @subpackage Foundation
+ * @author     Fabien Potencier <fabien.potencier@symfony-project.org>
  */
-abstract class Kernel
+abstract class Kernel implements RequestHandlerInterface, \Serializable
 {
   protected $bundles;
   protected $bundleDirs;
@@ -36,6 +38,7 @@ abstract class Kernel
   protected $booted;
   protected $name;
   protected $startTime;
+  protected $request;
 
   const VERSION = '2.0.0-DEV';
 
@@ -98,6 +101,8 @@ abstract class Kernel
    * the DI container.
    *
    * @return Kernel The current Kernel instance
+   *
+   * @throws \LogicException When the Kernel is already booted
    */
   public function boot()
   {
@@ -110,7 +115,7 @@ abstract class Kernel
     $this->container = $this->initializeContainer();
     $this->container->setService('kernel', $this);
 
-    // boot bundles (in reverse order)
+    // boot bundles
     foreach ($this->bundles as $bundle)
     {
       $bundle->boot($this->container);
@@ -121,12 +126,47 @@ abstract class Kernel
     return $this;
   }
 
-  public function run()
+  /**
+   * Shutdowns the kernel.
+   *
+   * This method is mainly useful when doing functional testing.
+   */
+  public function shutdown()
   {
-    $this->handle()->send();
+    $this->booted = false;
+
+    foreach ($this->bundles as $bundle)
+    {
+      $bundle->shutdown($this->container);
+    }
+
+    $this->container = null;
   }
 
-  public function handle(RequestInterface $request = null)
+  /**
+   * Reboots the kernel.
+   *
+   * This method is mainly useful when doing functional testing.
+   *
+   * It is a shortcut for the call to shutdown() and boot().
+   */
+  public function reboot()
+  {
+    $this->shutdown();
+    $this->boot();
+  }
+
+  /**
+   * Gets the Request instance associated with the main request.
+   *
+   * @return Request A Request instance
+   */
+  public function getRequest()
+  {
+    return $this->request;
+  }
+
+  public function handle(Request $request = null, $main = true)
   {
     if (false === $this->booted)
     {
@@ -136,6 +176,15 @@ abstract class Kernel
     if (null === $request)
     {
       $request = $this->container->getRequestService();
+    }
+    else
+    {
+      $this->container->setService('request', $request);
+    }
+
+    if (true === $main)
+    {
+      $this->request = $request;
     }
 
     return $this->container->getRequestHandlerService()->handle($request);
@@ -305,7 +354,7 @@ abstract class Kernel
 
     if ($this->debug)
     {
-      // add the Kernel class hierachy as resources
+      // add the Kernel class hierarchy as resources
       $parent = new \ReflectionObject($this);
       $configuration->addResource(new FileResource($parent->getFileName()));
       while ($parent = $parent->getParentClass())
@@ -379,5 +428,17 @@ abstract class Kernel
 
     @rename($tmpFile, $file);
     chmod($file, 0644);
+  }
+
+  public function serialize()
+  {
+    return serialize(array($this->environment, $this->debug));
+  }
+
+  public function unserialize($data)
+  {
+    list($environment, $debug) = unserialize($data);
+
+    $this->__construct($environment, $debug);
   }
 }

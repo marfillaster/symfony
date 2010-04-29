@@ -9,7 +9,7 @@ use Symfony\Components\DependencyInjection\Definition;
 use Symfony\Components\DependencyInjection\Reference;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -20,8 +20,8 @@ use Symfony\Components\DependencyInjection\Reference;
 /**
  * DoctrineExtension is an extension for the Doctrine DBAL and ORM library.
  *
- * @package    symfony
- * @subpackage dependency_injection
+ * @package    Symfony
+ * @subpackage Framework_DoctrineBundle
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class DoctrineExtension extends LoaderExtension
@@ -220,8 +220,10 @@ class DoctrineExtension extends LoaderExtension
 
         if (is_dir($dir = $bundleDirs[$namespace].'/'.$class.'/Entities'))
         {
-          $type = 'annotation';
-
+          if ($type === false)
+          {
+            $type = 'annotation';
+          }
           $aliasMap[$class] = $namespace.'\\'.$class.'\\Entities';
         }
 
@@ -294,7 +296,8 @@ class DoctrineExtension extends LoaderExtension
    * mapping files are found then the annotation type is returned.
    *
    * @param string $dir
-   * @return string $type
+   *
+   * @return string
    */
   protected function detectMappingType($dir)
   {
@@ -329,7 +332,7 @@ class DoctrineExtension extends LoaderExtension
   }
 
   /**
-   * Returns the recommanded alias to use in XML.
+   * Returns the recommended alias to use in XML.
    *
    * This alias is also the mandatory prefix to use when using YAML.
    *

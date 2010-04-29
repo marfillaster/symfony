@@ -3,7 +3,7 @@
 namespace Symfony\Components\Routing;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -15,8 +15,8 @@ namespace Symfony\Components\Routing;
  * The Router class is an example of the integration of all pieces of the
  * routing system for easier use.
  *
- * @package    symfony
- * @subpackage routing
+ * @package    Symfony
+ * @subpackage Components_Routing
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Router implements RouterInterface
@@ -41,6 +41,8 @@ class Router implements RouterInterface
    * @param array $options  An array of options
    * @param array $context  The context
    * @param array $defaults The default values
+   *
+   * @throws \InvalidArgumentException When unsupported option is provided
    */
   public function __construct($loader, array $options = array(), array $context = array(), array $defaults = array())
   {
@@ -52,7 +54,7 @@ class Router implements RouterInterface
       'debug'                  => false,
       'generator_class'        => 'Symfony\\Components\\Routing\\Generator\\UrlGenerator',
       'generator_base_class'   => 'Symfony\\Components\\Routing\\Generator\\UrlGenerator',
-      'generator_dumper_class' => 'Symfony\Components\Routing\Generator\Dumper\PhpGeneratorDumper',
+      'generator_dumper_class' => 'Symfony\\Components\\Routing\\Generator\\Dumper\\PhpGeneratorDumper',
       'generator_cache_class'  => 'ProjectUrlGenerator',
       'matcher_class'          => 'Symfony\\Components\\Routing\\Matcher\\UrlMatcher',
       'matcher_base_class'     => 'Symfony\\Components\\Routing\\Matcher\\UrlMatcher',
@@ -249,6 +251,9 @@ class Router implements RouterInterface
     return $this->options['cache_dir'].'/'.$class.'.'.$extension;
   }
 
+  /**
+   * @throws \RuntimeException When cache file can't be wrote
+   */
   protected function writeCacheFile($file, $content)
   {
     $tmpFile = tempnam(dirname($file), basename($file));

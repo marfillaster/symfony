@@ -3,7 +3,7 @@
 namespace Symfony\Framework\WebBundle\Util;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -14,8 +14,9 @@ namespace Symfony\Framework\WebBundle\Util;
 /**
  * Provides basic utility to manipulate the file system.
  *
- * @package symfony
- * @author  Fabien Potencier <fabien.potencier@symfony-project.com>
+ * @package    Symfony
+ * @subpackage Framework_WebBundle
+ * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Filesystem
 {
@@ -24,7 +25,7 @@ class Filesystem
    *
    * This method only copies the file if the origin file is newer than the target file.
    *
-   * By default, if the target already exists, it is not overriden.
+   * By default, if the target already exists, it is not overridden.
    *
    * To override existing files, pass the "override" option.
    *
@@ -166,6 +167,8 @@ class Filesystem
    *
    * @param string $origin  The origin filename
    * @param string $target  The new filename
+   *
+   * @throws \RuntimeException When target file already exists
    */
   public function rename($origin, $target)
   {
@@ -220,27 +223,31 @@ class Filesystem
    * @param string $targetDir  The target directory
    * @param Finder $finder     An Finder instance
    * @param array  $options    An array of options (see copy())
+   *
+   * @throws \RuntimeException When file type is unknown
    */
-  public function mirror($originDir, $targetDir, $finder = null, $options = array())
+  public function mirror($originDir, $targetDir, Finder $finder = null, $options = array())
   {
     if (null === $finder)
     {
-      $finder = Finder::type('any');
+      $finder = new Finder();
     }
 
-    foreach ($finder->relative()->in($originDir) as $file)
+    foreach ($finder->in($originDir) as $file)
     {
-      if (is_dir($originDir.DIRECTORY_SEPARATOR.$file))
+      $target = $targetDir.DIRECTORY_SEPARATOR.str_replace(realpath($originDir), '', $file->getRealPath());
+
+      if (is_dir($file))
       {
-        $this->mkdirs($targetDir.DIRECTORY_SEPARATOR.$file);
+        $this->mkdirs($target);
       }
-      else if (is_file($originDir.DIRECTORY_SEPARATOR.$file))
+      else if (is_file($file))
       {
-        $this->copy($originDir.DIRECTORY_SEPARATOR.$file, $targetDir.DIRECTORY_SEPARATOR.$file, $options);
+        $this->copy($file, $target, $options);
       }
-      else if (is_link($originDir.DIRECTORY_SEPARATOR.$file))
+      else if (is_link($file))
       {
-        $this->symlink($originDir.DIRECTORY_SEPARATOR.$file, $targetDir.DIRECTORY_SEPARATOR.$file);
+        $this->symlink($file, $target);
       }
       else
       {

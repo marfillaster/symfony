@@ -10,7 +10,7 @@ use Symfony\Components\Console\Output\Output;
 use Symfony\Components\Routing\Matcher\Dumper\ApacheMatcherDumper;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -19,10 +19,10 @@ use Symfony\Components\Routing\Matcher\Dumper\ApacheMatcherDumper;
  */
 
 /**
- * 
+ * RouterDebugCommand.
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Framework_WebBundle
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class RouterDebugCommand extends Command
@@ -104,6 +104,9 @@ EOF
     }
   }
 
+  /**
+   * @throws \InvalidArgumentException When route does not exist
+   */
   protected function outputRoute(OutputInterface $output, $routes, $name)
   {
     $output->writeln($this->getHelper('formatter')->formatSection('router', sprintf('Route "%s"', $name)));

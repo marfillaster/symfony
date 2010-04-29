@@ -7,9 +7,10 @@ use Symfony\Components\DependencyInjection\ContainerInterface;
 use Symfony\Components\DependencyInjection\Loader\Loader;
 use Symfony\Components\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Framework\DoctrineBundle\DependencyInjection\DoctrineExtension;
+use Symfony\Components\Console\Application;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -18,9 +19,10 @@ use Symfony\Framework\DoctrineBundle\DependencyInjection\DoctrineExtension;
  */
 
 /**
+ * Bundle.
  *
- *
- * @package    symfony
+ * @package    Symfony
+ * @subpackage Framework_DoctrineBundle
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @author     Jonathan H. Wage <jonwage@gmail.com>
  */

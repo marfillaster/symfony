@@ -3,9 +3,10 @@
 namespace Symfony\Framework\WebBundle;
 
 use Symfony\Components\DependencyInjection\ContainerInterface;
+use Symfony\Components\RequestHandler\Response;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -16,7 +17,8 @@ use Symfony\Components\DependencyInjection\ContainerInterface;
 /**
  * WebBundle Controller gives you convenient access to all commonly needed services.
  *
- * @package    symfony
+ * @package    Symfony
+ * @subpackage Framework_WebBundle
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Controller
@@ -95,14 +97,19 @@ class Controller
   /**
    * Renders a view.
    *
-   * @param string $view       The view name
-   * @param array  $parameters An array of parameters to pass to the view
+   * @param string   $view       The view name
+   * @param array    $parameters An array of parameters to pass to the view
+   * @param Response $response   A response instance
    *
    * @return Response A Response instance
    */
-  public function render($view, array $parameters = array())
+  public function render($view, array $parameters = array(), Response $response = null)
   {
-    $response = $this->container->getResponseService();
+    if (null === $response)
+    {
+      $response = $this->container->getResponseService();
+    }
+
     $response->setContent($this->container->getTemplatingService()->render($view, $parameters));
 
     return $response;

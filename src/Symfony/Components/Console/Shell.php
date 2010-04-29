@@ -7,7 +7,7 @@ use Symfony\Components\Console\Input\StringInput;
 use Symfony\Components\Console\Output\ConsoleOutput;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -21,8 +21,8 @@ use Symfony\Components\Console\Output\ConsoleOutput;
  * This class only works with a PHP compiled with readline support
  * (either --with-readline or --with-libedit)
  *
- * @package    symfony
- * @subpackage cli
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Shell
@@ -38,6 +38,8 @@ class Shell
    * a \RuntimeException exception is thrown.
    *
    * @param Application $application An application instance
+   *
+   * @throws \RuntimeException When Readline extension is not enabled
    */
   public function __construct(Application $application)
   {

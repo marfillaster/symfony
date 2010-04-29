@@ -19,7 +19,7 @@ use Symfony\Components\Console\Helper\FormatterHelper;
 use Symfony\Components\Console\Helper\DialogHelper;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -40,8 +40,8 @@ use Symfony\Components\Console\Helper\DialogHelper;
  *     $app->addCommand(new SimpleCommand());
  *     $app->run();
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Application
@@ -99,6 +99,8 @@ class Application
    * @param OutputInterface $output An Output instance
    *
    * @return integer 0 if everything went fine, or an error code
+   *
+   * @throws \Exception When doRun returns Exception
    */
   public function run(InputInterface $input = null, OutputInterface $output = null)
   {
@@ -221,7 +223,7 @@ class Application
   /**
    * Get the helper set associated with the command
    *
-   * @return HelperSet The HelperSet isntance associated with this command
+   * @return HelperSet The HelperSet instance associated with this command
    */
   public function getHelperSet()
   {
@@ -357,7 +359,7 @@ class Application
   /**
    * Adds an array of command objects.
    *
-   * @param array  $commands  An array of commands
+   * @param Command[] $commands An array of commands
    */
   public function addCommands(array $commands)
   {
@@ -396,6 +398,8 @@ class Application
    * @param string $name The command name or alias
    *
    * @return Command A Command object
+   *
+   * @throws \InvalidArgumentException When command name given does not exist
    */
   public function getCommand($name)
   {
@@ -456,6 +460,8 @@ class Application
    * Finds a registered namespace by a name or an abbreviation.
    *
    * @return string A registered namespace
+   *
+   * @throws \InvalidArgumentException When namespace is incorrect or ambiguous
    */
   public function findNamespace($namespace)
   {
@@ -483,12 +489,14 @@ class Application
    * @param  string $name A command name or a command alias
    *
    * @return Command A Command instance
+   *
+   * @throws \InvalidArgumentException When command name is incorrect or ambiguous
    */
   public function findCommand($name)
   {
     // namespace
     $namespace = '';
-    if (false !== $pos = strpos($name, ':'))
+    if (false !== $pos = strrpos($name, ':'))
     {
       $namespace = $this->findNamespace(substr($name, 0, $pos));
       $name = substr($name, $pos + 1);
@@ -735,7 +743,7 @@ class Application
     $output->writeln("\n");
     foreach ($messages as $message)
     {
-      $output->writeln("<error>$message</error>");
+      $output->writeln('<error>'.$message.'</error>');
     }
     $output->writeln("\n");
 

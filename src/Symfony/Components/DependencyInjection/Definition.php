@@ -3,7 +3,7 @@
 namespace Symfony\Components\DependencyInjection;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -14,8 +14,8 @@ namespace Symfony\Components\DependencyInjection;
 /**
  * Definition represents a service definition.
  *
- * @package    symfony
- * @subpackage dependency_injection
+ * @package    Symfony
+ * @subpackage Components_DependencyInjection
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Definition
@@ -188,7 +188,7 @@ class Definition
    *
    * @param  string $name       The annotation name
    *
-   * @return array  $attributes An array of attributes
+   * @return array An array of attributes
    */
   public function getAnnotation($name)
   {

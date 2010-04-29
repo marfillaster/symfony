@@ -3,7 +3,7 @@
 namespace Symfony\Foundation\Debug;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -12,9 +12,10 @@ namespace Symfony\Foundation\Debug;
  */
 
 /**
- * 
+ * ErrorHandler.
  *
- * @package    symfony
+ * @package    Symfony
+ * @subpackage Foundation
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class ErrorHandler
@@ -46,6 +47,9 @@ class ErrorHandler
     set_error_handler(array($this, 'handle'));
   }
 
+  /**
+   * @throws \ErrorException When error_reporting returns error
+   */
   public function handle($level, $message, $file, $line, $context)
   {
     if (0 === $this->level)

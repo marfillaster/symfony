@@ -3,7 +3,7 @@
 namespace Symfony\Components\Console\Input;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -21,8 +21,8 @@ namespace Symfony\Components\Console\Input;
  *       new InputOption('foo', 'f', InputOption::PARAMETER_REQUIRED),
  *     ));
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class InputDefinition
@@ -80,7 +80,7 @@ class InputDefinition
   /**
    * Add an array of InputArgument objects.
    *
-   * @param array $arguments An array of InputArgument objects
+   * @param InputArgument[] $arguments An array of InputArgument objects
    */
   public function addArguments($arguments = array())
   {
@@ -97,6 +97,8 @@ class InputDefinition
    * Add an InputArgument object.
    *
    * @param InputArgument $argument An InputArgument object
+   *
+   * @throws \LogicException When incorrect argument is given
    */
   public function addArgument(InputArgument $argument)
   {
@@ -138,6 +140,8 @@ class InputDefinition
    * @param string|integer $name The InputArgument name or position
    *
    * @return InputArgument An InputArgument object
+   *
+   * @throws \InvalidArgumentException When argument given doesn't exist
    */
   public function getArgument($name)
   {
@@ -226,7 +230,7 @@ class InputDefinition
   /**
    * Add an array of InputOption objects.
    *
-   * @param array $options An array of InputOption objects
+   * @param InputOption[] $options An array of InputOption objects
    */
   public function addOptions($options = array())
   {
@@ -240,6 +244,8 @@ class InputDefinition
    * Add an InputOption object.
    *
    * @param InputOption $option An InputOption object
+   *
+   * @throws \LogicException When option given already exist
    */
   public function addOption(InputOption $option)
   {
@@ -342,6 +348,8 @@ class InputDefinition
    * @param string $shortcut The shortcut
    *
    * @return string The InputOption name
+   *
+   * @throws \InvalidArgumentException When option given does not exist
    */
   protected function shortcutToName($shortcut)
   {

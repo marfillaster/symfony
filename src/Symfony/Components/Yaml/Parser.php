@@ -3,7 +3,7 @@
 namespace Symfony\Components\Yaml;
 
 /*
- * This file is part of the symfony package.
+ * This file is part of the Symfony package.
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
  * For the full copyright and license information, please view the LICENSE
@@ -13,8 +13,8 @@ namespace Symfony\Components\Yaml;
 /**
  * Parser parses YAML strings to convert them to PHP arrays.
  *
- * @package    symfony
- * @subpackage yaml
+ * @package    Symfony
+ * @subpackage Components_Yaml
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Parser
@@ -42,13 +42,19 @@ class Parser
    *
    * @return mixed  A PHP value
    *
-   * @throws \InvalidArgumentException If the YAML is not valid
+   * @throws ParserException If the YAML is not valid
    */
   public function parse($value)
   {
     $this->currentLineNb = -1;
     $this->currentLine = '';
     $this->lines = explode("\n", $this->cleanup($value));
+
+    if (function_exists('mb_internal_encoding') && ((int) ini_get('mbstring.func_overload')) & 2)
+    {
+      $mbEncoding = mb_internal_encoding();
+      mb_internal_encoding('ASCII');
+    }
 
     $data = array();
     while ($this->moveToNextLine())
@@ -83,11 +89,7 @@ class Parser
         }
         else
         {
-          if (preg_match('/^([^ ]+)\: +({.*?)$/', $values['value'], $matches))
-          {
-            $data[] = array($matches[1] => Inline::load($matches[2]));
-          }
-          elseif (isset($values['leadspaces'])
+          if (isset($values['leadspaces'])
             && ' ' == $values['leadspaces']
             && preg_match('#^(?P<key>'.Inline::REGEX_QUOTED_STRING.'|[^ \'"\{].*?) *\:(\s+(?P<value>.+?))?\s*$#', $values['value'], $matches))
           {
@@ -99,7 +101,7 @@ class Parser
             $block = $values['value'];
             if (!$this->isNextLineIndented())
             {
-              $block .= "\n".$this->getNextEmbedBlock();
+              $block .= "\n".$this->getNextEmbedBlock($this->getCurrentLineIndentation() + 2);
             }
 
             $data[] = $parser->parse($block);
@@ -142,7 +144,7 @@ class Parser
             $merged = array();
             if (!is_array($parsed))
             {
-              throw new ParserException(sprintf("YAML merge keys used with a scalar value instead of an array at line %s (%s)", $this->getRealCurrentLineNb() + 1, $this->currentLine));
+              throw new ParserException(sprintf('YAML merge keys used with a scalar value instead of an array at line %s (%s)', $this->getRealCurrentLineNb() + 1, $this->currentLine));
             }
             else if (isset($parsed[0]))
             {
@@ -151,7 +153,7 @@ class Parser
               {
                 if (!is_array($parsedItem))
                 {
-                  throw new ParserException(sprintf("Merge items must be arrays at line %s (%s).", $this->getRealCurrentLineNb() + 1, $parsedItem));
+                  throw new ParserException(sprintf('Merge items must be arrays at line %s (%s).', $this->getRealCurrentLineNb() + 1, $parsedItem));
                 }
                 $merged = array_merge($parsedItem, $merged);
               }
@@ -224,6 +226,11 @@ class Parser
             }
           }
 
+          if (isset($mbEncoding))
+          {
+            mb_internal_encoding($mbEncoding);
+          }
+
           return $value;
         }
 
@@ -257,6 +264,11 @@ class Parser
       }
     }
 
+    if (isset($mbEncoding))
+    {
+      mb_internal_encoding($mbEncoding);
+    }
+
     return empty($data) ? null : $data;
   }
 
@@ -283,26 +295,40 @@ class Parser
   /**
    * Returns the next embed block of YAML.
    *
+   * @param integer $indentation The indent level at which the block is to be read, or null for default
+   *
    * @return string A YAML string
+   *
+   * @throws ParserException When indentation problem are detected
    */
-  protected function getNextEmbedBlock()
+  protected function getNextEmbedBlock($indentation = null)
   {
     $this->moveToNextLine();
 
-    $newIndent = $this->getCurrentLineIndentation();
-
-    if (!$this->isCurrentLineEmpty() && 0 == $newIndent)
+    if (null === $indentation)
     {
-      throw new ParserException(sprintf('Indentation problem at line %d (%s)', $this->getRealCurrentLineNb() + 1, $this->currentLine));
+      $newIndent = $this->getCurrentLineIndentation();
+
+      if (!$this->isCurrentLineEmpty() && 0 == $newIndent)
+      {
+        throw new ParserException(sprintf('Indentation problem at line %d (%s)', $this->getRealCurrentLineNb() + 1, $this->currentLine));
+      }
+    }
+    else
+    {
+      $newIndent = $indentation;
     }
 
     $data = array(substr($this->currentLine, $newIndent));
 
     while ($this->moveToNextLine())
     {
-      if ($this->isCurrentLineBlank())
+      if ($this->isCurrentLineEmpty())
       {
-        $data[] = substr($this->currentLine, $newIndent);
+        if ($this->isCurrentLineBlank())
+        {
+          $data[] = substr($this->currentLine, $newIndent);
+        }
 
         continue;
       }
@@ -362,6 +388,8 @@ class Parser
    * @param  string $value A YAML value
    *
    * @return mixed  A PHP value
+   *
+   * @throws ParserException When reference doesn't not exist
    */
   protected function parseValue($value)
   {

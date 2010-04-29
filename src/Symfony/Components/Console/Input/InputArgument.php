@@ -3,7 +3,7 @@
 namespace Symfony\Components\Console\Input;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -14,8 +14,8 @@ namespace Symfony\Components\Console\Input;
 /**
  * Represents a command line argument.
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class InputArgument
@@ -36,6 +36,8 @@ class InputArgument
    * @param integer $mode        The argument mode: self::REQUIRED or self::OPTIONAL
    * @param string  $description A description text
    * @param mixed   $default     The default value (for self::OPTIONAL mode only)
+   *
+   * @throws \InvalidArgumentException When argument mode is not valid
    */
   public function __construct($name, $mode = null, $description = '', $default = null)
   {
@@ -89,6 +91,8 @@ class InputArgument
    * Sets the default value.
    *
    * @param mixed $default The default value
+   *
+   * @throws \LogicException When incorrect default value is given
    */
   public function setDefault($default = null)
   {

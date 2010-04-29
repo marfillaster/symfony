@@ -3,7 +3,7 @@
 namespace Symfony\Components\RequestHandler;
 
 /*
- * This file is part of the symfony package.
+ * This file is part of the Symfony package.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -14,11 +14,11 @@ namespace Symfony\Components\RequestHandler;
 /**
  * Response is the base implementation of a server response.
  *
- * @package    symfony
- * @subpackage request_handler
+ * @package    Symfony
+ * @subpackage Components_RequestHandler
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
-class Response implements ResponseInterface
+class Response
 {
   protected $content;
   protected $version;
@@ -137,17 +137,19 @@ class Response implements ResponseInterface
   /**
    * Sets a cookie.
    *
-   * @param  string  $name      HTTP header name
-   * @param  string  $value     Value for the cookie
-   * @param  string  $expire    Cookie expiration period
-   * @param  string  $path      Path
-   * @param  string  $domain    Domain name
-   * @param  bool    $secure    If secure
-   * @param  bool    $httpOnly  If uses only HTTP
+   * @param  string $name     The cookie name
+   * @param  string $value    The value of the cookie
+   * @param  string $expire   The time the cookie expires
+   * @param  string $path     The path on the server in which the cookie will be available on
+   * @param  string $domain   The domain that the cookie is available
+   * @param  bool   $secure   Indicates that the cookie should only be transmitted over a secure HTTPS connection from the client
+   * @param  bool   $httpOnly When TRUE the cookie will be made accessible only through the HTTP protocol
+   *
+   * @throws \InvalidArgumentException When the cookie expire parameter is not valid
    */
   public function setCookie($name, $value, $expire = null, $path = '/', $domain = '', $secure = false, $httpOnly = false)
   {
-    if (!is_null($expire))
+    if (null !== $expire)
     {
       if (is_numeric($expire))
       {
@@ -192,6 +194,7 @@ class Response implements ResponseInterface
    * @param string $code  HTTP status code
    * @param string $text  HTTP status text
    *
+   * @throws \InvalidArgumentException When the HTTP status code is not valid
    */
   public function setStatusCode($code, $text = null)
   {
@@ -201,7 +204,7 @@ class Response implements ResponseInterface
       throw new \InvalidArgumentException(sprintf('The HTTP status code "%s" is not valid.', $code));
     }
 
-    $this->statusText = false === $text ? '' : (is_null($text) ? self::$statusTexts[$this->statusCode] : $text);
+    $this->statusText = false === $text ? '' : (null === $text ? self::$statusTexts[$this->statusCode] : $text);
 
     return $this;
   }
@@ -228,7 +231,7 @@ class Response implements ResponseInterface
   {
     $name = $this->normalizeHeaderName($name);
 
-    if (is_null($value))
+    if (null === $value)
     {
       unset($this->headers[$name]);
 

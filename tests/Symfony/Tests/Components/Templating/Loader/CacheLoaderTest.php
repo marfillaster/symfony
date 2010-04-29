@@ -4,14 +4,12 @@
  * This file is part of the symfony package.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
- * 
+ *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
 namespace Symfony\Tests\Components\Templating\Loader;
-
-require_once __DIR__.'/../../../bootstrap.php';
 
 require_once __DIR__.'/../../../../../lib/SymfonyTests/Components/Templating/ProjectTemplateDebugger.php';
 
@@ -36,7 +34,7 @@ class CacheLoaderTest extends \PHPUnit_Framework_TestCase
 
     $loader = new ProjectTemplateLoader($varLoader = new ProjectTemplateLoaderVar(), $dir);
     $loader->setDebugger($debugger = new \ProjectTemplateDebugger());
-    $this->assertTrue($loader->load('foo') === false, '->load() returns false if the embed loader is not able to load the template');
+    $this->assertFalse($loader->load('foo'), '->load() returns false if the embed loader is not able to load the template');
     $loader->load('index');
     $this->assertTrue($debugger->hasMessage('Storing template'), '->load() logs a "Storing template" message if the template is found');
     $loader->load('index');

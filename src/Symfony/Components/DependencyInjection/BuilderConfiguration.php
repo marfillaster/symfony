@@ -5,7 +5,7 @@ namespace Symfony\Components\DependencyInjection;
 use Symfony\Components\DependencyInjection\Loader\Loader;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -16,8 +16,8 @@ use Symfony\Components\DependencyInjection\Loader\Loader;
 /**
  * A BuilderConfiguration is a consistent set of definitions and parameters.
  *
- * @package    symfony
- * @subpackage dependency_injection
+ * @package    Symfony
+ * @subpackage Components_DependencyInjection
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class BuilderConfiguration
@@ -36,7 +36,7 @@ class BuilderConfiguration
   /**
    * Returns an array of resources loaded to build this configuration.
    *
-   * @return array An array of resources
+   * @return ResourceInterface[] An array of resources
    */
   public function getResources()
   {
@@ -277,7 +277,7 @@ class BuilderConfiguration
   {
     unset($this->aliases[$id]);
 
-    return $this->definitions[$id] = $definition;
+    $this->definitions[$id] = $definition;
 
     return $this;
   }
@@ -285,7 +285,7 @@ class BuilderConfiguration
   /**
    * Adds the definitions.
    *
-   * @param array $definitions An array of definitions
+   * @param Definition[] $definitions An array of definitions
    *
    * @return BuilderConfiguration The current instance
    */

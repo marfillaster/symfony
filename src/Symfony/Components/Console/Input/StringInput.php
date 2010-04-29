@@ -3,7 +3,7 @@
 namespace Symfony\Components\Console\Input;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -18,8 +18,8 @@ namespace Symfony\Components\Console\Input;
  *
  *     $input = new StringInput('foo --bar="foobar"');
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Components_Console
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class StringInput extends ArgvInput
@@ -40,6 +40,9 @@ class StringInput extends ArgvInput
     $this->tokens = $this->tokenize($input);
   }
 
+  /**
+   * @throws \InvalidArgumentException When unable to parse input (should never happen)
+   */
   protected function tokenize($input)
   {
     $input = preg_replace('/(\r\n|\r|\n|\t)/', ' ', $input);

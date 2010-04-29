@@ -3,7 +3,7 @@
 namespace Symfony\Framework\ZendBundle\Logger;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -12,9 +12,10 @@ namespace Symfony\Framework\ZendBundle\Logger;
  */
 
 /**
- * 
+ * DebugLogger.
  *
- * @package    symfony
+ * @package    Symfony
+ * @subpackage Framework_ZendBundle
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class DebugLogger extends \Zend_Log_Writer_Abstract
@@ -29,8 +30,7 @@ class DebugLogger extends \Zend_Log_Writer_Abstract
   /**
    * Write a message to the log.
    *
-   * @param  array  $event  event data
-   * @return void
+   * @param array $event Event data
    */
   protected function _write($event)
   {

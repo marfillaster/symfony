@@ -3,7 +3,7 @@
 namespace Symfony\Components\DependencyInjection;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -14,8 +14,8 @@ namespace Symfony\Components\DependencyInjection;
 /**
  * Builder is a DI container that provides an interface to build the services.
  *
- * @package    symfony
- * @subpackage dependency_injection
+ * @package    Symfony
+ * @subpackage Components_DependencyInjection
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class Builder extends Container implements AnnotatedContainerInterface
@@ -253,7 +253,7 @@ class Builder extends Container implements AnnotatedContainerInterface
   /**
    * Adds the service definitions.
    *
-   * @param array $definitions An array of service definitions
+   * @param Definition[] $definitions An array of service definitions
    */
   public function addDefinitions(array $definitions)
   {
@@ -287,7 +287,7 @@ class Builder extends Container implements AnnotatedContainerInterface
   /**
    * Sets a service definition.
    *
-   * @param  string              $id         The service identifier
+   * @param  string     $id         The service identifier
    * @param  Definition $definition A Definition instance
    */
   public function setDefinition($id, Definition $definition)
@@ -335,6 +335,8 @@ class Builder extends Container implements AnnotatedContainerInterface
    * @param  string     $id         The service identifier
    *
    * @return object              The service described by the service definition
+   *
+   * @throws \InvalidArgumentException When configure callable is not callable
    */
   protected function createService(Definition $definition, $id)
   {

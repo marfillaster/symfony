@@ -3,7 +3,7 @@
 namespace Symfony\Components\Routing;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -14,8 +14,8 @@ namespace Symfony\Components\Routing;
 /**
  * A RouteCollection represents a set of Route instances.
  *
- * @package    symfony
- * @subpackage routing
+ * @package    Symfony
+ * @subpackage Components_Routing
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  */
 class RouteCollection
@@ -37,6 +37,8 @@ class RouteCollection
    *
    * @param string $name  The route name
    * @param Route  $route A Route instance
+   *
+   * @throws \InvalidArgumentException When route name contains non valid characters
    */
   public function addRoute($name, Route $route)
   {
@@ -109,7 +111,7 @@ class RouteCollection
   /**
    * Returns an array of resources loaded to build this collection.
    *
-   * @return array An array of resources
+   * @return ResourceInterface[] An array of resources
    */
   public function getResources()
   {

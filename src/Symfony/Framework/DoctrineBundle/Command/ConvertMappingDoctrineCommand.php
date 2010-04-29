@@ -7,12 +7,10 @@ use Symfony\Components\Console\Input\InputOption;
 use Symfony\Components\Console\Input\InputInterface;
 use Symfony\Components\Console\Output\OutputInterface;
 use Symfony\Components\Console\Output\Output;
-use Symfony\Framework\WebBundle\Util\Filesystem;
-use Doctrine\Common\Cli\Configuration;
-use Doctrine\Common\Cli\CliController as DoctrineCliController;
+use Doctrine\ORM\Tools\Console\Command\ConvertMappingCommand;
 
 /*
- * This file is part of the symfony framework.
+ * This file is part of the Symfony framework.
  *
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
  *
@@ -24,35 +22,31 @@ use Doctrine\Common\Cli\CliController as DoctrineCliController;
  * Convert Doctrine ORM metadata mapping information between the various supported
  * formats.
  *
- * @package    symfony
- * @subpackage console
+ * @package    Symfony
+ * @subpackage Framework_DoctrineBundle
  * @author     Fabien Potencier <fabien.potencier@symfony-project.com>
  * @author     Jonathan H. Wage <jonwage@gmail.com>
  */
-class ConvertMappingDoctrineCommand extends DoctrineCommand
+class ConvertMappingDoctrineCommand extends ConvertMappingCommand
 {
-  /**
-   * @see Command
-   */
   protected function configure()
   {
+    parent::configure();
     $this
-      ->setName('doctrine:convert-mapping')
-      ->setDescription('Convert mapping information between supported formats.')
-      ->addOption('from', null, null, 'The source to convert from.')
-      ->addOption('to', null, null, 'The type of mapping to convert to.')
-      ->addOption('dest', null, null, 'Where to output the converted source.')
-    ;
+      ->setName('doctrine:mapping:convert')
+      ->addOption('em', null, InputOption::PARAMETER_OPTIONAL, 'The entity manager to use for this command.')
+      ->setHelp(<<<EOT
+The <info>doctrine:mapping:convert</info> command converts mapping information between supported formats:
+
+  <info>./symfony doctrine:mapping:convert xml /path/to/output</info>
+EOT
+    );
   }
 
-  /**
-   * @see Command
-   */
   protected function execute(InputInterface $input, OutputInterface $output)
   {
-    $options = $this->buildDoctrineCliTaskOptions($input, array(
-      'from', 'to', 'dest'
-    ));
-    $this->runDoctrineCliTask('orm:convert-mapping', $options);
+    DoctrineCommand::setApplicationEntityManager($this->application, $input->getOption('em'));
+
+    return parent::execute($input, $output);
   }
 }
