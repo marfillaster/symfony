@@ -29,4 +29,18 @@ interface RendererInterface
    * @param string $charset
    */
   public function setCharset($charset);
+
+  /**
+   * Returns true if the rendered tag is hidden.
+   *
+   * @return boolean  Whether the renderer outputs a hidden tag
+   */
+  public function isHidden();
+
+  /**
+   * Returns true if the rendered tag requires the form to be multipart
+   *
+   * @return boolean  Whether the rendered tag requires a multipart form
+   */
+  public function needsMultipartForm();
 }
