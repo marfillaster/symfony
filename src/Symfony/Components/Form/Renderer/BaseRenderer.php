@@ -38,13 +38,13 @@ abstract class BaseRenderer implements RendererInterface
     // check option names
     if ($diff = array_diff_key($this->options, $this->knownOptions))
     {
-      throw new \InvalidArgumentException(sprintf('%s does not support the following options: \'%s\'.', get_class($this), implode('\', \'', $diff)));
+      throw new \InvalidArgumentException(sprintf('%s does not support the following options: \'%s\'.', get_class($this), implode('\', \'', array_keys($diff))));
     }
 
     // check required options
     if ($diff = array_diff_key($this->requiredOptions, $this->options))
     {
-      throw new \RuntimeException(sprintf('%s requires the following options: \'%s\'.', get_class($this), implode('\', \'', $diff)));
+      throw new \RuntimeException(sprintf('%s requires the following options: \'%s\'.', get_class($this), implode('\', \'', array_keys($diff))));
     }
   }
 
