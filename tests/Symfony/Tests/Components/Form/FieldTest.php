@@ -2,11 +2,15 @@
 
 namespace Symfony\Tests\Components\Form;
 
-require_once __DIR__ . '/../../bootstrap.php';;
+require_once __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . '/Fixtures/LocalizableRenderer.php';
+require_once __DIR__ . '/Fixtures/LocalizableValueTransformer.php';
+require_once __DIR__ . '/Fixtures/TranslatableRenderer.php';
+require_once __DIR__ . '/Fixtures/TranslatableValueTransformer.php';
 
 use Symfony\Components\Form\Field;
 use Symfony\Components\Form\FieldGroup;
-use Symfony\Components\ValueTransformer\ValueTransformerInterface;
+use Symfony\Components\Form\ValueTransformer\ValueTransformerInterface;
 
 
 class FieldTest_TestValueTransformer implements ValueTransformerInterface
@@ -101,7 +105,7 @@ class FieldTest extends \PHPUnit_Framework_TestCase
 
   public function testLocaleIsPassedToLocalizableValueTransformer()
   {
-    $transformer = $this->getMock(__NAMESPACE__ . '\LocalizableValueTransformer');
+    $transformer = $this->getMock(__NAMESPACE__ . '\Fixtures\LocalizableValueTransformer');
     $transformer->expects($this->once())
                 ->method('setLocale')
                 ->with($this->equalTo('de_DE'));
@@ -114,7 +118,7 @@ class FieldTest extends \PHPUnit_Framework_TestCase
   public function testTranslatorIsPassedToTranslatableValueTransformer()
   {
     $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
-    $transformer = $this->getMock(__NAMESPACE__ . '\TranslatableValueTransformer');
+    $transformer = $this->getMock(__NAMESPACE__ . '\Fixtures\TranslatableValueTransformer');
     $transformer->expects($this->once())
                 ->method('setTranslator')
                 ->with($this->equalTo($translator));
@@ -126,7 +130,7 @@ class FieldTest extends \PHPUnit_Framework_TestCase
 
   public function testTranslatorIsNotPassedToValueTransformerIfNotSet()
   {
-    $transformer = $this->getMock(__NAMESPACE__ . '\TranslatableValueTransformer');
+    $transformer = $this->getMock(__NAMESPACE__ . '\Fixtures\TranslatableValueTransformer');
     $transformer->expects($this->never())
                 ->method('setTranslator');
 
@@ -136,7 +140,7 @@ class FieldTest extends \PHPUnit_Framework_TestCase
 
   protected function createMockTransformer()
   {
-    return $this->getMock('Symfony\Components\ValueTransformer\ValueTransformerInterface', array(), array(), '', false, false);
+    return $this->getMock('Symfony\Components\Form\ValueTransformer\ValueTransformerInterface', array(), array(), '', false, false);
   }
 
   protected function createMockTransformerTransformingTo($value)

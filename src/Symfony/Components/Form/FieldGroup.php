@@ -8,7 +8,7 @@ use Symfony\Components\Form\Exception\InvalidPropertyException;
 use Symfony\Components\Form\Exception\PropertyAccessDeniedException;
 
 use Symfony\Components\Form\Renderer\RendererInterface;
-use Symfony\Components\Form\Renderer\Html\GroupRenderer;
+use Symfony\Components\Form\Renderer\ListRenderer;
 
 use Symfony\Components\Validator\ValidatorInterface;
 
@@ -42,7 +42,7 @@ class FieldGroup extends BaseField implements \ArrayAccess, \IteratorAggregate, 
 
   public function __construct($key, array $options = array())
   {
-//    $this->setRenderer(new GroupRenderer());
+    $this->setRenderer(new ListRenderer());
 
     parent::__construct($key, $options);
   }

@@ -2,15 +2,16 @@
 
 namespace Symfony\Tests\Components\Form;
 
-require_once __DIR__ . '/../../bootstrap.php';;
+require_once __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . '/Fixtures/LocalizableField.php';
+require_once __DIR__ . '/Fixtures/TranslatableField.php';
 
 use Symfony\Components\Form\Form;
 use Symfony\Components\Form\Field;
 use Symfony\Components\Form\FieldGroup;
 use Symfony\Components\File\UploadedFile;
-use Symfony\Components\Validator\Engine\PropertyPathBuilder;
-use Symfony\Components\Validator\Engine\ConstraintViolation;
-use Symfony\Components\Validator\Engine\ConstraintViolationList;
+use Symfony\Components\Validator\ConstraintViolation;
+use Symfony\Components\Validator\ConstraintViolationList;
 
 
 class FormTest_Object
@@ -68,7 +69,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
     Form::setDefaultLocale('de-DE-1996');
     $form = new Form('author', $this->object, $this->validator);
 
-    $field = $this->getMock(__NAMESPACE__ . '\LocalizableField', array(), array(), '', false, false);
+    $field = $this->getMock(__NAMESPACE__ . '\Fixtures\LocalizableField', array(), array(), '', false, false);
     $field->expects($this->any())
           ->method('getKey')
           ->will($this->returnValue('firstName'));
@@ -85,7 +86,7 @@ class FormTest extends \PHPUnit_Framework_TestCase
     Form::setDefaultTranslator($translator);
     $form = new Form('author', $this->object, $this->validator);
 
-    $field = $this->getMock(__NAMESPACE__ . '\TranslatableField', array(), array(), '', false, false);
+    $field = $this->getMock(__NAMESPACE__ . '\Fixtures\TranslatableField', array(), array(), '', false, false);
     $field->expects($this->any())
           ->method('getKey')
           ->will($this->returnValue('firstName'));
@@ -187,15 +188,12 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testBindMapsFieldValidationErrorsOntoFields()
   {
-    $builder = new PropertyPathBuilder();
     $violations = new ConstraintViolationList();
     $violations->add(new ConstraintViolation(
       'message',
       array('param' => 'value'),
       'Form',
-      $builder->atProperty('fields')->atIndex('firstName')
-              ->atProperty('displayedData')
-              ->getPropertyPath(),
+      'fields[firstName].displayedData',
       'invalid value'
     ));
 
@@ -218,16 +216,12 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testBindMapsFieldValidationErrorsOntoNestedFields()
   {
-    $builder = new PropertyPathBuilder();
     $violations = new ConstraintViolationList();
     $violations->add(new ConstraintViolation(
       'message',
       array('param' => 'value'),
       'Form',
-      $builder->atProperty('fields')->atIndex('child')
-              ->atProperty('fields')->atIndex('firstName')
-              ->atProperty('displayedData')
-              ->getPropertyPath(),
+      'fields[child].fields[firstName].displayedData',
       'invalid value'
     ));
 
@@ -252,15 +246,12 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testBindMapsModelValidationErrorsOntoFields()
   {
-    $builder = new PropertyPathBuilder();
     $violations = new ConstraintViolationList();
     $violations->add(new ConstraintViolation(
       'message',
       array('param' => 'value'),
       'Form',
-      $builder->atProperty('data')
-              ->atProperty('firstName')
-              ->getPropertyPath(),
+      'data.firstName',
       'invalid value'
     ));
 
@@ -283,16 +274,12 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testBindMapsModelValidationErrorsOntoNestedFields()
   {
-    $builder = new PropertyPathBuilder();
     $violations = new ConstraintViolationList();
     $violations->add(new ConstraintViolation(
       'message',
       array('param' => 'value'),
       'Form',
-      $builder->atProperty('data')
-              ->atProperty('child')
-              ->atProperty('firstName')
-              ->getPropertyPath(),
+      'data.child.firstName',
       'invalid value'
     ));
 
@@ -317,15 +304,12 @@ class FormTest extends \PHPUnit_Framework_TestCase
 
   public function testBindMapsModelValidationErrorsOntoMergedFields()
   {
-    $builder = new PropertyPathBuilder();
     $violations = new ConstraintViolationList();
     $violations->add(new ConstraintViolation(
       'message',
       array('param' => 'value'),
       'Form',
-      $builder->atProperty('data')
-              ->atProperty('firstName')
-              ->getPropertyPath(),
+      'data.firstName',
       'invalid value'
     ));
 

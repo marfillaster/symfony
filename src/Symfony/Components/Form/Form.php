@@ -12,8 +12,7 @@ use Symfony\Components\Validator\CSRFTokenValidator;
 use Symfony\Components\Validator\AndValidator;
 use Symfony\Components\Validator\ValidatorInterface;
 
-use Symfony\Components\Validator\Engine\PropertyPath;
-use Symfony\Components\Validator\Engine\ConstraintViolation;
+use Symfony\Components\Validator\ConstraintViolation;
 
 use Symfony\Components\I18N\TranslatorInterface;
 
@@ -195,10 +194,9 @@ class Form extends FieldGroup
     {
       foreach ($violations as $violation)
       {
-        $path = $violation->getPropertyPath();
-        $path->rewind();
+        $path = preg_split('/[\[\]\.]/', $violation->getPropertyPath(), -1, PREG_SPLIT_NO_EMPTY);
 
-        if ($path->current() == 'data')
+        if (current($path) == 'data')
         {
           $this->addDataError($this, $path, $violation);
         }
@@ -226,14 +224,14 @@ class Form extends FieldGroup
    * @param PropertyPath $path
    * @param ConstraintViolation$violation
    */
-  protected function addFieldError(FieldInterface $field, PropertyPath $path, ConstraintViolation $violation)
+  protected function addFieldError(FieldInterface $field, array $path, ConstraintViolation $violation)
   {
-    $path->next(); // jump to next iterator index
-    $fieldName = $path->current();
+    next($path); // jump to next iterator index
+    $fieldName = current($path);
 
-    if ($path->valid() && $field instanceof FieldGroup && $field->has($fieldName))
+    if (key($path) !== null && $field instanceof FieldGroup && $field->has($fieldName))
     {
-      $path->next(); // jump to next "iterator" (if exists)
+      next($path); // jump to next "iterator" (if exists)
 
       $this->addFieldError($field->get($fieldName), $path, $violation);
     }
@@ -258,12 +256,12 @@ class Form extends FieldGroup
    * @param PropertyPath $path
    * @param ConstraintViolation$violation
    */
-  protected function addDataError(FieldInterface $field, PropertyPath $path, ConstraintViolation $violation)
+  protected function addDataError(FieldInterface $field, array $path, ConstraintViolation $violation)
   {
-    $path->next(); // jump to next property name
-    $fieldName = $path->current();
+    next($path); // jump to next property name
+    $fieldName = current($path);
 
-    if ($path->valid() && $field instanceof FieldGroup && $field->has($fieldName, true))
+    if (key($path) !== null && $field instanceof FieldGroup && $field->has($fieldName, true))
     {
       $this->addDataError($field->get($fieldName, true), $path, $violation);
     }

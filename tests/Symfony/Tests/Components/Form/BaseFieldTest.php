@@ -2,16 +2,32 @@
 
 namespace Symfony\Tests\Components\Form;
 
-require_once __DIR__ . '/../../bootstrap.php';;
+require_once __DIR__ . '/../../bootstrap.php';
 
 use Symfony\Components\Form\BaseField;
 
-
-abstract class BaseFieldTest_InvalidField extends BaseField
+abstract class InvalidField extends BaseField
 {
   public function isValid()
   {
     return false;
+  }
+}
+
+class PreconfiguredField extends BaseField
+{
+  protected function configure()
+  {
+    $this->addOption('foo');
+    $this->addRequiredOption('bar');
+  }
+
+  public function getDisplayedData()
+  {
+  }
+
+  public function isMultipart()
+  {
   }
 }
 
@@ -113,7 +129,7 @@ class BaseFieldTest extends \PHPUnit_Framework_TestCase
 
   public function testLocaleIsPassedToLocalizableRenderer()
   {
-    $renderer = $this->getMock(__NAMESPACE__ . '\LocalizableRenderer');
+    $renderer = $this->getMock(__NAMESPACE__ . '\Fixtures\LocalizableRenderer');
     $renderer->expects($this->once())
              ->method('setLocale')
              ->with($this->equalTo('de_DE'));
@@ -126,7 +142,7 @@ class BaseFieldTest extends \PHPUnit_Framework_TestCase
   public function testTranslatorIsPassedToTranslatableRenderer()
   {
     $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
-    $renderer = $this->getMock(__NAMESPACE__ . '\TranslatableRenderer');
+    $renderer = $this->getMock(__NAMESPACE__ . '\Fixtures\TranslatableRenderer');
     $renderer->expects($this->once())
              ->method('setTranslator')
              ->with($this->equalTo($translator));
@@ -138,7 +154,7 @@ class BaseFieldTest extends \PHPUnit_Framework_TestCase
 
   public function testTranslatorIsNotPassedToRendererIfNotSet()
   {
-    $renderer = $this->getMock(__NAMESPACE__ . '\TranslatableRenderer');
+    $renderer = $this->getMock(__NAMESPACE__ . '\Fixtures\TranslatableRenderer');
     $renderer->expects($this->never())
              ->method('setTranslator');
 
@@ -183,6 +199,22 @@ class BaseFieldTest extends \PHPUnit_Framework_TestCase
 
     $this->assertFalse($this->field->isRequired());
   }
+
+  /*
+  public function testExceptionIfUnknownOption()
+  {
+    $this->setExpectedException('Symfony\Components\Form\Exception\InvalidOptionsException');
+
+    new PreconfiguredField(array('bar' => 'baz', 'moo' => 'maa'));
+  }
+
+  public function testExceptionIfMissingOption()
+  {
+    $this->setExpectedException('Symfony\Components\Form\Exception\InvalidOptionsException');
+
+    new PreconfiguredField();
+  }
+  */
 
   protected function createMockBaseField($key)
   {

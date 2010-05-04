@@ -7,8 +7,7 @@ use Symfony\Components\Form\Exception\NotValidException;
 use Symfony\Components\Form\Exception\InvalidConfigurationException;
 
 use Symfony\Components\Form\Renderer\RendererInterface;
-
-use Symfony\Components\ValueTransformer\ValueTransformerInterface;
+use Symfony\Components\Form\ValueTransformer\ValueTransformerInterface;
 
 use Symfony\Components\I18N\Localizable;
 use Symfony\Components\I18N\Translatable;

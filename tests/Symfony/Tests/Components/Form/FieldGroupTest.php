@@ -2,7 +2,9 @@
 
 namespace Symfony\Tests\Components\Form;
 
-require_once __DIR__ . '/../../bootstrap.php';;
+require_once __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . '/Fixtures/LocalizableField.php';
+require_once __DIR__ . '/Fixtures/TranslatableField.php';
 
 use Symfony\Components\Validator\ValidatorInterface;
 use Symfony\Components\Validator\AndValidator;
@@ -387,7 +389,7 @@ class FieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testLocaleIsPassedToLocalizableField_SetBeforeAddingTheField()
   {
-    $field = $this->getMock(__NAMESPACE__ . '\LocalizableField', array(), array(), '', false, false);
+    $field = $this->getMock(__NAMESPACE__ . '\Fixtures\LocalizableField', array(), array(), '', false, false);
     $field->expects($this->any())
           ->method('getKey')
           ->will($this->returnValue('firstName'));
@@ -406,7 +408,7 @@ class FieldGroupTest extends \PHPUnit_Framework_TestCase
           ->method('getKey')
           ->will($this->returnValue('firstName'));
 // DOESN'T WORK!
-//    $field = $this->getMock(__NAMESPACE__ . '\LocalizableField', array(), array(), '', false, false);
+//    $field = $this->getMock(__NAMESPACE__ . '\Fixtures\LocalizableField', array(), array(), '', false, false);
 //    $field->expects($this->once())
 //          ->method('setLocale')
 //          ->with($this->equalTo('de_AT'));
@@ -423,7 +425,7 @@ class FieldGroupTest extends \PHPUnit_Framework_TestCase
   public function testTranslatorIsPassedToTranslatableField_SetBeforeAddingTheField()
   {
     $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
-    $field = $this->getMock(__NAMESPACE__ . '\TranslatableField', array(), array(), '', false, false);
+    $field = $this->getMock(__NAMESPACE__ . '\Fixtures\TranslatableField', array(), array(), '', false, false);
     $field->expects($this->any())
           ->method('getKey')
           ->will($this->returnValue('firstName'));
@@ -438,7 +440,7 @@ class FieldGroupTest extends \PHPUnit_Framework_TestCase
   public function testTranslatorIsPassedToTranslatableField_SetAfterAddingTheField()
   {
     $translator = $this->getMock('Symfony\Components\I18N\TranslatorInterface');
-    $field = $this->getMock(__NAMESPACE__ . '\TranslatableField', array(), array(), '', false, false);
+    $field = $this->getMock(__NAMESPACE__ . '\Fixtures\TranslatableField', array(), array(), '', false, false);
     $field->expects($this->any())
           ->method('getKey')
           ->will($this->returnValue('firstName'));
@@ -452,7 +454,7 @@ class FieldGroupTest extends \PHPUnit_Framework_TestCase
 
   public function testTranslatorIsNotPassedToFieldIfNotSet()
   {
-    $field = $this->getMock(__NAMESPACE__ . '\TranslatableField', array(), array(), '', false, false);
+    $field = $this->getMock(__NAMESPACE__ . '\Fixtures\TranslatableField', array(), array(), '', false, false);
     $field->expects($this->any())
           ->method('getKey')
           ->will($this->returnValue('firstName'));
