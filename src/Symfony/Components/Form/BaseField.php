@@ -8,6 +8,8 @@ use Symfony\Components\Form\Exception\NotBoundException;
 use Symfony\Components\Form\Exception\NotValidException;
 use Symfony\Components\Form\Exception\InvalidConfigurationException;
 use Symfony\Components\Form\Exception\NotInitializedException;
+use Symfony\Components\Form\Exception\MissingOptionsException;
+use Symfony\Components\Form\Exception\InvalidOptionsException;
 
 use Symfony\Components\Validator\ValidatorErrorSchema;
 
@@ -23,6 +25,8 @@ abstract class BaseField implements FieldInterface, Localizable, Translatable
     $translator         = null;
 
   private
+    $knownOptions       = array(),
+    $requiredOptions    = array(),
     $errors             = array(),
     $key                = '',
     $parent             = null,
@@ -40,6 +44,18 @@ abstract class BaseField implements FieldInterface, Localizable, Translatable
     $this->locale = \Locale::getDefault();
 
     $this->configure();
+
+    // check option names
+    if ($diff = array_diff_key($this->options, $this->knownOptions))
+    {
+      throw new InvalidOptionsException(sprintf('%s does not support the following options: "%s".', get_class($this), implode('", "', array_keys($diff))), array_keys($diff));
+    }
+
+    // check required options
+    if ($diff = array_diff_key($this->requiredOptions, $this->options))
+    {
+      throw new MissingOptionsException(sprintf('%s requires the following options: \'%s\'.', get_class($this), implode('", "', array_keys($diff))), array_keys($diff));
+    }
   }
 
   /**
@@ -59,6 +75,87 @@ abstract class BaseField implements FieldInterface, Localizable, Translatable
 
   protected function configure()
   {
+  }
+
+  /**
+   * Gets an option value.
+   *
+   * @param  string $name  The option name
+    *
+   * @return mixed  The option value
+   */
+  protected function getOption($name)
+  {
+    return isset($this->options[$name]) ? $this->options[$name] : null;
+  }
+
+  /**
+   * Adds a new option value with a default value.
+   *
+   * @param string $name   The option name
+   * @param mixed  $value  The default value
+   *
+   * @return BaseRenderer The current renderer instance
+   */
+  protected function addOption($name, $value = null)
+  {
+    $this->knownOptions[$name] = true;
+
+    if (!array_key_exists($name, $this->options))
+    {
+      $this->options[$name] = $value;
+    }
+
+    return $this;
+  }
+
+  /**
+   * Changes an option value.
+   *
+   * @param string $name   The option name
+   * @param mixed  $value  The value
+   *
+   * @return BaseRenderer The current renderer instance
+   *
+   * @throws \InvalidArgumentException when a option is not supported
+   */
+  protected function setOption($name, $value)
+  {
+    if (!in_array($name, array_merge(array_keys($this->options), $this->requiredOptions)))
+    {
+      throw new \InvalidArgumentException(sprintf('%s does not support the following option: \'%s\'.', get_class($this), $name));
+    }
+
+    $this->options[$name] = $value;
+
+    return $this;
+  }
+
+  /**
+   * Returns true if the option exists.
+   *
+   * @param  string $name  The option name
+   *
+   * @return bool true if the option exists, false otherwise
+   */
+  protected function hasOption($name)
+  {
+    return isset($this->options[$name]);
+  }
+
+  /**
+   * Adds a required option.
+   *
+   * @param string $name  The option name
+   *
+   * @return BaseRenderer The current renderer instance
+   */
+  protected function addRequiredOption($name)
+  {
+    $this->knownOptions[$name] = true;
+    $this->requiredOptions[$name] = true;
+
+    return $this;
   }
 
   /**

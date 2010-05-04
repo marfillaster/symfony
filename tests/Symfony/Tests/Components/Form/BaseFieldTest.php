@@ -3,6 +3,8 @@
 namespace Symfony\Tests\Components\Form;
 
 require_once __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . '/Fixtures/LocalizableRenderer.php';
+require_once __DIR__ . '/Fixtures/TranslatableRenderer.php';
 
 use Symfony\Components\Form\BaseField;
 
@@ -200,21 +202,19 @@ class BaseFieldTest extends \PHPUnit_Framework_TestCase
     $this->assertFalse($this->field->isRequired());
   }
 
-  /*
   public function testExceptionIfUnknownOption()
   {
     $this->setExpectedException('Symfony\Components\Form\Exception\InvalidOptionsException');
 
-    new PreconfiguredField(array('bar' => 'baz', 'moo' => 'maa'));
+    new PreconfiguredField('name', array('bar' => 'baz', 'moo' => 'maa'));
   }
 
   public function testExceptionIfMissingOption()
   {
-    $this->setExpectedException('Symfony\Components\Form\Exception\InvalidOptionsException');
+    $this->setExpectedException('Symfony\Components\Form\Exception\MissingOptionsException');
 
-    new PreconfiguredField();
+    new PreconfiguredField('name');
   }
-  */
 
   protected function createMockBaseField($key)
   {

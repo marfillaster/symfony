@@ -43,21 +43,22 @@ class FieldRepeat extends FieldGroup
       throw new \InvalidArgumentException('The second argument must be a class name or a callable');
     }
 
-    $options = array_merge(array(
-      'modifiable' => false,
-    ), $options);
-
     $this->classOrCallable = $classOrCallable;
 
-    if ($options['modifiable'])
+    parent::__construct($name, $options);
+  }
+
+  protected function configure()
+  {
+    $this->addOption('modifiable', false);
+
+    if ($this->getOption('modifiable'))
     {
       $field = $this->createField('$$key$$');
       // TESTME
       $field->setRequired(false);
       $this->add($field);
     }
-
-    parent::__construct($name, $options);
   }
 
   private function createField($name)
