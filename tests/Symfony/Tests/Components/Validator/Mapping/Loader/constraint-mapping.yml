@@ -1,0 +1,18 @@
+Symfony\Tests\Components\Validator\Fixtures\Entity:
+  constraints:
+    # Constraint without value
+    NotNull: ~
+    # Constraint with single value
+    Min: 3
+    # Constraint with multiple values
+    Choice: [A, B]
+      
+  properties:
+    firstName:
+      # Constraint with attributes
+      Choice: { choices: [A, B], message: Must be one of %choices% }
+        
+  getters:
+    lastName:
+      NotNull: ~
+        
