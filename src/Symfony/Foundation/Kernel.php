@@ -119,6 +119,7 @@ abstract class Kernel implements HttpKernelInterface, \Serializable
             $bundle->boot($this->container);
         }
 
+        $this->container->getEventDispatcherService()->notify(new Event($this, 'kernel.boot'));
         $this->booted = true;
 
         return $this;
