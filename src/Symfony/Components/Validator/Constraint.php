@@ -1,6 +1,6 @@
 <?php
 
-namespace Symfony\Components\Validator\Constraints;
+namespace Symfony\Components\Validator;
 
 use Symfony\Components\Validator\Exception\InvalidAttributesException;
 use Symfony\Components\Validator\Exception\MissingAttributesException;

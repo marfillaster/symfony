@@ -2,7 +2,7 @@
 
 namespace Symfony\Components\Validator\Mapping;
 
-use Symfony\Components\Validator\Constraints\Constraint;
+use Symfony\Components\Validator\Constraint;
 use Symfony\Components\Validator\Exception\ValidatorException;
 
 class ClassMetadata extends ElementMetadata

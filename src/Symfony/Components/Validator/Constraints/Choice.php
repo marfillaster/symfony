@@ -10,7 +10,7 @@ namespace Symfony\Components\Validator\Constraints;
  * file that was distributed with this source code.
  */
 
-class Choice extends Constraint
+class Choice extends \Symfony\Components\Validator\Constraint
 {
   public $choices = array();
   public $callback;

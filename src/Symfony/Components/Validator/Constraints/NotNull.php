@@ -2,7 +2,7 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
-class NotNull extends Constraint
+class NotNull extends \Symfony\Components\Validator\Constraint
 {
-  public $message = 'Value should not be null';
+  public $message = 'Symfony.Validator.NotNull.message';
 }

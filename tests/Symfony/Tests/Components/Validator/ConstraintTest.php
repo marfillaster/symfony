@@ -1,11 +1,11 @@
 <?php
 
-namespace Symfony\Tests\Components\Validator\Constraints;
+namespace Symfony\Tests\Components\Validator;
 
-require_once __DIR__.'/../../../bootstrap.php';
-require_once __DIR__.'/../Fixtures/ConstraintA.php';
-require_once __DIR__.'/../Fixtures/ConstraintB.php';
-require_once __DIR__.'/../Fixtures/ConstraintC.php';
+require_once __DIR__.'/../../bootstrap.php';
+require_once __DIR__.'/Fixtures/ConstraintA.php';
+require_once __DIR__.'/Fixtures/ConstraintB.php';
+require_once __DIR__.'/Fixtures/ConstraintC.php';
 
 use Symfony\Tests\Components\Validator\Fixtures\ConstraintA;
 use Symfony\Tests\Components\Validator\Fixtures\ConstraintB;

@@ -2,8 +2,8 @@
 
 namespace Symfony\Tests\Components\Validator\Fixtures;
 
-use Symfony\Components\Validator\Constraints\Constraint;
-use Symfony\Components\Validator\Constraints\ConstraintValidator;
+use Symfony\Components\Validator\Constraint;
+use Symfony\Components\Validator\ConstraintValidator;
 
 class ConstraintAValidator extends ConstraintValidator
 {
