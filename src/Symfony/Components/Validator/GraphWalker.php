@@ -4,7 +4,7 @@ namespace Symfony\Components\Validator;
 
 use Symfony\Components\Validator\ClassMetadataFactoryInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
-use Symfony\Components\Validator\Constraints\Constraint;
+use Symfony\Components\Validator\Constraint;
 use Symfony\Components\Validator\Constraints\All;
 use Symfony\Components\Validator\Constraints\Any;
 use Symfony\Components\Validator\Constraints\Valid;
@@ -119,7 +119,7 @@ class GraphWalker
       if ($constraint->class && !$value instanceof $constraint->class)
       {
         $this->violations->add(new ConstraintViolation(
-          $constraint->classMessage,
+          $constraint->message,
           array('class' => $constraint->class),
           $this->root,
           $propertyPath,

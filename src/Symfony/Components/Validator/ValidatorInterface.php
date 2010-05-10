@@ -2,7 +2,7 @@
 
 namespace Symfony\Components\Validator;
 
-use Symfony\Components\Validator\Constraints\Constraint;
+use Symfony\Components\Validator\Constraint;
 
 /**
  * Validates a given value.

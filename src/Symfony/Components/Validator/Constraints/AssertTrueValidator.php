@@ -2,6 +2,9 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
+use Symfony\Components\Validator\Constraint;
+use Symfony\Components\Validator\ConstraintValidator;
+
 class AssertTrueValidator extends ConstraintValidator
 {
   public function isValid($value, Constraint $constraint)

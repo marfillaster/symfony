@@ -2,13 +2,24 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
-class Min extends Constraint
+class Min extends \Symfony\Components\Validator\Constraint
 {
-  public $value;
-  public $message;
+  public $message = 'Symfony.Validator.Min.message';
+  public $limit;
 
+  /**
+   * {@inheritDoc}
+   */
   public function defaultAttribute()
   {
-    return 'value';
+    return 'limit';
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function requiredAttributes()
+  {
+    return array('limit');
   }
 }

@@ -3,7 +3,7 @@
 namespace Symfony\Components\Validator;
 
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
-use Symfony\Components\Validator\Constraints\Constraint;
+use Symfony\Components\Validator\Constraint;
 
 class ConstraintValidatorFactory implements ConstraintValidatorFactoryInterface
 {

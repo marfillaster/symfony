@@ -2,7 +2,7 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
-class AssertTrue extends Constraint
+class AssertTrue extends \Symfony\Components\Validator\Constraint
 {
-  public $message = 'The value must be true';
+  public $message = 'Symfony.Validator.AssertTrue.message';
 }
