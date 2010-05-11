@@ -13,26 +13,26 @@ use Symfony\Components\Validator\Mapping\AbstractPropertyMetadata;
 
 class GraphWalker
 {
-  protected $violations;
-  protected $root;
+  protected $context;
   protected $validatorFactory;
   protected $metadataFactory;
 
   public function __construct($root, ClassMetadataFactoryInterface $metadataFactory, ConstraintValidatorFactoryInterface $factory)
   {
-    $this->violations = new ConstraintViolationList();
-    $this->root = $root;
+    $this->context = new ValidationContext($root);
     $this->validatorFactory = $factory;
     $this->metadataFactory = $metadataFactory;
   }
 
   public function getViolations()
   {
-    return $this->violations;
+    return $this->context->getViolations();
   }
 
   public function walkClass(ClassMetadata $metadata, $object, $group, $propertyPath)
   {
+    $this->context->setCurrentClass($metadata->getClassName());
+
     foreach ($metadata->findConstraints($group) as $constraint)
     {
       $this->walkConstraint($constraint, $object, $propertyPath);
@@ -66,6 +66,8 @@ class GraphWalker
 
   public function walkPropertyValue(AbstractPropertyMetadata $metadata, $value, $group, $propertyPath)
   {
+    $this->context->setCurrentProperty($metadata->getPropertyName());
+
     foreach ($metadata->findConstraints($group) as $constraint)
     {
       $this->walkDeepConstraint($constraint, $value, $group, $propertyPath);
@@ -78,17 +80,12 @@ class GraphWalker
     {
       if (!is_array($value) && !$value instanceof \Traversable)
       {
-        $this->violations->add(new ConstraintViolation(
-          $constraint->message,
-          array(),
-          $this->root,
-          $propertyPath,
-          $value
-        ));
+        $this->context->setPropertyPath($propertyPath);
+        $this->context->addViolation($constraint->message, array(), $value);
       }
       else
       {
-        $backup = clone $this->violations;
+        $backup = clone $this->context;
         $anyValid = false;
 
         $n = 0;
@@ -99,14 +96,14 @@ class GraphWalker
             $this->walkDeepConstraint($constr, $element, $group, $propertyPath.'['.$key.']');
           }
 
-          $m = count($this->violations);
+          $m = count($this->context->getViolations());
           $anyValid = $anyValid || $m == $n;
           $n = $m;
         }
 
         if ($constraint instanceof Any && $anyValid)
         {
-          $this->violations = $backup;
+          $this->context = $backup;
         }
       }
     }
@@ -118,13 +115,8 @@ class GraphWalker
     {
       if ($constraint->class && !$value instanceof $constraint->class)
       {
-        $this->violations->add(new ConstraintViolation(
-          $constraint->message,
-          array('class' => $constraint->class),
-          $this->root,
-          $propertyPath,
-          $value
-        ));
+        $this->context->setPropertyPath($propertyPath);
+        $this->context->addViolation($constraint->message, array('class' => $constraint->class), $value);
       }
       else
       {
@@ -156,15 +148,16 @@ class GraphWalker
 
     $validator = $this->validatorFactory->getInstance($constraint);
 
+    $this->context->setPropertyPath($propertyPath);
+    $validator->initialize($this->context);
+
     if (!$validator->isValid($value, $constraint))
     {
-      $this->violations->add(new ConstraintViolation(
+      $this->context->addViolation(
         $validator->getMessageTemplate(),
         $validator->getMessageParameters(),
-        $this->root,
-        $propertyPath,
         $value
-      ));
+      );
     }
   }
 }
