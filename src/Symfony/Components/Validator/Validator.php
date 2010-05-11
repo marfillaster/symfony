@@ -4,7 +4,6 @@ namespace Symfony\Components\Validator;
 
 use Symfony\Components\Validator\Mapping\ElementMetadata;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
-use Symfony\Components\Validator\Exception\GroupDefinitionException;
 
 class Validator implements ValidatorInterface
 {
