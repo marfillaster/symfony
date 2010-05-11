@@ -16,6 +16,18 @@ class TimeValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new TimeValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new Time()));
+  }
+
+  public function testExpectsStringCompatibleType()
+  {
+    $this->setExpectedException('Symfony\Components\Validator\Exception\UnexpectedTypeException');
+
+    $this->validator->isValid(new \stdClass(), new Time());
+  }
+
   /**
    * @dataProvider getValidTimes
    */

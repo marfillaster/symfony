@@ -2,16 +2,16 @@
 
 namespace Symfony\Components\Validator;
 
-use Symfony\Components\Validator\Exception\InvalidAttributesException;
-use Symfony\Components\Validator\Exception\MissingAttributesException;
+use Symfony\Components\Validator\Exception\InvalidOptionsException;
+use Symfony\Components\Validator\Exception\MissingOptionsException;
 use Symfony\Components\Validator\Exception\ConstraintDefinitionException;
 
 /**
  * Contains the properties of a constraint definition.
  *
- * A constraint can be defined on a class, an attribute or a getter method.
+ * A constraint can be defined on a class, an option or a getter method.
  * The Constraint class encapsulates all the configuration required for
- * validating this class, attribute or getter result successfully.
+ * validating this class, option or getter result successfully.
  *
  * Constraint instances are immutable and serializable.
  *
@@ -24,86 +24,86 @@ class Constraint
   public $groups = self::DEFAULT_GROUP;
 
   /**
-   * Initializes the constraint with attributes
+   * Initializes the constraint with options
    *
    * You should pass an associative array. The keys should be the names of
    * existing properties in this class. The values should be the value for these
    * properties.
    *
-   * Alternatively you can override the method defaultAttribute() to return the
+   * Alternatively you can override the method defaultOption() to return the
    * name of an existing property. If no associative array is passed, this
    * property is set instead.
    *
-   * You can force that certain attributes are set by overriding
-   * requiredAttributes() to return the names of these attributes. If any
-   * attribute is not set here, an exception is thrown.
+   * You can force that certain options are set by overriding
+   * requiredOptions() to return the names of these options. If any
+   * option is not set here, an exception is thrown.
    *
-   * @param mixed $attributes               The attributes (as associative array)
+   * @param mixed $options                  The options (as associative array)
    *                                        or the value for the default
-   *                                        attribute (any other type)
-   * @throws InvalidAttributesException     When you pass the names of non-existing
-   *                                        attributes
-   * @throws MissingAttributesException     When you don't pass any of the attributes
-   *                                        returned by requiredAttributes()
+   *                                        option (any other type)
+   * @throws InvalidOptionsException        When you pass the names of non-existing
+   *                                        options
+   * @throws MissingOptionsException        When you don't pass any of the options
+   *                                        returned by requiredOptions()
    * @throws ConstraintDefinitionException  When you don't pass an associative
-   *                                        array, but defaultAttribute() returns
+   *                                        array, but defaultOption() returns
    *                                        NULL
    */
-  public function __construct($attributes = null)
+  public function __construct($options = null)
   {
-    $invalidAttributes = array();
-    $missingAttributes = array_flip((array)$this->requiredAttributes());
+    $invalidOptions = array();
+    $missingOptions = array_flip((array)$this->requiredOptions());
 
-    if (is_array($attributes) && count($attributes) > 0 && is_string(key($attributes)))
+    if (is_array($options) && count($options) > 0 && is_string(key($options)))
     {
-      foreach ($attributes as $attribute => $value)
+      foreach ($options as $option => $value)
       {
-        if (property_exists($this, $attribute))
+        if (property_exists($this, $option))
         {
-          $this->$attribute = $value;
-          unset($missingAttributes[$attribute]);
+          $this->$option = $value;
+          unset($missingOptions[$option]);
         }
         else
         {
-          $invalidAttributes[] = $attribute;
+          $invalidOptions[] = $option;
         }
       }
     }
-    else if (!is_null($attributes))
+    else if (!is_null($options))
     {
-      $attribute = $this->defaultAttribute();
+      $option = $this->defaultOption();
 
-      if (is_null($attribute))
+      if (is_null($option))
       {
         throw new ConstraintDefinitionException(
-          sprintf('No default attribute is configured for constraint %s', get_class($this))
+          sprintf('No default option is configured for constraint %s', get_class($this))
         );
       }
 
-      if (property_exists($this, $attribute))
+      if (property_exists($this, $option))
       {
-        $this->$attribute = $attributes;
-        unset($missingAttributes[$attribute]);
+        $this->$option = $options;
+        unset($missingOptions[$option]);
       }
       else
       {
-        $invalidAttributes[] = $attribute;
+        $invalidOptions[] = $option;
       }
     }
 
-    if (count($invalidAttributes) > 0)
+    if (count($invalidOptions) > 0)
     {
-      throw new InvalidAttributesException(
-        sprintf('The attributes "%s" do not exist in constraint %s', implode('", "', $invalidAttributes), get_class($this)),
-        $invalidAttributes
+      throw new InvalidOptionsException(
+        sprintf('The options "%s" do not exist in constraint %s', implode('", "', $invalidOptions), get_class($this)),
+        $invalidOptions
       );
     }
 
-    if (count($missingAttributes) > 0)
+    if (count($missingOptions) > 0)
     {
-      throw new MissingAttributesException(
-        sprintf('The attributes "%s" must be set for constraint %s', implode('", "', $missingAttributes), get_class($this)),
-        $missingAttributes
+      throw new MissingOptionsException(
+        sprintf('The options "%s" must be set for constraint %s', implode('", "', $missingOptions), get_class($this)),
+        $missingOptions
       );
     }
   }
@@ -111,33 +111,33 @@ class Constraint
   /**
    * Unsupported operation.
    */
-  public function __set($attribute, $value)
+  public function __set($option, $value)
   {
-    throw new InvalidAttributesException(sprintf('The attribute "%s" does not exist in constraint %s', $attribute, get_class($this)), array($attribute));
+    throw new InvalidOptionsException(sprintf('The option "%s" does not exist in constraint %s', $option, get_class($this)), array($option));
   }
 
   /**
-   * Returns the name of the default attribute
+   * Returns the name of the default option
    *
-   * Override this method to define a default attribute.
+   * Override this method to define a default option.
    *
    * @return string
    * @see __construct()
    */
-  public function defaultAttribute()
+  public function defaultOption()
   {
     return null;
   }
 
   /**
-   * Returns the name of the required attributes
+   * Returns the name of the required options
    *
-   * Override this method if you want to define required attributes.
+   * Override this method if you want to define required options.
    *
    * @return array
    * @see __construct()
    */
-  public function requiredAttributes()
+  public function requiredOptions()
   {
     return array();
   }

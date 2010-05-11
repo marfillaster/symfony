@@ -16,6 +16,18 @@ class MinLengthValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new MinLengthValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new MinLength(array('limit' => 6))));
+  }
+
+  public function testExpectsStringCompatibleType()
+  {
+    $this->setExpectedException('Symfony\Components\Validator\Exception\UnexpectedTypeException');
+
+    $this->validator->isValid(new \stdClass(), new MinLength(array('limit' => 5)));
+  }
+
   /**
    * @dataProvider getValidValues
    */

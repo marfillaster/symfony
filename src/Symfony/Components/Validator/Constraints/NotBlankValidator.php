@@ -5,16 +5,11 @@ namespace Symfony\Components\Validator\Constraints;
 use Symfony\Components\Validator\Constraint;
 use Symfony\Components\Validator\ConstraintValidator;
 
-class AssertTrueValidator extends ConstraintValidator
+class NotBlankValidator extends ConstraintValidator
 {
   public function isValid($value, Constraint $constraint)
   {
-    if ($value === null)
-    {
-      return true;
-    }
-
-    if (!$value)
+    if ($value === '' || $value === null)
     {
       $this->setMessage($constraint->message);
 

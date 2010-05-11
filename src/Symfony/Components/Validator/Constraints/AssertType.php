@@ -2,17 +2,17 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
-class Max extends \Symfony\Components\Validator\Constraint
+class AssertType extends \Symfony\Components\Validator\Constraint
 {
-  public $message = 'Symfony.Validator.Max.message';
-  public $limit;
+  public $message = 'Symfony.Validator.AssertType.message';
+  public $type;
 
   /**
    * {@inheritDoc}
    */
   public function defaultOption()
   {
-    return 'limit';
+    return 'type';
   }
 
   /**
@@ -20,6 +20,6 @@ class Max extends \Symfony\Components\Validator\Constraint
    */
   public function requiredOptions()
   {
-    return array('limit');
+    return array('type');
   }
 }
