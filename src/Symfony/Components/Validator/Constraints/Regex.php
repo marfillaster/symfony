@@ -2,17 +2,18 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
-class Min extends \Symfony\Components\Validator\Constraint
+class Regex extends \Symfony\Components\Validator\Constraint
 {
-  public $message = 'Symfony.Validator.Min.message';
-  public $limit;
+  public $message = 'Symfony.Validator.Regex.message';
+  public $pattern;
+  public $match = true;
 
   /**
    * {@inheritDoc}
    */
   public function defaultAttribute()
   {
-    return 'limit';
+    return 'pattern';
   }
 
   /**
@@ -20,6 +21,6 @@ class Min extends \Symfony\Components\Validator\Constraint
    */
   public function requiredAttributes()
   {
-    return array('limit');
+    return array('pattern');
   }
 }

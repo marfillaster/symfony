@@ -2,9 +2,9 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
-class Min extends \Symfony\Components\Validator\Constraint
+class Max extends \Symfony\Components\Validator\Constraint
 {
-  public $message = 'Symfony.Validator.Min.message';
+  public $message = 'Symfony.Validator.Max.message';
   public $limit;
 
   /**

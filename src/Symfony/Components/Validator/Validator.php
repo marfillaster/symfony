@@ -5,7 +5,7 @@ namespace Symfony\Components\Validator;
 use Symfony\Components\Validator\ValidatorInterface;
 use Symfony\Components\Validator\ClassMetadataFactoryInterface;
 use Symfony\Components\Validator\ConstraintValidatorFactoryInterface;
-use Symfony\Components\Validator\Constraints\Constraint;
+use Symfony\Components\Validator\Constraint;
 use Symfony\Components\Validator\Mapping\ElementMetadata;
 use Symfony\Components\Validator\Mapping\ClassMetadata;
 use Symfony\Components\Validator\Exception\GroupDefinitionException;

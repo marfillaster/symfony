@@ -2,6 +2,9 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
+use Symfony\Components\Validator\Constraint;
+use Symfony\Components\Validator\ConstraintValidator;
+
 /*
  * This file is part of the symfony package.
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>

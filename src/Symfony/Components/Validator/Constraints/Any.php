@@ -2,8 +2,8 @@
 
 namespace Symfony\Components\Validator\Constraints;
 
-class Any extends Constraint
+class Any extends \Symfony\Components\Validator\Constraint
 {
   public $constraints = array();
-  public $message = 'The value must be traversable';
+  public $message = 'Symfony.Validator.Any.message';
 }

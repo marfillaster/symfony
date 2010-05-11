@@ -3,7 +3,7 @@
 namespace Symfony\Components\Validator\Mapping;
 
 use \ReflectionClass;
-use Symfony\Components\Validator\Constraints\Constraint;
+use Symfony\Components\Validator\Constraint;
 
 class ElementMetadata
 {
