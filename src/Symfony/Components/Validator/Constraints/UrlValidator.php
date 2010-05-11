@@ -4,6 +4,7 @@ namespace Symfony\Components\Validator\Constraints;
 
 use Symfony\Components\Validator\Constraint;
 use Symfony\Components\Validator\ConstraintValidator;
+use Symfony\Components\Validator\Exception\UnexpectedTypeException;
 
 class UrlValidator extends ConstraintValidator
 {
@@ -24,6 +25,13 @@ class UrlValidator extends ConstraintValidator
     {
       return true;
     }
+
+    if (!is_scalar($value) && !(is_object($value) && method_exists($value, '__toString()')))
+    {
+      throw new UnexpectedTypeException($value, 'string');
+    }
+
+    $value = (string)$value;
 
     $pattern = sprintf(self::PATTERN, implode('|', $constraint->protocols));
 

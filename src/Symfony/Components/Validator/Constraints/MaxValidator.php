@@ -4,6 +4,7 @@ namespace Symfony\Components\Validator\Constraints;
 
 use Symfony\Components\Validator\Constraint;
 use Symfony\Components\Validator\ConstraintValidator;
+use Symfony\Components\Validator\Exception\UnexpectedTypeException;
 
 class MaxValidator extends ConstraintValidator
 {
@@ -12,6 +13,11 @@ class MaxValidator extends ConstraintValidator
     if ($value === null)
     {
       return true;
+    }
+
+    if (!is_numeric($value))
+    {
+      throw new UnexpectedTypeException($value, 'numeric');
     }
 
     if ($value > $constraint->limit)

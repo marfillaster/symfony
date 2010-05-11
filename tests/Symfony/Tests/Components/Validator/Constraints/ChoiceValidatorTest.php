@@ -30,6 +30,18 @@ class ChoiceValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator->initialize($context);
   }
 
+  public function testExpectArrayIfMultipleIsTrue()
+  {
+    $constraint = new Choice(array(
+      'choices' => array('foo', 'bar'),
+      'multiple' => true,
+    ));
+
+    $this->setExpectedException('Symfony\Components\Validator\Exception\UnexpectedTypeException');
+
+    $this->validator->isValid('asdf', $constraint);
+  }
+
   public function testNullIsValid()
   {
     $this->assertTrue($this->validator->isValid(null, new Choice(array('choices' => array('foo', 'bar')))));

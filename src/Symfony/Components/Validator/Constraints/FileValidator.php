@@ -5,6 +5,7 @@ namespace Symfony\Components\Validator\Constraints;
 use Symfony\Components\Validator\Constraint;
 use Symfony\Components\Validator\ConstraintValidator;
 use Symfony\Components\Validator\Exception\ConstraintDefinitionException;
+use Symfony\Components\Validator\Exception\UnexpectedTypeException;
 use Symfony\Components\File\File;
 
 class FileValidator extends ConstraintValidator
@@ -16,7 +17,12 @@ class FileValidator extends ConstraintValidator
       return true;
     }
 
-    $path = $value instanceof File ? $value->getPath() : $value;
+    if (!is_scalar($value) && !$value instanceof File && !(is_object($value) && method_exists($value, '__toString()')))
+    {
+      throw new UnexpectedTypeException($value, 'string');
+    }
+
+    $path = $value instanceof File ? $value->getPath() : (string)$value;
 
     if (!file_exists($path))
     {

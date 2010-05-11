@@ -21,6 +21,13 @@ class EmailValidatorTest extends \PHPUnit_Framework_TestCase
     $this->assertTrue($this->validator->isValid(null, new Email()));
   }
 
+  public function testExpectsStringCompatibleType()
+  {
+    $this->setExpectedException('Symfony\Components\Validator\Exception\UnexpectedTypeException');
+
+    $this->validator->isValid(new \stdClass(), new Email());
+  }
+
   /**
    * @dataProvider getValidEmails
    */

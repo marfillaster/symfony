@@ -5,6 +5,7 @@ namespace Symfony\Components\Validator\Constraints;
 use Symfony\Components\Validator\Constraint;
 use Symfony\Components\Validator\ConstraintValidator;
 use Symfony\Components\Validator\Exception\ConstraintDefinitionException;
+use Symfony\Components\Validator\Exception\UnexpectedTypeException;
 
 /*
  * This file is part of the symfony package.
@@ -33,6 +34,11 @@ class ChoiceValidator extends ConstraintValidator
     if ($value === null)
     {
       return true;
+    }
+
+    if ($constraint->multiple && !is_array($value))
+    {
+      throw new UnexpectedTypeException($value, 'array');
     }
 
     if ($constraint->callback)
