@@ -10,8 +10,6 @@ use Symfony\Components\Form\Exception\PropertyAccessDeniedException;
 use Symfony\Components\Form\Renderer\RendererInterface;
 use Symfony\Components\Form\Renderer\ListRenderer;
 
-use Symfony\Components\Validator\ValidatorInterface;
-
 use Symfony\Components\I18N\Localizable;
 use Symfony\Components\I18N\Translatable;
 use Symfony\Components\I18N\TranslatorInterface;

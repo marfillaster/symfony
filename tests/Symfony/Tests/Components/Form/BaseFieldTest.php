@@ -129,6 +129,30 @@ class BaseFieldTest extends \PHPUnit_Framework_TestCase
     $field->render();
   }
 
+  public function testRenderErrorsForwardsToRenderer()
+  {
+    $renderer = $this->createMockRenderer();
+    $renderer->expects($this->once())
+             ->method('renderErrors')
+             ->with($this->equalTo($this->field))
+             ->will($this->returnValue('HTML'));
+
+    $this->field->setRenderer($renderer);
+
+    // test
+    $output = $this->field->renderErrors();
+
+    $this->assertEquals('HTML', $output);
+  }
+
+  public function testRenderErrorsThrowsExceptionIfNoRendererIsSet()
+  {
+    $field = $this->createMockBaseField('name');
+
+    $this->setExpectedException('Symfony\Components\Form\Exception\InvalidConfigurationException');
+    $field->renderErrors();
+  }
+
   public function testLocaleIsPassedToLocalizableRenderer()
   {
     $renderer = $this->getMock(__NAMESPACE__ . '\Fixtures\LocalizableRenderer');

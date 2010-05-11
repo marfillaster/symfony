@@ -354,6 +354,23 @@ abstract class BaseField implements FieldInterface, Localizable, Translatable
   }
 
   /**
+   * Delegates the rendering of the field to the renderer set.
+   *
+   * @return string The rendered widget
+   */
+  public function renderErrors()
+  {
+    if (is_null($this->renderer))
+    {
+      throw new InvalidConfigurationException('A renderer must be set before rendering a field');
+    }
+
+    $this->injectLocaleAndTranslator($this->renderer);
+
+    return $this->renderer->renderErrors($this);
+  }
+
+  /**
    * Returns weather there are errors.
    *
    * @return boolean  true if form is bound and not valid

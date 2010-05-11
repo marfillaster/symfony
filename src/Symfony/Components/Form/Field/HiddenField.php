@@ -2,8 +2,7 @@
 
 namespace Symfony\Components\Form\Field;
 
-use Symfony\Components\Form\Field;
-use Symfony\Components\Form\Renderer\InputTextRenderer;
+use Symfony\Components\Form\Renderer\InputHiddenRenderer;
 
 /*
  * This file is part of the symfony package.
@@ -14,23 +13,17 @@ use Symfony\Components\Form\Renderer\InputTextRenderer;
  */
 
 /**
- * A text input field.
+ * A hidden field
  *
  * @author Bernhard Schussek <bernhard.schussek@symfony-project.com>
  */
-class TextField extends Field
+class HiddenField extends Field
 {
   /**
    * {@inheritDoc}
    */
   protected function configure()
   {
-    parent::configure();
-
-    $this->addOption('max_length');
-
-    $this->setRenderer(new InputTextRenderer(array(
-      'max_length' => $this->getOption('max_length'),
-    )));
+    $this->setRenderer(new InputHiddenRenderer());
   }
 }

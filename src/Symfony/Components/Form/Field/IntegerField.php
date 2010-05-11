@@ -2,9 +2,6 @@
 
 namespace Symfony\Components\Form\Field;
 
-use Symfony\Components\Form\Field;
-use Symfony\Components\Form\Renderer\InputTextRenderer;
-
 /*
  * This file is part of the symfony package.
  * (c) Fabien Potencier <fabien.potencier@symfony-project.com>
@@ -14,23 +11,19 @@ use Symfony\Components\Form\Renderer\InputTextRenderer;
  */
 
 /**
- * A text input field.
+ * A localized field for entering integers.
  *
  * @author Bernhard Schussek <bernhard.schussek@symfony-project.com>
  */
-class TextField extends Field
+class IntegerField extends NumberField
 {
   /**
    * {@inheritDoc}
    */
   protected function configure()
   {
+    $this->addOption('precision', 0);
+
     parent::configure();
-
-    $this->addOption('max_length');
-
-    $this->setRenderer(new InputTextRenderer(array(
-      'max_length' => $this->getOption('max_length'),
-    )));
   }
 }

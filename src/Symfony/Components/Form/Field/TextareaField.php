@@ -3,7 +3,7 @@
 namespace Symfony\Components\Form\Field;
 
 use Symfony\Components\Form\Field;
-use Symfony\Components\Form\Renderer\InputTextRenderer;
+use Symfony\Components\Form\Renderer\TextareaRenderer;
 
 /*
  * This file is part of the symfony package.
@@ -14,23 +14,17 @@ use Symfony\Components\Form\Renderer\InputTextRenderer;
  */
 
 /**
- * A text input field.
+ * A textarea field
  *
  * @author Bernhard Schussek <bernhard.schussek@symfony-project.com>
  */
-class TextField extends Field
+class TextareaField extends Field
 {
   /**
    * {@inheritDoc}
    */
   protected function configure()
   {
-    parent::configure();
-
-    $this->addOption('max_length');
-
-    $this->setRenderer(new InputTextRenderer(array(
-      'max_length' => $this->getOption('max_length'),
-    )));
+    $this->setRenderer(new TextareaRenderer());
   }
 }

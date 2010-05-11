@@ -2,8 +2,7 @@
 
 namespace Symfony\Components\Form\Field;
 
-use Symfony\Components\Form\Field;
-use Symfony\Components\Form\Renderer\InputTextRenderer;
+use Symfony\Components\Form\Renderer\InputPasswordRenderer;
 
 /*
  * This file is part of the symfony package.
@@ -14,11 +13,11 @@ use Symfony\Components\Form\Renderer\InputTextRenderer;
  */
 
 /**
- * A text input field.
+ * A field for entering a password.
  *
  * @author Bernhard Schussek <bernhard.schussek@symfony-project.com>
  */
-class TextField extends Field
+class PasswordField extends TextField
 {
   /**
    * {@inheritDoc}
@@ -27,10 +26,10 @@ class TextField extends Field
   {
     parent::configure();
 
-    $this->addOption('max_length');
+    $this->addOption('always_empty', true);
 
-    $this->setRenderer(new InputTextRenderer(array(
-      'max_length' => $this->getOption('max_length'),
+    $this->setRenderer(new InputPasswordRenderer(array(
+      'always_empty' => $this->getOption('always_empty'),
     )));
   }
 }

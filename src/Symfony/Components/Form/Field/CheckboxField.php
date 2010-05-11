@@ -2,9 +2,9 @@
 
 namespace Symfony\Components\Form\Field;
 
-use Symfony\Components\Form\FormField;
+use Symfony\Components\Form\Field;
 use Symfony\Components\Form\Renderer\InputCheckboxRenderer;
-use Symfony\Components\Form\ValueTransformer\BooleanValueTransformer;
+use Symfony\Components\Form\ValueTransformer\BooleanToStringTransformer;
 
 /*
  * This file is part of the symfony package.
@@ -17,29 +17,23 @@ use Symfony\Components\Form\ValueTransformer\BooleanValueTransformer;
 /**
  * A checkbox field for selecting boolean values.
  *
- * @package    symfony
- * @subpackage form/field
+ * @author Bernhard Schussek <bernhard.schussek@symfony-project.com>
  */
-class CheckboxField extends FormField
+class CheckboxField extends Field
 {
   /**
-   * Configures the field.
-   *
-   * Available options:
-   *
-   *  * value: see InputCheckboxRenderer
-   *
-   * @param array $options Options for this field
+   * {@inheritDoc}
    */
-  protected function configure(array $options = array())
+  protected function configure()
   {
-    $this->setDefault(false);
-    $this->setRenderer(new InputCheckboxRenderer());
-    $this->setValueTransformer(new BooleanValueTransformer());
+    $rendererOptions = array();
 
     if (isset($options['value']))
     {
-      $this->getRenderer()->setOption('value', $options['value']);
+      $rendererOptions['value'] = $options['value'];
     }
+
+    $this->setRenderer(new InputCheckboxRenderer($rendererOptions));
+    $this->setValueTransformer(new BooleanToStringTransformer());
   }
 }

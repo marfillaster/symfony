@@ -226,6 +226,28 @@ abstract class BaseRenderer implements RendererInterface
   }
 
   /**
+   * {@inheritDoc}
+   */
+  public function renderErrors(FieldInterface $field)
+  {
+    $html = '';
+
+    if ($field->hasErrors())
+    {
+      $html .= "<ul>\n";
+
+      foreach ($field->getErrors() as $error)
+      {
+        $html .= "<li>" . $error . "</li>\n";
+      }
+
+      $html .= "</ul>\n";
+    }
+
+    return $html;
+  }
+
+  /**
    * Renders a HTML tag.
    *
    * @param string $tag         The tag name

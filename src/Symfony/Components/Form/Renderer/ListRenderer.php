@@ -30,6 +30,7 @@ class ListRenderer extends BaseRenderer
 
     foreach ($group as $field)
     {
+      $html .= $field->renderErrors()."\n";
       $html .= $field->render()."\n";
     }
 
