@@ -16,6 +16,11 @@ class MaxValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new MaxValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new Max(array('limit' => 10))));
+  }
+
   /**
    * @dataProvider getValidValues
    */

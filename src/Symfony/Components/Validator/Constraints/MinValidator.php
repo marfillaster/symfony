@@ -9,6 +9,11 @@ class MinValidator extends ConstraintValidator
 {
   public function isValid($value, Constraint $constraint)
   {
+    if ($value === null)
+    {
+      return true;
+    }
+
     if ($value < $constraint->limit)
     {
       $this->setMessage($constraint->message, array(

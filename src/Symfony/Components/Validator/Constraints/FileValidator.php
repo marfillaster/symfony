@@ -11,6 +11,11 @@ class FileValidator extends ConstraintValidator
 {
   public function isValid($value, Constraint $constraint)
   {
+    if ($value === null)
+    {
+      return true;
+    }
+
     $path = $value instanceof File ? $value->getPath() : $value;
 
     if (!file_exists($path))

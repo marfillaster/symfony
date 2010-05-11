@@ -25,6 +25,11 @@ class FileValidatorTest extends \PHPUnit_Framework_TestCase
     fclose($this->file);
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new File()));
+  }
+
   public function testValidFile()
   {
     $this->assertTrue($this->validator->isValid($this->path, new File()));

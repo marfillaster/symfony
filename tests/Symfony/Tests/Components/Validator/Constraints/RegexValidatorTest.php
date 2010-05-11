@@ -16,6 +16,11 @@ class RegexValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new RegexValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new Regex(array('pattern' => '/^[0-9]+$/'))));
+  }
+
   /**
    * @dataProvider getValidValues
    */

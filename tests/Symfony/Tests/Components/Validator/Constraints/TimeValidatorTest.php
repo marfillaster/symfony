@@ -16,6 +16,11 @@ class TimeValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new TimeValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new Time()));
+  }
+
   /**
    * @dataProvider getValidTimes
    */

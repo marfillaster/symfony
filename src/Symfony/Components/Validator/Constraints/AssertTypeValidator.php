@@ -9,6 +9,11 @@ class AssertTypeValidator extends ConstraintValidator
 {
   public function isValid($value, Constraint $constraint)
   {
+    if ($value === null)
+    {
+      return true;
+    }
+
     $type = $constraint->type == 'boolean' ? 'bool' : $constraint->type;
     $function = 'is_' . $type;
 

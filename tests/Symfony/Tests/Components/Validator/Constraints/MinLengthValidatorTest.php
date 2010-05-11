@@ -16,6 +16,11 @@ class MinLengthValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new MinLengthValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new MinLength(array('limit' => 6))));
+  }
+
   /**
    * @dataProvider getValidValues
    */

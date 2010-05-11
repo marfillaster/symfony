@@ -20,6 +20,11 @@ class UrlValidator extends ConstraintValidator
 
   public function isValid($value, Constraint $constraint)
   {
+    if ($value === null)
+    {
+      return true;
+    }
+
     $pattern = sprintf(self::PATTERN, implode('|', $constraint->protocols));
 
     if (!preg_match($pattern, $value))

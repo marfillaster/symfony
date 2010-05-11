@@ -9,6 +9,11 @@ class MaxLengthValidator extends ConstraintValidator
 {
   public function isValid($value, Constraint $constraint)
   {
+    if ($value === null)
+    {
+      return true;
+    }
+
     $length = function_exists('mb_strlen') ? mb_strlen($value, $constraint->charset) : strlen($value);
 
     if ($length > $constraint->limit)

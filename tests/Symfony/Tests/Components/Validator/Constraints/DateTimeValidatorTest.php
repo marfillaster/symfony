@@ -16,6 +16,11 @@ class DateTimeValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new DateTimeValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new DateTime()));
+  }
+
   /**
    * @dataProvider getValidDateTimes
    */

@@ -30,6 +30,11 @@ class ChoiceValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator->initialize($context);
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new Choice(array('choices' => array('foo', 'bar')))));
+  }
+
   public function testChoicesOrCallbackExpected()
   {
     $this->setExpectedException('Symfony\Components\Validator\Exception\ConstraintDefinitionException');

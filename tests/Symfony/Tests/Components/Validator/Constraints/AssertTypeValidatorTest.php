@@ -18,6 +18,11 @@ class AssertTypeValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new AssertTypeValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new AssertType(array('type' => 'integer'))));
+  }
+
   /**
    * @dataProvider getValidValues
    */

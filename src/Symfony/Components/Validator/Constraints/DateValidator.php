@@ -11,6 +11,11 @@ class DateValidator extends ConstraintValidator
 
   public function isValid($value, Constraint $constraint)
   {
+    if ($value === null)
+    {
+      return true;
+    }
+
     if (!preg_match(self::PATTERN, $value))
     {
       $this->setMessage($constraint->message, array('value' => $value));

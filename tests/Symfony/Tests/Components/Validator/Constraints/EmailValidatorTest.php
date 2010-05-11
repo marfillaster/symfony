@@ -16,6 +16,11 @@ class EmailValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new EmailValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new Email()));
+  }
+
   /**
    * @dataProvider getValidEmails
    */

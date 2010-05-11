@@ -30,6 +30,11 @@ class ChoiceValidator extends ConstraintValidator
       throw new ConstraintDefinitionException('Either "choices" or "callback" must be specified on constraint Choice');
     }
 
+    if ($value === null)
+    {
+      return true;
+    }
+
     if ($constraint->callback)
     {
       if (is_callable(array($this->context->getCurrentClass(), $constraint->callback)))

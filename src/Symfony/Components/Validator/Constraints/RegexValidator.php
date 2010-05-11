@@ -9,6 +9,11 @@ class RegexValidator extends ConstraintValidator
 {
   public function isValid($value, Constraint $constraint)
   {
+    if ($value === null)
+    {
+      return true;
+    }
+
     if (
       ($constraint->match && !preg_match($constraint->pattern, $value))
       ||
