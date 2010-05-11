@@ -9,7 +9,7 @@ Symfony\Tests\Components\Validator\Fixtures\Entity:
       
   properties:
     firstName:
-      # Constraint with attributes
+      # Constraint with options
       Choice: { choices: [A, B], message: Must be one of %choices% }
         
   getters:

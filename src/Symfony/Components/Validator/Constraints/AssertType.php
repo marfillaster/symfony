@@ -10,7 +10,7 @@ class AssertType extends \Symfony\Components\Validator\Constraint
   /**
    * {@inheritDoc}
    */
-  public function defaultAttribute()
+  public function defaultOption()
   {
     return 'type';
   }
@@ -18,7 +18,7 @@ class AssertType extends \Symfony\Components\Validator\Constraint
   /**
    * {@inheritDoc}
    */
-  public function requiredAttributes()
+  public function requiredOptions()
   {
     return array('type');
   }

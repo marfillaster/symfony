@@ -26,7 +26,7 @@ class ConstraintTest extends \PHPUnit_Framework_TestCase
 
   public function testSetNotExistingPropertyThrowsException()
   {
-    $this->setExpectedException('Symfony\Components\Validator\Exception\InvalidAttributesException');
+    $this->setExpectedException('Symfony\Components\Validator\Exception\InvalidOptionsException');
 
     new ConstraintA(array(
       'foo' => 'bar',
@@ -37,7 +37,7 @@ class ConstraintTest extends \PHPUnit_Framework_TestCase
   {
     $constraint = new ConstraintA();
 
-    $this->setExpectedException('Symfony\Components\Validator\Exception\InvalidAttributesException');
+    $this->setExpectedException('Symfony\Components\Validator\Exception\InvalidOptionsException');
 
     $constraint->foo = 'bar';
   }
@@ -56,9 +56,9 @@ class ConstraintTest extends \PHPUnit_Framework_TestCase
     new ConstraintB('foo');
   }
 
-  public function testRequiredAttributesMustBeDefined()
+  public function testRequiredOptionsMustBeDefined()
   {
-    $this->setExpectedException('Symfony\Components\Validator\Exception\MissingAttributesException');
+    $this->setExpectedException('Symfony\Components\Validator\Exception\MissingOptionsException');
 
     new ConstraintC();
   }

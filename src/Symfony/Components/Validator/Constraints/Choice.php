@@ -24,7 +24,7 @@ class Choice extends \Symfony\Components\Validator\Constraint
   /**
    * {@inheritDoc}
    */
-  public function defaultAttribute()
+  public function defaultOption()
   {
     return 'choices';
   }
