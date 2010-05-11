@@ -59,6 +59,7 @@ class DateValidatorTest extends \PHPUnit_Framework_TestCase
       array('foobar'),
       array('2010-13-01'),
       array('2010-04-32'),
+      array('2010-02-29'),
     );
   }
 

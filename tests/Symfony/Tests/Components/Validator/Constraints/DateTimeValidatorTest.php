@@ -62,6 +62,7 @@ class DateTimeValidatorTest extends \PHPUnit_Framework_TestCase
       array('2010-01-01 00:00'),
       array('2010-13-01 00:00:00'),
       array('2010-04-32 00:00:00'),
+      array('2010-02-29 00:00:00'),
       array('2010-01-01 24:00:00'),
       array('2010-01-01 00:60:00'),
       array('2010-01-01 00:00:60'),

@@ -8,7 +8,7 @@ use Symfony\Components\Validator\Exception\UnexpectedTypeException;
 
 class DateTimeValidator extends ConstraintValidator
 {
-  const PATTERN = '/^(\d{4})-((02-(0[1-9]|[12][0-9]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))) (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/';
+  const PATTERN = '/^(\d{4})-(\d{2})-(\d{2}) (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/';
 
   public function isValid($value, Constraint $constraint)
   {
@@ -24,13 +24,13 @@ class DateTimeValidator extends ConstraintValidator
 
     $value = (string)$value;
 
-    if (!preg_match(self::PATTERN, $value))
+    if (!preg_match(self::PATTERN, $value, $matches))
     {
       $this->setMessage($constraint->message, array('value' => $value));
 
       return false;
     }
 
-    return true;
+    return checkdate($matches[2], $matches[3], $matches[1]);
   }
 }
