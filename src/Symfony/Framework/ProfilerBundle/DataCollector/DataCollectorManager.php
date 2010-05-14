@@ -5,6 +5,7 @@ namespace Symfony\Framework\ProfilerBundle\DataCollector;
 use Symfony\Components\DependencyInjection\ContainerInterface;
 use Symfony\Components\EventDispatcher\Event;
 use Symfony\Components\HttpKernel\Response;
+use Symfony\Components\HttpKernel\HttpKernelInterface;
 use Symfony\Framework\ProfilerBundle\ProfilerStorage;
 use Symfony\Foundation\LoggerInterface;
 
@@ -49,26 +50,21 @@ class DataCollectorManager
 
     public function handle(Event $event, Response $response)
     {
-        if (!$event->getParameter('main_request'))
-        {
+        if (HttpKernelInterface::MASTER_REQUEST !== $event->getParameter('request_type')) {
             return $response;
         }
 
         $this->response = $response;
 
         $data = array();
-        foreach ($this->collectors as $name => $collector)
-        {
+        foreach ($this->collectors as $name => $collector) {
             $data[$name] = $collector->getData();
         }
 
-        try
-        {
+        try {
             $this->profilerStorage->write($data);
             $this->profilerStorage->purge($this->lifetime);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             $this->logger->err('Unable to store the profiler information.');
         }
 
@@ -96,17 +92,13 @@ class DataCollectorManager
         $ids = array();
         $coreCollectors = array();
         $userCollectors = array();
-        foreach ($config as $id => $attributes)
-        {
+        foreach ($config as $id => $attributes) {
             $collector = $this->container->getService($id);
             $collector->setCollectorManager($this);
 
-            if (isset($attributes[0]['core']) && $attributes[0]['core'])
-            {
+            if (isset($attributes[0]['core']) && $attributes[0]['core']) {
                 $coreCollectors[$collector->getName()] = $collector;
-            }
-            else
-            {
+            } else {
                 $userCollectors[$collector->getName()] = $collector;
             }
         }
