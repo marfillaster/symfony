@@ -9,6 +9,11 @@ class AssertTrueValidator extends ConstraintValidator
 {
   public function isValid($value, Constraint $constraint)
   {
+    if ($value === null)
+    {
+      return true;
+    }
+
     if (!$value)
     {
       $this->setMessage($constraint->message);

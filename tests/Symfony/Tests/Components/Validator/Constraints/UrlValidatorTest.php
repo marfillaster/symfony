@@ -16,6 +16,18 @@ class UrlValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new UrlValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new Url()));
+  }
+
+  public function testExpectsStringCompatibleType()
+  {
+    $this->setExpectedException('Symfony\Components\Validator\Exception\UnexpectedTypeException');
+
+    $this->validator->isValid(new \stdClass(), new Url());
+  }
+
   /**
    * @dataProvider getValidUrls
    */

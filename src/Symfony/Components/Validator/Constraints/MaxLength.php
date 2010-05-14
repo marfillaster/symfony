@@ -11,7 +11,7 @@ class MaxLength extends \Symfony\Components\Validator\Constraint
   /**
    * {@inheritDoc}
    */
-  public function defaultAttribute()
+  public function defaultOption()
   {
     return 'limit';
   }
@@ -19,7 +19,7 @@ class MaxLength extends \Symfony\Components\Validator\Constraint
   /**
    * {@inheritDoc}
    */
-  public function requiredAttributes()
+  public function requiredOptions()
   {
     return array('limit');
   }

@@ -23,15 +23,14 @@ class TextField extends Field
   /**
    * {@inheritDoc}
    */
-  protected function configure(array $options = array())
+  protected function configure()
   {
-    $rendererOptions = array();
+    parent::configure();
 
-    if (isset($options['max_length']))
-    {
-      $rendererOptions['max_length'] = $options['max_length'];
-    }
+    $this->addOption('max_length');
 
-    $this->setRenderer(new InputTextRenderer($rendererOptions));
+    $this->setRenderer(new InputTextRenderer(array(
+      'max_length' => $this->getOption('max_length'),
+    )));
   }
 }

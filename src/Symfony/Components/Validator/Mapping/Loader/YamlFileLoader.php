@@ -76,11 +76,11 @@ class YamlFileLoader extends FileLoader
   {
     $constraints = array();
 
-    foreach ($nodes as $name => $attributes)
+    foreach ($nodes as $name => $options)
     {
       $className = 'Symfony\\Components\\Validator\\Constraints\\'.$name;
 
-      $constraints[] = new $className($attributes);
+      $constraints[] = new $className($options);
     }
 
     return $constraints;

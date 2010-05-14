@@ -11,7 +11,7 @@ class Regex extends \Symfony\Components\Validator\Constraint
   /**
    * {@inheritDoc}
    */
-  public function defaultAttribute()
+  public function defaultOption()
   {
     return 'pattern';
   }
@@ -19,7 +19,7 @@ class Regex extends \Symfony\Components\Validator\Constraint
   /**
    * {@inheritDoc}
    */
-  public function requiredAttributes()
+  public function requiredOptions()
   {
     return array('pattern');
   }

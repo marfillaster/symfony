@@ -16,6 +16,11 @@ class AssertTrueValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new AssertTrueValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new AssertTrue()));
+  }
+
   public function testTrueIsValid()
   {
     $this->assertTrue($this->validator->isValid(true, new AssertTrue()));

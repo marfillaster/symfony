@@ -14,7 +14,7 @@ interface RendererInterface
   /**
    * Returns the textual representation of the given field.
    *
-   * @param  FieldInterface $field  The form field
+   * @param  FieldInterface $field      The form field
    * @param  array $attributes          The attributes to include in the
    *                                    rendered output
    * @return string                     The rendered output
@@ -22,6 +22,16 @@ interface RendererInterface
    *                                    expected class
    */
   public function render(FieldInterface $field, array $attributes = array());
+
+  /**
+   * Returns the textual representation of the errors of the given field.
+   *
+   * @param  FieldInterface $field      The form field
+   * @return string                     The rendered output
+   * @throws InvalidArgumentException   If the $field is not instance of the
+   *                                    expected class
+   */
+  public function renderErrors(FieldInterface $field);
 
   /**
    * Sets the charset used by the renderer.

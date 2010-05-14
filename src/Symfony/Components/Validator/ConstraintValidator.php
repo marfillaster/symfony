@@ -2,13 +2,18 @@
 
 namespace Symfony\Components\Validator;
 
-use Symfony\Components\Validator\Validators\Exception\UnknownOptionsException;
-use Symfony\Components\Validator\Validators\Exception\MissingOptionsException;
-
 abstract class ConstraintValidator implements ConstraintValidatorInterface
 {
-  private $messageTemplate = '';
-  private $messageParameters = array();
+  protected $context;
+  private $messageTemplate;
+  private $messageParameters;
+
+  public function initialize(ValidationContext $context)
+  {
+    $this->context = $context;
+    $this->messageTemplate = '';
+    $this->messageParameters = array();
+  }
 
   public function getMessageTemplate()
   {

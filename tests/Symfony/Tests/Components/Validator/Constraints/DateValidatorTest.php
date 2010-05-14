@@ -16,6 +16,18 @@ class DateValidatorTest extends \PHPUnit_Framework_TestCase
     $this->validator = new DateValidator();
   }
 
+  public function testNullIsValid()
+  {
+    $this->assertTrue($this->validator->isValid(null, new Date()));
+  }
+
+  public function testExpectsStringCompatibleType()
+  {
+    $this->setExpectedException('Symfony\Components\Validator\Exception\UnexpectedTypeException');
+
+    $this->validator->isValid(new \stdClass(), new Date());
+  }
+
   /**
    * @dataProvider getValidDates
    */
@@ -47,6 +59,7 @@ class DateValidatorTest extends \PHPUnit_Framework_TestCase
       array('foobar'),
       array('2010-13-01'),
       array('2010-04-32'),
+      array('2010-02-29'),
     );
   }
 

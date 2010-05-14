@@ -111,7 +111,7 @@ class Field extends BaseField
    */
   public function isMultipart()
   {
-//    return $this->renderer->needsMultipartForm();
+    return $this->getRenderer()->needsMultipartForm();
   }
 
   /**
@@ -157,7 +157,7 @@ class Field extends BaseField
    */
   public function isHidden()
   {
-//    return $this->renderer->isHidden();
+    return $this->getRenderer()->isHidden();
   }
 
   /**
@@ -178,30 +178,5 @@ class Field extends BaseField
   public function getValueTransformer()
   {
     return $this->valueTransformer;
-  }
-
-  /**
-   * Returns a formatted error list.
-   *
-   * The formatted list will use the parent widget schema formatter.
-   *
-   * @return string The formatted error list
-   */
-  public function renderError()
-  {
-//    if (null === $this->parent)
-//    {
-//      throw new \LogicException(sprintf('Unable to render the error for "%s".', $this->key));
-//    }
-//
-//    $error = $this->getWidget() instanceof WidgetSchema ? $this->getWidget()->getGlobalErrors($this->errorSchema) : $this->errorSchema;
-//
-//    // FIXME formatErrorsForRow() expects NULL when no error should be rendered
-//    if (count($error) == 0)
-//    {
-//      $error = null;
-//    }
-//
-//    return $this->getParentWidget()->getFormFormatter()->formatErrorsForRow($error);
   }
 }

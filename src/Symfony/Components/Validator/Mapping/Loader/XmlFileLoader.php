@@ -73,42 +73,42 @@ class XmlFileLoader extends FileLoader
     foreach ($nodes as $node)
     {
       $className = 'Symfony\\Components\\Validator\\Constraints\\'.$node['name'];
-      $attributes = null;
+      $options = null;
 
       if (count($node) > 0)
       {
-        $attributes = array();
+        $options = array();
 
         foreach ($node->value as $value)
         {
-          $attributes[] = trim($value);
+          $options[] = trim($value);
         }
 
-        foreach ($node->attribute as $attribute)
+        foreach ($node->option as $option)
         {
-          $attributeName = (string)$attribute['name'];
+          $optionName = (string)$option['name'];
 
-          if (count($attribute) > 0)
+          if (count($option) > 0)
           {
-            $attributes[$attributeName] = array();
+            $options[$optionName] = array();
 
-            foreach ($attribute->value as $value)
+            foreach ($option->value as $value)
             {
-              $attributes[$attributeName][] = trim($value);
+              $options[$optionName][] = trim($value);
             }
           }
           else
           {
-            $attributes[$attributeName] = trim($attribute);
+            $options[$optionName] = trim($option);
           }
         }
       }
       else if (strlen((string)$node) > 0)
       {
-        $attributes = trim($node);
+        $options = trim($node);
       }
 
-      $constraints[] = new $className($attributes);
+      $constraints[] = new $className($options);
     }
 
     return $constraints;
