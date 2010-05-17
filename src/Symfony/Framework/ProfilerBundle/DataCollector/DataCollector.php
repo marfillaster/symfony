@@ -41,6 +41,11 @@ abstract class DataCollector implements DataCollectorInterface
         return $this->data;
     }
 
+    public function setData($data)
+    {
+		$this->data = $data;
+    }
+
     abstract protected function collect();
 
     public function setCollectorManager(DataCollectorManager $manager)
