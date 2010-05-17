@@ -43,7 +43,7 @@ abstract class DataCollector implements DataCollectorInterface
 
     public function setData($data)
     {
-	    $this->data = $data;
+        $this->data = $data;
     }
 
     abstract protected function collect();
